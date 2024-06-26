@@ -7,7 +7,6 @@ used for text recognition and open-source LLM like Llama-2-chat-7b is used as th
 ## Table of Contents
 
 - [Installation](#installation)
-- [Usage](#usage)
 - [Features](#features)
 - [Contact](#contact)
 
@@ -15,14 +14,15 @@ used for text recognition and open-source LLM like Llama-2-chat-7b is used as th
 
 TBA
 
-## Usage
-
-TBA
-
 ## Features
 
-TBA
+- The major features stands out to be a fully fledged notes generation system.
+- Uses RAG to answer questions based on the notes generated.
+- The streamlit app can do text recognition separately.
+- It can compare the time and accuaracy between different SOTA offline OCR models with any given input image.
+
 
 ## Contact
 
-TBA
+- Renukasakshi V Patil (renukasakshivpatil.211ai030@nitk.edu.in)
+- Abhin B (abhinb.211ai003@nitk.edu.in)
