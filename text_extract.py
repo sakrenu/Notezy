@@ -13,3 +13,9 @@ def extract_text(image_path):
     end_time = time()
     extraction_time = round(end_time - start_time, 3)
     return extracted_text, extraction_time
+
+def extract_text_adv(image_path):
+    pass
+
+def extract_keywords(extracted_text):
+    pass
