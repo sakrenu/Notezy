@@ -56,7 +56,7 @@ def extract_keywords(extracted_text, client):
     """
     system_prompt = """
     You are an intelligent keyword-extraction model.
-    Extract the most important keywords (atmost 5) from the given text. These keywords will be used for generating detailed notes.
+    Extract the most important keywords from the given text. These keywords will be used for generating detailed notes.
     The extracted keywords must be returned as a python list of strings. For Example: ['Computer Science', 'Machine Learning', 'Deep learning']
     """
     response = client.chat.completions.create(
