@@ -4,11 +4,9 @@ import numpy as np
 from PIL import Image
 from time import time
 from notes_extraction import keyword_generation, construct_prompt, send_request_get_notes
+from notes_generation import initialize_client
 
-client = OpenAI(
-        api_key=api_key,
-        project='proj_XIILoALbD71OMccAU7bflg5A'
-    )
+client = initialize_client()
 
 def extract_text(image_path):
     start_time = time()
