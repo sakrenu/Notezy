@@ -2,7 +2,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 import streamlit as st
-from text_extract import extract_text, extract_keywords
+from text_extract import extract_text, extract_keywords, extract_text_adv
 from notes_generation import generate_notes, initialize_client
 from PIL import Image
 
@@ -70,6 +70,16 @@ def display_notes_generation(client):
             except Exception as e:
                 st.error(f"An error occurred: {str(e)}")
                 logging.error("An error occurred during text extraction or notes generation", exc_info=True)
+
+#this is for understanding purpose. TBC
+def extract_notes(image_path):
+    
+    notes, duration = extract_text_adv(image_path)
+    keywords_to_display= extract_keywords(notes)
+    pass
+    
+
+     #print and put it to st format
 
 if __name__ == "__main__":
     try:
