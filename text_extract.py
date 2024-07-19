@@ -42,9 +42,9 @@ def extract_text_adv(image_path):
     text_extracted, time_taken = send_request_get_text(headers, payload)
     return text_extracted, time_taken
 
-def keyword_generation(extracted_text, client):
+def extract_keywords(extracted_text, client):
     """
-    Generates keywords from the extracted text using the client API.
+    Extracts keywords from the extracted text using the client API.
     
     Args:
     extracted_text (str): The text from which to extract keywords.

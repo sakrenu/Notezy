@@ -2,7 +2,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 import streamlit as st
-from text_extract import extract_text, extract_keywords, 
+from text_extract import extract_text, extract_keywords, extract_text_adv
 from notes_generation import generate_notes, initialize_client
 from PIL import Image
 
@@ -38,12 +38,16 @@ def display_home():
         Notezy uses EasyOCR for text extraction.
     ''')
 
-def process_text_extraction(uploaded_file):
+def process_text_extraction(uploaded_file, mode='lite'):
     """
     Extracts text from the uploaded image and returns the result along with the extraction time.
+    The default text extraction mode is set to 'lite' as it is free of cost for experimentation.
     """
     try:
-        extracted_text, extraction_time = extract_text(uploaded_file)
+        if mode == 'lite':
+            extracted_text, extraction_time = extract_text(uploaded_file)
+        elif mode == 'adv':
+            extracted_text, extraction_time = extract_text_adv(uploaded_file)
         return extracted_text, extraction_time
     except Exception as e:
         raise RuntimeError(f"An error occurred during text extraction: {str(e)}")
@@ -82,7 +86,7 @@ def display_text_extraction_advanced():
     if uploaded_file is not None:
         if st.button('Recognize text with Advanced Features'):
             try:
-                extracted_text, extraction_time = process_text_extraction(uploaded_file)
+                extracted_text, extraction_time = process_text_extraction(uploaded_file, mode='adv')
                 st.write('Text Extracted:')
                 st.success(extracted_text)
                 st.write('\nTime for extraction: {}s'.format(extraction_time))
@@ -98,7 +102,7 @@ def display_notes_generation(client):
     if uploaded_file is not None:
         if st.button('Extract Text and Generate Notes'):
             try:
-                extracted_text, _ = process_text_extraction(uploaded_file)
+                extracted_text, _ = process_text_extraction(uploaded_file, mode='adv')
                 st.write('Text Extracted:')
                 st.success(extracted_text)
                 
