@@ -2,7 +2,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 import streamlit as st
-from text_extract import extract_text, extract_keywords
+from text_extract import extract_text, extract_keywords, 
 from notes_generation import generate_notes, initialize_client
 from PIL import Image
 
@@ -76,7 +76,7 @@ def display_text_extraction():
 
 def display_text_extraction_advanced():
     st.title("Text Extraction Advanced")
-    st.header('This is the advanced text extractor with more features and options.')
+    st.header('This is the advanced text extractor with improved accuracy and low latency based on GPT-4o.')
     
     uploaded_file = handle_uploaded_image()
     if uploaded_file is not None:
@@ -86,9 +86,6 @@ def display_text_extraction_advanced():
                 st.write('Text Extracted:')
                 st.success(extracted_text)
                 st.write('\nTime for extraction: {}s'.format(extraction_time))
-                
-                # Add any advanced features or analysis here
-                st.write('Advanced options or analysis can be added here.')
 
             except RuntimeError as e:
                 st.error(str(e))
