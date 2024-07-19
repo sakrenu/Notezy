@@ -21,7 +21,7 @@ def encode_image(image_path):
 
 def construct_prompt(image_path):
     """
-    Constructs the prompt and payload for the API request to extract text from an image of notes.
+    Constructs the prompt and payload for the API request to extract text from an image.
     
     Args:
     image_path (str): The file path of the image to process.
@@ -30,7 +30,7 @@ def construct_prompt(image_path):
     tuple: A tuple containing the headers and payload for the API request.
     """
     base64_image = encode_image(image_path)
-    prompt = """Your task is to extract all text from the provided image of notes. The notes can be handwritten or typed.
+    prompt = """Your task is to extract all text from the provided image. The image can be handwritten or typed.
                 Ensure all text is accurately captured, maintaining the original structure and organization as much as possible."""
     headers = {
         "Content-Type": "application/json",
@@ -59,16 +59,16 @@ def construct_prompt(image_path):
     }
     return headers, payload
 
-def send_request_get_notes(headers, payload):
+def send_request_get_text(headers, payload):
     """
-    Sends the API request to extract notes from the image and measures the time taken for the response.
+    Sends the API request to extract text from the image and measures the time taken for the response.
     
     Args:
     headers (dict): The headers for the API request.
     payload (dict): The payload for the API request.
 
     Returns:
-    tuple: A tuple containing the extracted notes as a string and the time taken for the API request.
+    tuple: A tuple containing the extracted text as a string and the time taken for the API request.
     """
     start = time.time()
     response = requests.post("https://api.openai.com/v1/chat/completions", headers=headers, json=payload)
@@ -76,5 +76,5 @@ def send_request_get_notes(headers, payload):
     time_taken = end - start
     response_json = response.json()
     if 'choices' in response_json and len(response_json['choices']) > 0:
-        extracted_notes = response_json['choices'][0]['message']['content']
-    return extracted_notes, time_taken
+        extracted_text = response_json['choices'][0]['message']['content']
+    return extracted_text, time_taken
