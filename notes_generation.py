@@ -15,26 +15,41 @@ def initialize_client():
     )
     return client
 
+def preprocess_keywords(keywords):
+    """
+    Convert a list of keywords into a comma-separated string.
+    """
+    keywords_string = ', '.join(keywords)
+    return keywords_string.strip(', ')
+
 def construct_messages(keywords_string):
     """
     Construct the list of messages for the chat API.
     """
-    system_message = '''You are an intelligent Note making bot.
-        Instructions to follow:
-            - If you are given with more than one keyword, choose the topic as the smallest subset among them. For example: Topic = Machine Learning. If keywords = 'Computer Science, Data Science, Machine Learning'.
-            - Give detailed notes on the chosen topic.
-            - Return a Title enclosed within *Title*, Heading within **Heading**, Sub-heading within ***Sub-heading***.
-            - There can be only one Title. There can be many Headings. A Sub-heading can come only after a relevant Heading.
-            - Certain important words to be made bold can be enclosed between #Bold-word#.
-        Given a keyword or keywords, you will generate notes with the following:
-            - Title.
-            - Pre-requisites to understand the notes.
-            - Introduction.
-            - Some simpler analogy (OPTIONAL: for a complex topic).
-            - Examples (OPTIONAL: if applicable).
-            - Relevant Formulas (OPTIONAL: if applicable).
-            - Some similar topics to go through.
-            - Summary'''
+    system_message = '''
+    Generate comprehensive notes based on the provided list of important keywords. Ensure that the notes include the following sections:
+
+    Title: Clearly state the main topic of the notes.
+    Pre-requisites: List concepts or knowledge required to understand the notes.
+    Introduction: Provide a brief overview of the topic.
+    Simpler Analogy (Optional): Offer a simplified analogy for complex topics.
+    Examples (Optional): Include examples to illustrate the topic.
+    Relevant Formulas (Optional): List any relevant formulas associated with the topic.
+    Similar Topics: Suggest related topics that are worth exploring.
+    Summary: Provide a concise summary of the notes, if applicable.
+
+    **If you do not have knowledge about any keyword/, explicitly state: "I don't have knowledge about this keyword" instead of generating information or fabricating details.**
+
+    Formatting Guidelines:
+    Title: Enclose the main topic within *Title*.
+    Headings: Enclose headings within **Heading**.
+    Sub-headings: Enclose sub-headings within ***Sub-heading***.
+    Important Words: Highlight important terms in bold and enclose them with #Bold-word#.
+    Title: There should be exactly one Title.
+    Headings: You may include multiple Headings.
+    Sub-headings: A Sub-heading should follow a relevant Heading.
+
+    Make sure to follow these guidelines for clarity and consistency in the notes.'''
     user_message = f"Can you help me write a note on {keywords_string}."
     return [
         {"role": "system", "content": system_message},
@@ -45,13 +60,10 @@ def generate_notes(keywords, client):
     """
     Generate notes based on the provided keywords.
     """  
-    messages = construct_messages(keywords)
+    keywords_string = preprocess_keywords(keywords)
+    messages = construct_messages(keywords_string)
     response = client.chat.completions.create(
         model="gpt-4",
         messages=messages
     )
-    if 'choices' in response and len(response.choices) > 0:
-        message_content = response.choices[0].message['content']
-        return message_content
-    else:
-        return None
+    return response.choices[0].message['content']
