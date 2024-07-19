@@ -15,13 +15,6 @@ def initialize_client():
     )
     return client
 
-def preprocess_keywords(keywords):
-    """
-    Convert a list of keywords into a comma-separated string.
-    """
-    keywords_string = ', '.join(keywords)
-    return keywords_string.strip(', ')
-
 def construct_messages(keywords_string):
     """
     Construct the list of messages for the chat API.
