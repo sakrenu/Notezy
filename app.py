@@ -8,27 +8,24 @@ from PIL import Image
 
 def main():
     st.set_page_config(page_title="Notezy", layout='wide', page_icon="📖")
-    client = initialize_client()
-    
-    st.title("Notezy")
-    st.header("Welcome to Notezy")
-
     # Main navigation
-    choice = st.radio('Select a page:', ['Home', 'Text Extraction', 'Notes Generation'])
+    choice = st.sidebar.radio('Select a page:', ['Home', 'Text Extraction', 'Notes Generation'])
 
     if choice == 'Home':
         display_home()
     elif choice == 'Text Extraction':
-        extraction_variant = st.radio('Choose text extraction variant:', ['Lite', 'Advanced'])
+        extraction_variant = st.sidebar.selectbox('Choose text extraction variant:', ['Lite', 'Advanced'])
         if extraction_variant == 'Lite':
             display_text_extraction()
         elif extraction_variant == 'Advanced':
             display_text_extraction_advanced()
     elif choice == 'Notes Generation':
+        client = initialize_client()
         display_notes_generation(client=client)
 
 def display_home():
     st.title('Notezy')
+    st.header("Welcome to Notezy")
     st.header('- A comprehensive note-taking companion')
     st.subheader('About')
     st.text('''
@@ -65,7 +62,8 @@ def handle_uploaded_image():
 
 def display_text_extraction():
     st.title("Text Extraction LITE")
-    st.header('This is a simple text extractor which is based on Easy OCR. Suitable for Typed text and single word Handwritten text.')
+    st.header('Uses Easy OCR.')
+    st.write('Suitable for simpler text extraction like typed text.')
     
     uploaded_file = handle_uploaded_image()
     if uploaded_file is not None:
@@ -80,9 +78,12 @@ def display_text_extraction():
 
 def display_text_extraction_advanced():
     st.title("Text Extraction Advanced")
-    st.header('This is the advanced text extractor with improved accuracy and low latency based on GPT-4o.')
+    st.header('Uses GPT-4o.')
+    st.write('Suitable for complex text extraction including multi-line, complex text structure and even Handwriting')
     
     uploaded_file = handle_uploaded_image()
+    print('\n\nUploaded file :', uploaded_file)
+    print('\n\nTYPE : ', type(uploaded_file))
     if uploaded_file is not None:
         if st.button('Recognize text with Advanced Features'):
             try:
