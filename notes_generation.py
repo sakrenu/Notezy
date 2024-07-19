@@ -45,10 +45,13 @@ def generate_notes(keywords, client):
     """
     Generate notes based on the provided keywords.
     """  
-    keywords_string = preprocess_keywords(keywords)
-    messages = construct_messages(keywords_string)
+    messages = construct_messages(keywords)
     response = client.chat.completions.create(
         model="gpt-4",
         messages=messages
     )
-    return response.choices[0].message['content']
+    if 'choices' in response and len(response.choices) > 0:
+        message_content = response.choices[0].message['content']
+        return message_content
+    else:
+        return None
