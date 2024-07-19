@@ -1,7 +1,14 @@
 import easyocr
+from openai import OpenAI
 import numpy as np
 from PIL import Image
 from time import time
+from notes_extraction import keyword_generation, construct_prompt, send_request_get_notes
+
+client = OpenAI(
+        api_key=api_key,
+        project='proj_XIILoALbD71OMccAU7bflg5A'
+    )
 
 def extract_text(image_path):
     start_time = time()
@@ -15,7 +22,11 @@ def extract_text(image_path):
     return extracted_text, extraction_time
 
 def extract_text_adv(image_path):
-    pass
+    headers, payload = construct_prompt(image_path)
+    return send_request_get_notes(headers, payload)
 
 def extract_keywords(extracted_text):
-    pass
+    list_of_keywords = keyword_generation(extracted_text , client)
+    return list_of_keywords
+
+  
