@@ -1,4 +1,5 @@
 import easyocr
+import ast
 import numpy as np
 from PIL import Image
 from time import time
@@ -54,16 +55,19 @@ def extract_keywords(extracted_text, client):
     str: The keywords extracted from the text.
     """
     system_prompt = """
-    Extract the most important keywords from the given text only. These keywords should be useful for generating detailed notes and should be returned in a list format.
+    You are an intelligent keyword-extraction model.
+    Extract the most important keywords (atmost 5) from the given text. These keywords will be used for generating detailed notes.
+    The extracted keywords must be returned as a python list of strings. For Example: ['Computer Science', 'Machine Learning', 'Deep learning']
     """
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
             {"role": "system", "content": system_prompt},
-            {"role": "user", "content": extracted_text}
+            {"role": "user", "content": f'Extract keywords from the text {extracted_text}'}
         ]
     )
     keywords = response.choices[0].message.content
-    return keywords
+    keywords_list = ast.literal_eval(keywords)
+    return keywords_list
 
   

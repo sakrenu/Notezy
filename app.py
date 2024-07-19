@@ -8,27 +8,24 @@ from PIL import Image
 
 def main():
     st.set_page_config(page_title="Notezy", layout='wide', page_icon="📖")
-    client = initialize_client()
-    
-    st.title("Notezy")
-    st.header("Welcome to Notezy")
-
     # Main navigation
-    choice = st.radio('Select a page:', ['Home', 'Text Extraction', 'Notes Generation'])
+    choice = st.sidebar.radio('Select a page:', ['Home', 'Text Extraction', 'Notes Generation'])
 
     if choice == 'Home':
         display_home()
     elif choice == 'Text Extraction':
-        extraction_variant = st.radio('Choose text extraction variant:', ['Lite', 'Advanced'])
+        extraction_variant = st.sidebar.selectbox('Choose text extraction variant:', ['Lite', 'Advanced'])
         if extraction_variant == 'Lite':
             display_text_extraction()
         elif extraction_variant == 'Advanced':
             display_text_extraction_advanced()
     elif choice == 'Notes Generation':
+        client = initialize_client()
         display_notes_generation(client=client)
 
 def display_home():
     st.title('Notezy')
+    st.header("Welcome to Notezy")
     st.header('- A comprehensive note-taking companion')
     st.subheader('About')
     st.text('''
@@ -39,24 +36,21 @@ def display_home():
     ''')
 
 def process_text_extraction(uploaded_file, mode='lite'):
-    """
-    Extracts text from the uploaded image and returns the result along with the extraction time.
-    The default text extraction mode is set to 'lite' as it is free of cost for experimentation.
-    """
+    extracted_text = ''
+    extraction_time = 0
     try:
         if mode == 'lite':
             extracted_text, extraction_time = extract_text(uploaded_file)
         elif mode == 'adv':
+            st.write('Advanced Processing...')
             extracted_text, extraction_time = extract_text_adv(uploaded_file)
-        return extracted_text, extraction_time
+            st.write('Advanced Extraction Complete!')
     except Exception as e:
         raise RuntimeError(f"An error occurred during text extraction: {str(e)}")
+    return extracted_text, extraction_time
     
-def handle_uploaded_image():
-    """
-    Handles the image uploading, displaying, and returns the file path.
-    """
-    uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
+def handle_uploaded_image(key):
+    uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"], key=key)
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
         st.image(image, caption='Uploaded Image')
@@ -65,9 +59,10 @@ def handle_uploaded_image():
 
 def display_text_extraction():
     st.title("Text Extraction LITE")
-    st.header('This is a simple text extractor which is based on Easy OCR. Suitable for Typed text and single word Handwritten text.')
+    st.header('Uses Easy OCR.')
+    st.write('Suitable for simpler text extraction like typed text.')
     
-    uploaded_file = handle_uploaded_image()
+    uploaded_file = handle_uploaded_image("text_extraction_lite")
     if uploaded_file is not None:
         if st.button('Recognize text'):
             try:
@@ -80,9 +75,10 @@ def display_text_extraction():
 
 def display_text_extraction_advanced():
     st.title("Text Extraction Advanced")
-    st.header('This is the advanced text extractor with improved accuracy and low latency based on GPT-4o.')
+    st.header('Uses GPT-4o.')
+    st.write('Suitable for complex text extraction including multi-line, complex text structure and even Handwriting')
     
-    uploaded_file = handle_uploaded_image()
+    uploaded_file = handle_uploaded_image("text_extraction_advanced")
     if uploaded_file is not None:
         if st.button('Recognize text with Advanced Features'):
             try:
@@ -90,23 +86,23 @@ def display_text_extraction_advanced():
                 st.write('Text Extracted:')
                 st.success(extracted_text)
                 st.write('\nTime for extraction: {}s'.format(extraction_time))
-
             except RuntimeError as e:
                 st.error(str(e))
 
 def display_notes_generation(client):
     st.title("Notes Generation")
     st.subheader('Generate comprehensive notes from text extracted from an image.')
-    
-    uploaded_file = handle_uploaded_image()
+
+    uploaded_file = handle_uploaded_image("notes_generation")
     if uploaded_file is not None:
         if st.button('Extract Text and Generate Notes'):
             try:
-                extracted_text, _ = process_text_extraction(uploaded_file, mode='adv')
+                extracted_text, _ = process_text_extraction(uploaded_file, mode='lite')
                 st.write('Text Extracted:')
                 st.success(extracted_text)
                 
-                keywords = extract_keywords(extracted_text)
+                keywords = extract_keywords(extracted_text, client)
+                st.write(keywords)
                 if keywords:
                     st.write('Keywords Extracted:', ', '.join(keywords))
                     notes = generate_notes(keywords, client)
