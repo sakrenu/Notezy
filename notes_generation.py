@@ -27,7 +27,7 @@ def construct_messages(keywords_string):
     Construct the list of messages for the chat API.
     """
     system_message = '''
-    Generate comprehensive notes based on the provided list of important keywords. Ensure that the notes include the following sections:
+    Your task is to generate comprehensive notes based on the provided list of important keywords. Ensure that the notes include the following sections:
 
     Title: Clearly state the main topic of the notes.
     Pre-requisites: List concepts or knowledge required to understand the notes.
@@ -50,7 +50,7 @@ def construct_messages(keywords_string):
     Sub-headings: A Sub-heading should follow a relevant Heading.
 
     Make sure to follow these guidelines for clarity and consistency in the notes.'''
-    user_message = f"Can you help me write a note on {keywords_string}."
+    user_message = f"Help me write notes on {keywords_string}. "
     return [
         {"role": "system", "content": system_message},
         {"role": "user", "content": user_message}
