@@ -90,7 +90,6 @@ def display_text_extraction_advanced():
             except RuntimeError as e:
                 st.error(str(e))
 
-
 def display_notes_generation(client):
     st.title("Notes Generation")
     st.subheader('Generate comprehensive notes from text extracted from an image.')
