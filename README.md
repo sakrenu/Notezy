@@ -94,6 +94,34 @@ This guide will walk you through setting up the `Notezy` project on your local m
     pip install -r requirements.txt
     ```
 
+### wkhtmltopdf Installation
+
+**Windows**:
+
+Download the installer from [wkhtmltopdf.org](https://wkhtmltopdf.org/downloads.html) and run the installer.
+
+**Mac**:
+
+Use Homebrew to install `wkhtmltopdf`.
+
+```bash
+brew install wkhtmltopdf
+```
+
+**Linux**:
+
+On Debian-based systems (e.g., Ubuntu), use:
+
+```bash
+sudo apt-get install wkhtmltopdf
+```
+
+On Red Hat-based systems (e.g., CentOS, Fedora), use:
+
+```bash
+sudo yum install wkhtmltopdf
+```
+
 ### Run the Project
 
 8. **Run the Project**:
