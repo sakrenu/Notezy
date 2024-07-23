@@ -3,6 +3,7 @@ logging.basicConfig(level=logging.DEBUG)
 
 import streamlit as st
 from text_extract import extract_text, extract_keywords, extract_text_adv
+from text_to_pdf import parse_and_create_pdf, generate_pdf
 from notes_generation import generate_notes, initialize_client
 from PIL import Image
 
@@ -108,6 +109,17 @@ def display_notes_generation(client):
                     notes = generate_notes(keywords, client)
                     st.write('Generated Notes:')
                     st.write(notes)
+
+                    # Generate PDF and provide download button
+                    if notes:
+                        output_filename = parse_and_create_pdf(notes)
+                        with open(output_filename, "rb") as file:
+                            btn = st.download_button(
+                                label="Download PDF",
+                                data=file,
+                                file_name=output_filename,
+                                mime="application/pdf"
+                            )
                 else:
                     st.error("No keywords extracted; cannot generate notes.")
             except RuntimeError as e:
