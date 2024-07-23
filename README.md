@@ -1,27 +1,37 @@
 # Notezy
 
-Notezy is an innovative project which aims at helping student make organized notes. It makes use of lightweight OCR model to extract simple text from pdf or classroom PPTs. It has an advanced text extraction model based on GPT-4o which works seemlessly for even Handwritten text.
-The extracted text is further sent to a Large-Language-Model for structured Notes generation. 
-- Initially we worked on Open-source LLMs including Llama-2-7b, Mistral-7b, Gemma-7b and Llama-3-8b. The performance with Llama-3-8b was good with Few-shot-prompting but hosting it would not be feasible as it requires GPU with high enough VRAM.
-- Then we switched to make it a product based on OpenAI GPT models. The notes generation works best with GPT-4 with Zero shot prompting.
-- The project is still in development phase, so buckle up and wait for new releases!
+Notezy is an innovative project which aims at helping students make organized notes. It makes use of a lightweight OCR model to extract simple text from PDFs or classroom PPTs. It has an advanced text extraction model based on GPT-4o which works seamlessly for even handwritten text. The extracted text is further sent to a Large-Language-Model for structured notes generation.
+
+- Initially, we worked on open-source LLMs including Llama-2-7b, Mistral-7b, Gemma-7b, and Llama-3-8b. The performance with Llama-3-8b was good with few-shot-prompting, but hosting it would not be feasible as it requires a GPU with high enough VRAM.
+- Then we switched to make it a product based on OpenAI GPT models. The notes generation works best with GPT-4 with zero-shot prompting.
+- The project is still in the development phase, so buckle up and wait for new releases!
 
 ## Table of Contents
 
+- [Pre-requisites](#pre-requisites)
 - [Installation](#installation)
 - [Features](#features)
 - [Contact](#contact)
 
+## Pre-requisites
+
+- **Python 3.12**: Ensure you have Python 3.12 installed on your system.
+    - [Python download link](https://www.python.org/downloads/release/python-3120/)
+- **Conda**: You will need Conda to manage the project environments.
+    - [Conda download link](https://docs.anaconda.com/anaconda/install/)
+- **OpenAI API Key**: You need to set up your OpenAI API key.
+    - **Windows**:
+        ```bash
+        set OPENAI_API_KEY=your_openai_api_key
+        ```
+    - **Linux/Mac**:
+        ```bash
+        export OPENAI_API_KEY=your_openai_api_key
+        ```
+
 ## Installation
 
 This guide will walk you through setting up the `Notezy` project on your local machine.
-
-### Prerequisites
-
-- **Python 3.12**: Ensure you have Python 3.12 installed on your system.
-    - Python download link : [text](https://www.python.org/downloads/release/python-3120/)
-- **Conda**: You will need Conda to manage the project environments.
-    - Conda download link : [text](https://docs.anaconda.com/anaconda/install/)
 
 ### Environment Setup
 
@@ -70,13 +80,26 @@ This guide will walk you through setting up the `Notezy` project on your local m
     git clone https://github.com/sakrenu/Notezy.git
     ```
 
-### Run the Project
-
-6. **Run the Project**:
-    Navigate to the project directory and run the application using Streamlit.
+6. **Navigate to the Project Directory**:
+    Navigate to the project directory.
 
     ```bash
     cd Notezy
+    ```
+
+7. **Install Required Packages**:
+    Install the required packages using the `requirements.txt` file.
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
+### Run the Project
+
+8. **Run the Project**:
+    Run the application using Streamlit.
+
+    ```bash
     streamlit run app.py
     ```
 
@@ -84,11 +107,10 @@ This setup should get the `Notezy` project up and running on your local machine.
 
 ## Features
 
-- The major features stands out to be a fully fledged notes generation system.
+- The major feature stands out to be a fully-fledged notes generation system.
 - Uses RAG to answer questions based on the notes generated.
-- The streamlit app can do text recognition separately.
-- It can compare the time and accuaracy between different SOTA offline OCR models with any given input image.
-
+- The Streamlit app can do text recognition separately.
+- It can compare the time and accuracy between different SOTA offline OCR models with any given input image.
 
 ## Contact
 
