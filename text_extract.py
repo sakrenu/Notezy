@@ -1,6 +1,7 @@
 import easyocr
 import ast
 import numpy as np
+import os
 from PIL import Image
 from time import time
 from advanced_extraction import construct_prompt, send_request_get_text
@@ -29,18 +30,21 @@ def extract_text(image_path):
     extraction_time = round(end_time - start_time, 3)
     return extracted_text, extraction_time
 
-def extract_text_adv(image_path):
+def extract_text_adv(image_name):
     """
     Extracts text from an image using an advanced model from OpenAI (GPT-4o-mini)
     
     Args:
-    image_path (str): The path to the image file from which text is to be extracted.
+    image_path (str): The name of the image file from which text is to be extracted.
 
     Returns:
     tuple: A tuple containing the extracted text as a string and the time taken for the API request.
     """
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    image_path = os.path.join(base_dir, 'store_image', image_name)
     headers, payload = construct_prompt(image_path)
     text_extracted, time_taken = send_request_get_text(headers, payload)
+    print('\ntext extracted: ', text_extracted)
     return text_extracted, time_taken
 
 def extract_keywords(extracted_text, client):
@@ -69,5 +73,3 @@ def extract_keywords(extracted_text, client):
     keywords = response.choices[0].message.content
     keywords_list = ast.literal_eval(keywords)
     return keywords_list
-
-  
