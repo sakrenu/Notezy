@@ -1,14 +1,15 @@
 import logging
-import streamlit as st
-from text_extract import extract_text, extract_keywords, extract_text_adv, save_uploaded_file
-from notes_generation import initialize_client, generate_notes
-from PIL import Image
-
 logging.basicConfig(level=logging.DEBUG)
-client = initialize_client()
+
+import streamlit as st
+import os
+from text_extract import extract_text, extract_keywords, extract_text_adv
+from notes_generation import generate_notes, initialize_client
+from PIL import Image
 
 def main():
     st.set_page_config(page_title="Notezy", layout='wide', page_icon="📖")
+    # Main navigation
     choice = st.sidebar.radio('Select a page:', ['Home', 'Text Extraction', 'Notes Generation'])
 
     if choice == 'Home':
@@ -36,24 +37,28 @@ def display_home():
     ''')
 
 def process_text_extraction(uploaded_file, mode='lite'):
+    extracted_text = ''
+    extraction_time = 0
     try:
-        tmp_file_path = save_uploaded_file(uploaded_file)
         if mode == 'lite':
             extracted_text, extraction_time = extract_text(uploaded_file)
         elif mode == 'adv':
-            extracted_text, extraction_time = extract_text_adv(tmp_file_path)
-            logging.debug(f"Extracted text: {extracted_text}")
+            st.write('Advanced Processing...')
+            extracted_text, extraction_time = extract_text_adv(uploaded_file.name)
             st.write('Advanced Extraction Complete!')
-        return extracted_text, extraction_time
     except Exception as e:
-        st.error(f"An error occurred during text extraction: {str(e)}")
-        logging.error(f"An error occurred during text extraction: {str(e)}", exc_info=True)
-        return None, None
-
+        raise RuntimeError(f"An error occurred during text extraction: {str(e)}")
+    return extracted_text, extraction_time
+    
 def handle_uploaded_image(key):
+    folder_path = 'store_image'
+    os.makedirs(folder_path, exist_ok=True)
+
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"], key=key)
-    #uploaded_url = st.text_input("Enter the URL of an image")
     if uploaded_file is not None:
+        file_path = os.path.join(folder_path, uploaded_file.name)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getvalue())
         image = Image.open(uploaded_file)
         st.image(image, caption='Uploaded Image')
         return uploaded_file
@@ -69,10 +74,9 @@ def display_text_extraction():
         if st.button('Recognize text'):
             try:
                 extracted_text, extraction_time = process_text_extraction(uploaded_file)
-                if extracted_text:
-                    st.write('Text Extracted:')
-                    st.success(extracted_text)
-                    st.write('\nTime for extraction: {}s'.format(extraction_time))
+                st.write('Text Extracted:')
+                st.success(extracted_text)
+                st.write('\nTime for extraction: {}s'.format(extraction_time))
             except RuntimeError as e:
                 st.error(str(e))
 
@@ -86,10 +90,9 @@ def display_text_extraction_advanced():
         if st.button('Recognize text with Advanced Features'):
             try:
                 extracted_text, extraction_time = process_text_extraction(uploaded_file, mode='adv')
-                if extracted_text:
-                    st.write('Text Extracted:')
-                    st.success(extracted_text)
-                    st.write('\nTime for extraction: {}s'.format(extraction_time))
+                st.write('Text Extracted:')
+                st.success(extracted_text)
+                st.write('\nTime for extraction: {}s'.format(round(extraction_time, 3)))
             except RuntimeError as e:
                 st.error(str(e))
 
@@ -101,8 +104,7 @@ def display_notes_generation(client):
     if uploaded_file is not None:
         if st.button('Extract Text and Generate Notes'):
             try:
-                tmp_file_path = save_uploaded_file(uploaded_file)
-                extracted_text, _ = extract_text(tmp_file_path)
+                extracted_text, _ = process_text_extraction(uploaded_file, mode='adv')
                 st.write('Text Extracted:')
                 st.success(extracted_text)
                 
