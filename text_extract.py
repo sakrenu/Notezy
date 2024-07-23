@@ -30,7 +30,7 @@ def extract_text(image_path):
     extraction_time = round(end_time - start_time, 3)
     return extracted_text, extraction_time
 
-def extract_text_adv(image_name):
+def extract_text_adv():
     """
     Extracts text from an image using an advanced model from OpenAI (GPT-4o-mini)
     
@@ -41,7 +41,7 @@ def extract_text_adv(image_name):
     tuple: A tuple containing the extracted text as a string and the time taken for the API request.
     """
     base_dir = os.path.dirname(os.path.abspath(__file__))
-    image_path = os.path.join(base_dir, 'store_image', image_name)
+    image_path = os.path.join(base_dir, 'store_image', 'notezy.jpeg')
     headers, payload = construct_prompt(image_path)
     text_extracted, time_taken = send_request_get_text(headers, payload)
     print('\ntext extracted: ', text_extracted)
