@@ -1,5 +1,6 @@
 import os
 from openai import OpenAI
+from pprint import pp
 
 def initialize_client():
     """
@@ -50,6 +51,11 @@ def generate_notes(keywords, client):
         model="gpt-4",
         messages=messages
     )
+    print('\nResponse\n')
+    pp(response)
+    print('\nChoices\n')
+    pp(response.choices)
+    print('\nEnd\n')
     if 'choices' in response and len(response.choices) > 0:
         message_content = response.choices[0].message['content']
         return message_content
