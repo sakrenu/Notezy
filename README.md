@@ -140,12 +140,12 @@ This setup should get the `Notezy` project up and running on your local machine.
 
 2. **Text Extraction Models**
 
-    - *Lite Model:* Utilizes Easy OCR, a free and easy-to-use optical character recognition tool for basic text extraction.\
+    - *Lite Model:* Utilizes Easy OCR, a free and easy-to-use optical character recognition tool for basic text extraction.
     - *Advanced Model:* Employs GPT-based models for advanced text extraction, providing higher accuracy and better handling of complex texts.
 
 3. **Keyword Extraction**
 
-    - Identify and extract important keywords from the notes to help you remember key topics and concepts.\
+    - Identify and extract important keywords from the notes to help you remember key topics and concepts.
 
 4. **Note Generation**
 
