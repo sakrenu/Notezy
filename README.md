@@ -3,7 +3,7 @@
 Notezy is an innovative project which aims at helping students make organized notes. It makes use of a lightweight OCR model to extract simple text from PDFs or classroom PPTs. It has an advanced text extraction model based on GPT-4o which works seamlessly for even handwritten text. The extracted text is further sent to a Large-Language-Model for structured notes generation.
 
 - Initially, we worked on open-source LLMs including Llama-2-7b, Mistral-7b, Gemma-7b, and Llama-3-8b. The performance with Llama-3-8b was good with few-shot-prompting, but hosting it would not be feasible as it requires a GPU with high enough VRAM.
-- Then we switched to make it a product based on OpenAI GPT models. The notes generation works best with GPT-4 with zero-shot prompting.
+- Then we developed it into a product based on OpenAI GPT models. The notes generation works best with GPT-4 with zero-shot prompting.
 - The project is still in the development phase, so buckle up and wait for new releases!
 
 ## Table of Contents
@@ -106,11 +106,22 @@ This guide will walk you through setting up the `Notezy` project on your local m
 This setup should get the `Notezy` project up and running on your local machine.
 
 ## Features
+1. **Image-Based Note Extraction**
+Capture images of your handwritten notes and upload them to Notezy for text extraction.
 
-- The major feature stands out to be a fully-fledged notes generation system.
-- Uses RAG to answer questions based on the notes generated.
-- The Streamlit app can do text recognition separately.
-- It can compare the time and accuracy between different SOTA offline OCR models with any given input image.
+2. **Text Extraction Models**
+*Lite Model:* Utilizes Easy OCR, a free and easy-to-use optical character recognition tool for basic text extraction.
+*Advanced Model:* Employs GPT-based models for advanced text extraction, providing higher accuracy and better handling of complex texts.
+
+3. **Keyword Extraction**
+Identify and extract important keywords from the notes to help you remember key topics and concepts.\
+
+4. **Note Generation**
+Generate well-structured notes from the extracted text using GPT models, ensuring clarity and comprehensiveness.
+Obtain detailed and organized notes on the topics of your choice, enhancing your study material.
+
+5. **Downloadable Content**
+Download the generated notes and detailed information for offline access and further use.
 
 ## Contact
 
