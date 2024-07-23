@@ -16,7 +16,7 @@ def encode_image(image_path):
     Returns:
     str: The base64 encoded string of the image.
     """
-    with open(image_path, "rb") as image_file:
+    with open(rf'{image_path}', "rb") as image_file:
         return base64.b64encode(image_file.read()).decode('utf-8')
 
 def construct_prompt(image_path):

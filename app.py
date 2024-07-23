@@ -92,7 +92,7 @@ def display_text_extraction_advanced():
                 extracted_text, extraction_time = process_text_extraction(uploaded_file, mode='adv')
                 st.write('Text Extracted:')
                 st.success(extracted_text)
-                st.write('\nTime for extraction: {}s'.format(extraction_time))
+                st.write('\nTime for extraction: {}s'.format(round(extraction_time, 3)))
             except RuntimeError as e:
                 st.error(str(e))
 
@@ -104,7 +104,7 @@ def display_notes_generation(client):
     if uploaded_file is not None:
         if st.button('Extract Text and Generate Notes'):
             try:
-                extracted_text, _ = process_text_extraction(uploaded_file, mode='lite')
+                extracted_text, _ = process_text_extraction(uploaded_file, mode='adv')
                 st.write('Text Extracted:')
                 st.success(extracted_text)
                 
