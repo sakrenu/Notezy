@@ -3,6 +3,9 @@ from reportlab.pdfgen import canvas
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, ListFlowable
 
+import markdown2
+import pdfkit
+
 def parse_and_create_pdf(content):
     doc = SimpleDocTemplate("notezy_output.pdf", pagesize=letter)
 
@@ -39,5 +42,21 @@ def parse_and_create_pdf(content):
             story.append(Spacer(1, 6))  # Adjust spacing as needed
 
     doc.build(story)
+    return "notezy_output.pdf"
 
+def markdown_to_pdf(markdown_content, output_filename):
+    # Convert Markdown to HTML
+    html_content = markdown2.markdown(markdown_content)
+
+    # Convert HTML to PDF
+    pdfkit.from_string(html_content, output_filename)
+
+def generate_pdf(content):
+    # Define the filename for the generated PDF
+    output_filename = "notezy_output.pdf"
+    
+    # Convert markdown content to PDF
+    markdown_to_pdf(content, output_filename)
+    
+    return output_filename
 
