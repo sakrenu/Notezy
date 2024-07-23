@@ -4,7 +4,7 @@ logging.basicConfig(level=logging.DEBUG)
 import streamlit as st
 import os
 from text_extract import extract_text, extract_keywords, extract_text_adv
-from text_to_pdf import parse_and_create_pdf, generate_pdf
+from text_to_pdf import markdown_to_pdf
 from notes_generation import generate_notes, initialize_client
 from PIL import Image
 
@@ -45,7 +45,7 @@ def process_text_extraction(uploaded_file, mode='lite'):
             extracted_text, extraction_time = extract_text(uploaded_file)
         elif mode == 'adv':
             st.write('Advanced Processing...')
-            extracted_text, extraction_time = extract_text_adv(uploaded_file.name)
+            extracted_text, extraction_time = extract_text_adv()
             st.write('Advanced Extraction Complete!')
     except Exception as e:
         raise RuntimeError(f"An error occurred during text extraction: {str(e)}")
@@ -57,7 +57,7 @@ def handle_uploaded_image(key):
 
     uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"], key=key)
     if uploaded_file is not None:
-        file_path = os.path.join(folder_path, uploaded_file.name)
+        file_path = os.path.join(folder_path, 'notezy.jpeg')
         with open(file_path, "wb") as f:
             f.write(uploaded_file.getvalue())
         image = Image.open(uploaded_file)
@@ -119,7 +119,7 @@ def display_notes_generation(client):
 
                     # Generate PDF and provide download button
                     if notes:
-                        output_filename = parse_and_create_pdf(notes)
+                        output_filename = markdown_to_pdf(notes)
                         with open(output_filename, "rb") as file:
                             btn = st.download_button(
                                 label="Download PDF",
