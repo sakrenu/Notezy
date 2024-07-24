@@ -145,9 +145,11 @@ This setup should get the `Notezy` project up and running on your local machine.
 2. **Text Extraction Models**
 
     - *Lite Model:* Utilizes Easy OCR, a free and easy-to-use optical character recognition tool for basic text extraction.
+   
    ![image](https://github.com/user-attachments/assets/2ac91303-3d75-420a-92b8-0637ab1b74df)
 
     - *Advanced Model:* Employs GPT-based models for advanced text extraction, providing higher accuracy and better handling of complex texts.
+   
    ![image](https://github.com/user-attachments/assets/9a6880a1-810d-436b-951c-b4d24fc11bed)
 
 3. **Keyword Extraction**
