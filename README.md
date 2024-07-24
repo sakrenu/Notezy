@@ -133,26 +133,37 @@ sudo yum install wkhtmltopdf
 
 This setup should get the `Notezy` project up and running on your local machine.
 
+![image](https://github.com/user-attachments/assets/66c94a65-719b-4271-b0b6-912e999a84fe)
+
 ## Features
 1. **Image-Based Note Extraction**
 
-    -  Capture images of your handwritten notes and upload them to Notezy for text extraction.
+    -  Capture images of your handwritten notes or typed notes and upload them to Notezy for text extraction.
+    -  ![image](https://github.com/user-attachments/assets/64c0b30d-9743-46b1-b6ae-e3519948ddc0)
 
 2. **Text Extraction Models**
 
     - *Lite Model:* Utilizes Easy OCR, a free and easy-to-use optical character recognition tool for basic text extraction.
+    - ![image](https://github.com/user-attachments/assets/2ac91303-3d75-420a-92b8-0637ab1b74df)
+
     - *Advanced Model:* Employs GPT-based models for advanced text extraction, providing higher accuracy and better handling of complex texts.
+    - ![image](https://github.com/user-attachments/assets/9a6880a1-810d-436b-951c-b4d24fc11bed)
 
 3. **Keyword Extraction**
 
     - Identify and extract important keywords from the notes to help you remember key topics and concepts.
+    - ![image](https://github.com/user-attachments/assets/1be32da7-8ec7-4dcc-82a4-b8cb9bc23e75)
 
 4. **Note Generation**
 
     - Generate well-structured notes from the extracted text using GPT models, ensuring clarity and comprehensiveness.
     - Obtain detailed and organized notes on the topics of your choice, enhancing your study material.
+    - ![image](https://github.com/user-attachments/assets/bc8cc84d-e912-4a1d-8b15-2efffa45eb1e)
 
 5. **Downloadable Content**
+
+    - ![image](https://github.com/user-attachments/assets/024f6b2e-940c-4632-b0a7-f01c091cd472)
+
 
     - Download the generated notes and detailed information for offline access and further use.
 
