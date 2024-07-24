@@ -139,6 +139,7 @@ This setup should get the `Notezy` project up and running on your local machine.
 1. **Image-Based Note Extraction**
 
     -  Capture images of your handwritten notes or typed notes and upload them to Notezy for text extraction.
+   
    ![image](https://github.com/user-attachments/assets/64c0b30d-9743-46b1-b6ae-e3519948ddc0)
 
 2. **Text Extraction Models**
@@ -152,12 +153,14 @@ This setup should get the `Notezy` project up and running on your local machine.
 3. **Keyword Extraction**
 
     - Identify and extract important keywords from the notes to help you remember key topics and concepts.
+   
    ![image](https://github.com/user-attachments/assets/1be32da7-8ec7-4dcc-82a4-b8cb9bc23e75)
 
 4. **Note Generation**
 
     - Generate well-structured notes from the extracted text using GPT models, ensuring clarity and comprehensiveness.
     - Obtain detailed and organized notes on the topics of your choice, enhancing your study material.
+
    ![image](https://github.com/user-attachments/assets/bc8cc84d-e912-4a1d-8b15-2efffa45eb1e)
 
 5. **Downloadable Content**
