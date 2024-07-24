@@ -11,8 +11,7 @@ def initialize_client():
         raise ValueError("Please set the OPENAI_API_KEY environment variable.")
 
     client = OpenAI(
-        api_key=api_key,
-        project='proj_XIILoALbD71OMccAU7bflg5A'
+        api_key=api_key
     )
     return client
 
