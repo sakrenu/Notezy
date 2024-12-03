@@ -1,0 +1,24 @@
+# Node.js
+node_modules/
+npm-debug.log*
+
+# Build directory
+build/
+
+# Environment variables
+.env
+
+# Logs
+*.log
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+
+# Backend
+backend/django/
+backend/__pycache__/
+backend/db.sqlite3
+backend/*.log
+backend/.env
