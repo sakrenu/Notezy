@@ -22,3 +22,4 @@ backend/__pycache__/
 backend/db.sqlite3
 backend/*.log
 backend/.env
+__pycache__/
