@@ -136,6 +136,9 @@ const NavLinks = styled.div`
   justify-content: center;
   gap: 20px;
   flex-grow: 1;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 `;
 
 const StyledNavLink = styled(NavLink)`
@@ -165,7 +168,7 @@ const HeroSection = styled.div`
   align-items: center;
   justify-content: space-between;
   padding: 20px;
-  background: linear-gradient(90deg, #d8e9ff 0%, #ffeef8 100%);
+  background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);
   flex: 0.9;
 `;
 
@@ -223,4 +226,4 @@ const HeroImage = styled.img`
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
-export default StudentHomePage;
+export default StudentHomePage; 

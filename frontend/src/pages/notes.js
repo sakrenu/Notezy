@@ -1,6 +1,6 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
+import styled, { keyframes, createGlobalStyle } from 'styled-components';
 
 const fadeIn = keyframes`
   from {
@@ -13,31 +13,51 @@ const fadeIn = keyframes`
 
 const NotesPage = () => {
   return (
-    <Container>
-      <Navbar>
-        <Logo>
-          <LogoImage src="/logo.png" alt="Notezy Logo" />
-          <LogoText>Notezy</LogoText>
-        </Logo>
-        <NavLinks>
-          <StyledNavLink to="/home">Home</StyledNavLink>
-          <StyledNavLink to="/notes">Notes</StyledNavLink>
-        </NavLinks>
-      </Navbar>
-      <Content>
-        <Title>Notes Generation Page</Title>
-        <Subtitle>This is where you will generate your notes.</Subtitle>
-      </Content>
-    </Container>
+    <>
+      <GlobalStyle />
+      <Container>
+        <Navbar>
+          <Logo>
+            <LogoImage src="/logo.jpg" alt="Notezy Logo" />
+            <LogoText>Notezy</LogoText>
+          </Logo>
+          <NavLinks>
+            <StyledNavLink to="/home">Home</StyledNavLink>
+            <StyledNavLink to="/notes">Notes</StyledNavLink>
+          </NavLinks>
+        </Navbar>
+        <Content>
+          <Title>Notes Generation Page</Title>
+          <Subtitle>This is where you will generate your notes.</Subtitle>
+        </Content>
+      </Container>
+    </>
   );
 };
+
+const GlobalStyle = createGlobalStyle`
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    background-color: #FFFFFF;
+    color: #0D173B;
+    font-family: 'Arial', sans-serif;
+  }
+
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+`;
 
 const Container = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
   height: 100vh;
-  background-color: #f5f5f5;
+  background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);
   font-family: 'Arial', sans-serif;
 `;
 
@@ -91,6 +111,9 @@ const NavLinks = styled.div`
   justify-content: center;
   gap: 20px;
   flex-grow: 1;
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
 `;
 
 const StyledNavLink = styled(NavLink)`
