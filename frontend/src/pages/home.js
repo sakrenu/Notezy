@@ -2,6 +2,15 @@ import React from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
 
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
 const HeroSectionContent = () => {
   const navigate = useNavigate();
 
@@ -45,15 +54,6 @@ const StudentHomePage = () => {
     </>
   );
 };
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`;
 
 const GlobalStyle = createGlobalStyle`
   html, body {
@@ -133,8 +133,8 @@ const LogoText = styled.span`
 
 const NavLinks = styled.div`
   display: flex;
-  gap: 20px;
   justify-content: center;
+  gap: 20px;
   flex-grow: 1;
 `;
 
