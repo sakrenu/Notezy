@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styled, { keyframes } from 'styled-components';
-import { auth, db } from '../config/firebaseConfig.js';
+import { auth, db } from '../config/firebaseConfig';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
@@ -8,12 +8,13 @@ import {
   GoogleAuthProvider
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
-import StudentForm from './StudentForm.js';
+import StudentForm from './StudentForm';
 
 const Login = () => {
   const [isSignUp, setIsSignUp] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
@@ -22,10 +23,18 @@ const Login = () => {
     e.preventDefault();
     setError('');
 
+    if (isSignUp) {
+      if (password !== confirmPassword) {
+        setError('Passwords do not match.');
+        return;
+      }
+    }
+
     try {
+      let userCredential;
       if (isSignUp) {
         // Handle Sign Up
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
         // Save basic user data to Firestore
@@ -35,12 +44,13 @@ const Login = () => {
           isProfileComplete: false // Add this flag
         });
 
+        console.log('User signed up:', user);
         setCurrentUser(user);
         setShowForm(true);
 
       } else {
         // Handle Sign In
-        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
 
         // Check if profile is complete
@@ -48,8 +58,11 @@ const Login = () => {
         const userData = userDoc.data();
 
         if (userData && !userData.isProfileComplete) {
+          console.log('User signed in and profile incomplete:', user);
           setCurrentUser(user);
           setShowForm(true);
+        } else {
+          console.log('User signed in and profile complete:', user);
         }
       }
     } catch (error) {
@@ -74,14 +87,18 @@ const Login = () => {
           role: 'Student',
           isProfileComplete: false
         });
+        console.log('New Google user:', user);
         setCurrentUser(user);
         setShowForm(true);
       } else {
         // Existing user - check if profile is complete
         const userData = userDoc.data();
         if (!userData.isProfileComplete) {
+          console.log('Existing Google user with incomplete profile:', user);
           setCurrentUser(user);
           setShowForm(true);
+        } else {
+          console.log('Existing Google user with complete profile:', user);
         }
       }
     } catch (error) {
@@ -130,6 +147,19 @@ const Login = () => {
             />
           </InputGroup>
 
+          {isSignUp && (
+            <InputGroup>
+              <Label>Confirm Password</Label>
+              <Input
+                type="password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Re-enter your password"
+                required
+              />
+            </InputGroup>
+          )}
+
           <Button type="submit">
             {isSignUp ? 'Sign Up' : 'Sign In'}
           </Button>
@@ -173,7 +203,7 @@ const Container = styled.div`
   align-items: center;
   width: 100vw;
   height: 100vh;
-  background-image: url('/notezy_background.png');
+  background-image: url('/Notezy_background.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;

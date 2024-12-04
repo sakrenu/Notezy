@@ -59,7 +59,7 @@ const StudentForm = ({ user }) => {
 
       console.log('Student data saved to Firestore!');
 
-      navigate('/student/home', { replace: true, state: { isProfileComplete: true } });
+      navigate('/home', { replace: true });
 
     } catch (error) {
       console.error('Error saving student data:', error);
