@@ -54,9 +54,9 @@ npm start
 
 This will start the React development server and you can access the app at `http://localhost:3000`
 
-## 3. Set up the backend (Django app)
+## 3. Set up the backend (Flask app)
 
-### Install Python dependencies
+### nstall Python dependencies
 
 Navigate to the `backend` folder:
 ```bash
@@ -85,13 +85,15 @@ Install the required Python packages:
 pip install -r requirements.txt
 ```
 
-### Run the Django BackEnd
-To start the Django server, run:
+### Run the Flask BackEnd
+
+To start the Flask server, run:
+
 ```bash
-python manage.py runserver
+flask run
 ```
 
-This will start the Django server on `http://127.0.0.1:8000`
+This will start the Flask server on `http://127.0.0.1:5000`
 
 ## 4. Access the Application 
 - Frontend: Go to `http://localhost:3000` in your browser to view the React app. 
