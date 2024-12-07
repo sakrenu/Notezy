@@ -1,4 +1,4 @@
-// frontend/src/pages/notes.js
+// notes.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
@@ -93,54 +93,56 @@ const NotesPage = () => {
       <GlobalStyle />
       <Container>
         <Navbar /> {/* Use the Navbar component */}
-        <Content>
-          <Title>Notes Generation Page</Title>
-          <Subtitle>Upload an image to generate notes.</Subtitle>
-          <UploadSection>
-            <FileInput type="file" accept="image/*" onChange={handleImageUpload} />
-            {image && <FileName>{image.name}</FileName>}
-          </UploadSection>
+        <MainContent>
+          <Content>
+            <Title>Notes Generation Page</Title>
+            <Subtitle>Upload an image to generate notes.</Subtitle>
+            <UploadSection>
+              <FileInput type="file" accept="image/*" onChange={handleImageUpload} />
+              {image && <FileName>{image.name}</FileName>}
+            </UploadSection>
+            {image && (
+              <ActionButton onClick={handleExtractText}>Extract Text</ActionButton>
+            )}
+            {extractedText && (
+              <>
+                <SectionTitle>Extracted Text</SectionTitle>
+                <TextArea value={extractedText} readOnly />
+                <ActionButton onClick={handleExtractKeywords}>Extract Keywords</ActionButton>
+              </>
+            )}
+            {keywords.length > 0 && (
+              <>
+                <SectionTitle>Keywords</SectionTitle>
+                <KeywordsList>
+                  {keywords.map((keyword, index) => (
+                    <Keyword key={index}>{keyword}</Keyword>
+                  ))}
+                </KeywordsList>
+                <SectionTitle>Choose a Template</SectionTitle>
+                <TemplateSelect value={template} onChange={handleTemplateChange}>
+                  <option value="default">Default</option>
+                  <option value="template1">Template 1</option>
+                  <option value="template2">Template 2</option>
+                </TemplateSelect>
+                <GenerateButton onClick={generateNotes}>Generate Notes</GenerateButton>
+                {notes && (
+                  <>
+                    <SectionTitle>Generated Notes</SectionTitle>
+                    <TextArea value={notes} readOnly />
+                    <DownloadButton onClick={downloadNotes}>Download Notes</DownloadButton>
+                  </>
+                )}
+              </>
+            )}
+          </Content>
           {imagePreview && (
             <ImagePreviewContainer>
               <PreviewTitle>Uploaded Image Preview</PreviewTitle>
               <ImagePreview src={imagePreview} alt="Uploaded Image Preview" />
             </ImagePreviewContainer>
           )}
-          {image && (
-            <ActionButton onClick={handleExtractText}>Extract Text</ActionButton>
-          )}
-          {extractedText && (
-            <>
-              <SectionTitle>Extracted Text</SectionTitle>
-              <TextArea value={extractedText} readOnly />
-              <ActionButton onClick={handleExtractKeywords}>Extract Keywords</ActionButton>
-            </>
-          )}
-          {keywords.length > 0 && (
-            <>
-              <SectionTitle>Keywords</SectionTitle>
-              <KeywordsList>
-                {keywords.map((keyword, index) => (
-                  <Keyword key={index}>{keyword}</Keyword>
-                ))}
-              </KeywordsList>
-              <SectionTitle>Choose a Template</SectionTitle>
-              <TemplateSelect value={template} onChange={handleTemplateChange}>
-                <option value="default">Default</option>
-                <option value="template1">Template 1</option>
-                <option value="template2">Template 2</option>
-              </TemplateSelect>
-              <GenerateButton onClick={generateNotes}>Generate Notes</GenerateButton>
-              {notes && (
-                <>
-                  <SectionTitle>Generated Notes</SectionTitle>
-                  <TextArea value={notes} readOnly />
-                  <DownloadButton onClick={downloadNotes}>Download Notes</DownloadButton>
-                </>
-              )}
-            </>
-          )}
-        </Content>
+        </MainContent>
       </Container>
     </>
   );
@@ -171,12 +173,22 @@ const Container = styled.div`
   flex-direction: column;
   margin: 0;
   padding: 0;
-  overflow-y: auto;  // Changed from hidden to allow scrolling
+  overflow: hidden;
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
+`;
+
+const MainContent = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-grow: 1;
+  padding-top: 80px; /* Adjust padding to account for the fixed navbar */
+  overflow-y: auto; /* Make the content scrollable */
 `;
 
 const Content = styled.div`
@@ -185,22 +197,15 @@ const Content = styled.div`
   align-items: center;
   justify-content: center;
   flex-grow: 1;
-  padding-top: 80px; /* Adjust padding to account for the fixed navbar */
-  overflow-y: auto; /* Make the content scrollable */
+  padding: 20px;
 `;
 
 const Title = styled.h1`
-  position: sticky; 
-  left: 0;
-  width: 100%;
-  text-align: center;
   font-size: 2.5rem;
   font-weight: bold;
   color: #0D173B;
-  margin: 0;
-  padding: 1rem 0;
-  z-index: 10;
-  background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);  // Match container background
+  margin-bottom: 1.5rem;
+  text-align: center;
 `;
 
 const Subtitle = styled.p`
@@ -211,7 +216,7 @@ const Subtitle = styled.p`
 `;
 
 const UploadSection = styled.div`
-  margin-bottom: 0.5rem;
+  margin-bottom: 2rem;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -241,7 +246,7 @@ const SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: bold;
   color: #0D173B;
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
   text-align: center;
 `;
 
@@ -249,7 +254,7 @@ const TextArea = styled.textarea`
   width: 100%;
   height: 150px;
   padding: 10px;
-  margin-bottom: 0.5rem;
+  margin-bottom: 2rem;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 1rem;
@@ -258,7 +263,7 @@ const TextArea = styled.textarea`
 const KeywordsList = styled.ul`
   list-style-type: none;
   padding: 0;
-  margin-bottom: 0.5rem;
+  margin-bottom: 2rem;
 `;
 
 const Keyword = styled.li`
@@ -272,7 +277,7 @@ const Keyword = styled.li`
 
 const TemplateSelect = styled.select`
   padding: 10px;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 1rem;
@@ -311,21 +316,25 @@ const DownloadButton = styled.button`
 const ImagePreviewContainer = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
-  margin-top: 0.5rem;
+  margin-left: 20px;
+  margin-right: 50px;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
 const PreviewTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: bold;
   color: #0D173B;
-  margin-bottom: 0.75rem;
+  margin-bottom: 1rem;
   text-align: center;
 `;
 
 const ImagePreview = styled.img`
-  max-width: 300px;
-  max-height: 300px;
+  max-width: 550px;
+  max-height: 550px;
   width: auto;
   height: auto;
   object-fit: contain;
@@ -333,7 +342,6 @@ const ImagePreview = styled.img`
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   padding: 20px;
   background-color: #fff;
-  margin-bottom: 2rem;
 `;
 
 const ActionButton = styled.button`
@@ -345,7 +353,7 @@ const ActionButton = styled.button`
   border: none;
   cursor: pointer;
   transition: background 0.3s ease;
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
 
   &:hover {
     background: linear-gradient(90deg, #84AC64, #4AB7E0);
