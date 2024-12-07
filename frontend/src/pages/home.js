@@ -1,6 +1,14 @@
+<<<<<<< HEAD
 import React from 'react';
 import { useNavigate, NavLink } from 'react-router-dom';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
+=======
+// home.js
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import styled, { keyframes, createGlobalStyle } from 'styled-components';
+import Navbar from '../components/Navbar';
+>>>>>>> e6dfd5c8120357599d9802cbe570e7280710e782
 
 const fadeIn = keyframes`
   from {
@@ -39,6 +47,7 @@ const StudentHomePage = () => {
     <>
       <GlobalStyle />
       <Container>
+<<<<<<< HEAD
         <Navbar>
           <Logo>
             <LogoImage src="/logo.jpg" alt="Notezy Logo" />
@@ -49,6 +58,9 @@ const StudentHomePage = () => {
             <StyledNavLink to="/notes">Notes</StyledNavLink>
           </NavLinks>
         </Navbar>
+=======
+        <Navbar /> {/* Use the Navbar component */}
+>>>>>>> e6dfd5c8120357599d9802cbe570e7280710e782
         <HeroSectionContent />
       </Container>
     </>
@@ -89,6 +101,7 @@ const Container = styled.div`
   bottom: 0;
 `;
 
+<<<<<<< HEAD
 const Navbar = styled.nav`
   display: flex;
   justify-content: space-between;
@@ -163,6 +176,8 @@ const StyledNavLink = styled(NavLink)`
   }
 `;
 
+=======
+>>>>>>> e6dfd5c8120357599d9802cbe570e7280710e782
 const HeroSection = styled.div`
   display: flex;
   align-items: center;
@@ -226,4 +241,8 @@ const HeroImage = styled.img`
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 `;
 
+<<<<<<< HEAD
 export default StudentHomePage; 
+=======
+export default StudentHomePage;
+>>>>>>> e6dfd5c8120357599d9802cbe570e7280710e782
