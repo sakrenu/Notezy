@@ -1,4 +1,4 @@
-// notes.js
+// frontend/src/pages/notes.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
@@ -97,8 +97,15 @@ const NotesPage = () => {
           <Title>Notes Generation Page</Title>
           <Subtitle>Upload an image to generate notes.</Subtitle>
           <UploadSection>
-            <input type="file" accept="image/*" onChange={handleImageUpload} />
+            <FileInput type="file" accept="image/*" onChange={handleImageUpload} />
+            {image && <FileName>{image.name}</FileName>}
           </UploadSection>
+          {imagePreview && (
+            <ImagePreviewContainer>
+              <PreviewTitle>Uploaded Image Preview</PreviewTitle>
+              <ImagePreview src={imagePreview} alt="Uploaded Image Preview" />
+            </ImagePreviewContainer>
+          )}
           {image && (
             <ActionButton onClick={handleExtractText}>Extract Text</ActionButton>
           )}
@@ -133,11 +140,6 @@ const NotesPage = () => {
               )}
             </>
           )}
-          {imagePreview && (
-            <ImagePreviewContainer>
-              <ImagePreview src={imagePreview} alt="Uploaded Image Preview" />
-            </ImagePreviewContainer>
-          )}
         </Content>
       </Container>
     </>
@@ -162,14 +164,14 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const Container = styled.div`
-  background: #FFFFFF;
+  background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);
   height: 100vh;
   width: 100vw;
   display: flex;
   flex-direction: column;
   margin: 0;
   padding: 0;
-  overflow: hidden;
+  overflow-y: auto;  // Changed from hidden to allow scrolling
   position: fixed;
   top: 0;
   left: 0;
@@ -188,11 +190,17 @@ const Content = styled.div`
 `;
 
 const Title = styled.h1`
+  position: sticky; 
+  left: 0;
+  width: 100%;
+  text-align: center;
   font-size: 2.5rem;
   font-weight: bold;
   color: #0D173B;
-  margin-bottom: 1.5rem;
-  text-align: center;
+  margin: 0;
+  padding: 1rem 0;
+  z-index: 10;
+  background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);  // Match container background
 `;
 
 const Subtitle = styled.p`
@@ -203,14 +211,37 @@ const Subtitle = styled.p`
 `;
 
 const UploadSection = styled.div`
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const FileInput = styled.input`
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #4AB7E0, #84AC64);
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: linear-gradient(90deg, #84AC64, #4AB7E0);
+  }
+`;
+
+const FileName = styled.span`
+  margin-top: 10px;
+  font-size: 1rem;
+  color: #0D173B;
 `;
 
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: bold;
   color: #0D173B;
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   text-align: center;
 `;
 
@@ -218,7 +249,7 @@ const TextArea = styled.textarea`
   width: 100%;
   height: 150px;
   padding: 10px;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 1rem;
@@ -227,7 +258,7 @@ const TextArea = styled.textarea`
 const KeywordsList = styled.ul`
   list-style-type: none;
   padding: 0;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
 `;
 
 const Keyword = styled.li`
@@ -241,7 +272,7 @@ const Keyword = styled.li`
 
 const TemplateSelect = styled.select`
   padding: 10px;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   border: 1px solid #ccc;
   border-radius: 5px;
   font-size: 1rem;
@@ -278,18 +309,31 @@ const DownloadButton = styled.button`
 `;
 
 const ImagePreviewContainer = styled.div`
-  flex: 1;
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
-  margin-top: 2rem;
+  margin-top: 0.5rem;
+`;
+
+const PreviewTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #0D173B;
+  margin-bottom: 0.75rem;
+  text-align: center;
 `;
 
 const ImagePreview = styled.img`
-  max-width: 100%;
+  max-width: 300px;
+  max-height: 300px;
+  width: auto;
   height: auto;
+  object-fit: contain;
   border-radius: 5px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  background-color: #fff;
+  margin-bottom: 2rem;
 `;
 
 const ActionButton = styled.button`
@@ -301,7 +345,7 @@ const ActionButton = styled.button`
   border: none;
   cursor: pointer;
   transition: background 0.3s ease;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
 
   &:hover {
     background: linear-gradient(90deg, #84AC64, #4AB7E0);

@@ -1,4 +1,4 @@
-// Navbar.js
+// frontend/src/components/Navbar.js
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
