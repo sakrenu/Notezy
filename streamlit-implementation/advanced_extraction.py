@@ -2,6 +2,7 @@ import base64
 import requests
 import os
 import time
+import re
 from notes_generation import initialize_client
 
 client = initialize_client()
@@ -16,8 +17,8 @@ def encode_image(image_path):
     Returns:
     str: The base64 encoded string of the image.
     """
-    # with open(image_path, "rb") as image_file:
-    return base64.b64encode(image_path.read()).decode('utf-8')
+    with open(rf'{image_path}', "rb") as image_file:
+        return base64.b64encode(image_file.read()).decode('utf-8')
 
 def construct_prompt(image_path):
     """
@@ -59,6 +60,17 @@ def construct_prompt(image_path):
     }
     return headers, payload
 
+def preprocess_txt(extracted_text):
+    cleaned_text = ' '.join(extracted_text.split())
+    cleaned_text = re.sub(r'\[([^\]]+)\]\([^\)]+\)', r'\1', cleaned_text)
+    cleaned_text = re.sub(r'<[^>]+>', '', cleaned_text)
+    cleaned_text = re.sub(r'#{1,6}\s*(.+)', r'\1', cleaned_text)
+    cleaned_text = re.sub(r'>\s*(.+)', r'\1', cleaned_text)
+    cleaned_text = re.sub(r'---|\*\*\*|___', '', cleaned_text)
+    cleaned_text = re.sub(r'^\s*[-*+]\s+', '', cleaned_text, flags=re.MULTILINE)
+    cleaned_text = re.sub(r'^\s*\d+\.\s+', '', cleaned_text, flags=re.MULTILINE)
+    return cleaned_text.strip()
+
 def send_request_get_text(headers, payload):
     """
     Sends the API request to extract text from the image and measures the time taken for the response.
@@ -77,4 +89,5 @@ def send_request_get_text(headers, payload):
     response_json = response.json()
     if 'choices' in response_json and len(response_json['choices']) > 0:
         extracted_text = response_json['choices'][0]['message']['content']
-    return extracted_text, time_taken
+    cleaned_text = preprocess_txt(extracted_text)
+    return cleaned_text, time_taken
