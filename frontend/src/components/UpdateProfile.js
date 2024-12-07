@@ -88,96 +88,6 @@ const UpdateProfile = () => {
     }
   };
 
-<<<<<<< HEAD
-  return (
-    <Container>
-      <ProfileCard>
-        <Title>Update Student Profile</Title>
-        <Form onSubmit={handleSubmit}>
-          <FormGroup>
-            <Label htmlFor="name">Name</Label>
-            <Input
-              id="name"
-              name="name"
-              value={formData.name}
-              onChange={handleChange}
-              placeholder="Enter your name"
-              required
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label htmlFor="rollNo">Roll Number</Label>
-            <Input
-              id="rollNo"
-              name="rollNo"
-              value={formData.rollNo}
-              onChange={handleChange}
-              placeholder="Enter your roll number"
-              required
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label htmlFor="phoneNumber">Phone Number</Label>
-            <Input
-              id="phoneNumber"
-              name="phoneNumber"
-              value={formData.phoneNumber}
-              onChange={handleChange}
-              placeholder="Enter your phone number"
-              required
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label htmlFor="grade">Grade</Label>
-            <Input
-              id="grade"
-              name="grade"
-              value={formData.grade}
-              onChange={handleChange}
-              placeholder="Enter your grade"
-              required
-            />
-          </FormGroup>
-
-          <FormGroup>
-            <Label htmlFor="school">School</Label>
-            <Input
-              id="school"
-              name="school"
-              value={formData.school}
-              onChange={handleChange}
-              placeholder="Enter your school name"
-              required
-            />
-          </FormGroup>
-
-          <ButtonWrapper>
-            <SubmitButton type="submit" disabled={isLoading}>
-              {isLoading ? 'Updating...' : 'Update Profile'}
-            </SubmitButton>
-          </ButtonWrapper>
-
-          {successMessage && (
-            <SuccessMessage>
-              {successMessage}
-            </SuccessMessage>
-          )}
-
-          {error && (
-            <ErrorMessage>
-              {error}
-            </ErrorMessage>
-          )}
-        </Form>
-      </ProfileCard>
-    </Container>
-  );
-};
-
-=======
   const handleGoBack = () => {
     navigate(-1);
   };
@@ -295,7 +205,6 @@ const ExternalBackButton = styled.button`
   }
 `;
 
->>>>>>> e6dfd5c8120357599d9802cbe570e7280710e782
 const ButtonWrapper = styled.div`
   display: flex;
   justify-content: center;
