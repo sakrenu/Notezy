@@ -106,9 +106,6 @@ const NotesPage = () => {
           <UploadSection>
             <input type="file" accept="image/*" onChange={handleImageUpload} />
           </UploadSection>
-          {imagePreview && (
-            <ImagePreview src={imagePreview} alt="Uploaded Image Preview" />
-          )}
           {image && (
             <ActionButton onClick={handleExtractText}>Extract Text</ActionButton>
           )}
@@ -143,6 +140,11 @@ const NotesPage = () => {
               )}
             </>
           )}
+          {imagePreview && (
+            <ImagePreviewContainer>
+              <ImagePreview src={imagePreview} alt="Uploaded Image Preview" />
+            </ImagePreviewContainer>
+          )}
         </Content>
       </Container>
     </>
@@ -167,12 +169,19 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const Container = styled.div`
+  background: #FFFFFF;
+  height: 100vh;
+  width: 100vw;
   display: flex;
   flex-direction: column;
-  align-items: center;
-  height: 100vh;
-  background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);
-  font-family: 'Arial', sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
 `;
 
 const Navbar = styled.nav`
@@ -183,10 +192,7 @@ const Navbar = styled.nav`
   background: #FFFFFF;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.05);
   width: 100%;
-  position: fixed;
-  top: 0;
-  left: 0;
-  z-index: 1000;
+  flex: 0.1;
 `;
 
 const Logo = styled.div`
@@ -352,10 +358,17 @@ const DownloadButton = styled.button`
   }
 `;
 
+const ImagePreviewContainer = styled.div`
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 2rem;
+`;
+
 const ImagePreview = styled.img`
   max-width: 100%;
   height: auto;
-  margin-bottom: 2rem;
   border-radius: 5px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 `;
