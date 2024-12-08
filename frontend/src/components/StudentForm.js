@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const StudentForm = ({ user }) => {
   const [name, setName] = useState('');
-  const [rollNo, setRollNo] = useState('');
+  const [age, setAge] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [grade, setGrade] = useState('');
   const [school, setSchool] = useState('');
@@ -27,7 +27,7 @@ const StudentForm = ({ user }) => {
     setIsSubmitting(true);
     console.log('Starting form submission...');
 
-    if (!name || !rollNo || !phoneNumber || !grade || !school) {
+    if (!name || !age || !phoneNumber || !grade || !school) {
       setError('Please fill in all fields.');
       setIsSubmitting(false);
       return;
@@ -38,7 +38,7 @@ const StudentForm = ({ user }) => {
       // Save student details to Firestore
       await setDoc(doc(db, 'students', user.uid), {
         name,
-        rollNo,
+        age,
         phoneNumber,
         grade,
         school,
@@ -90,12 +90,12 @@ const StudentForm = ({ user }) => {
           </InputGroup>
 
           <InputGroup>
-            <Label>Roll Number</Label>
+            <Label>Age</Label>
             <Input
               type="text"
-              value={rollNo}
-              onChange={(e) => setRollNo(e.target.value)}
-              placeholder="Enter your roll number"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              placeholder="Enter your age"
               required
             />
           </InputGroup>
