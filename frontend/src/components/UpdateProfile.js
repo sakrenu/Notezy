@@ -11,7 +11,7 @@ const UpdateProfile = () => {
 
   const [formData, setFormData] = useState({
     name: '',
-    rollNo: '',
+    age: '',
     phoneNumber: '',
     grade: '',
     school: '',
@@ -42,7 +42,7 @@ const UpdateProfile = () => {
 
         const updatedFormData = {
           name: data.name || '',
-          rollNo: data.rollNo || '',
+          age: data.age || '',
           phoneNumber: data.phoneNumber || '',
           grade: data.grade || '',
           school: data.school || '',
@@ -114,13 +114,13 @@ const UpdateProfile = () => {
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="rollNo">Roll Number</Label>
+              <Label htmlFor="age">Age</Label>
               <Input
-                id="rollNo"
-                name="rollNo"
-                value={formData.rollNo}
+                id="age"
+                name="age"
+                value={formData.age}
                 onChange={handleChange}
-                placeholder="Enter your roll number"
+                placeholder="Enter your age"
                 required
               />
             </FormGroup>
