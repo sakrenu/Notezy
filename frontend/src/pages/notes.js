@@ -441,7 +441,7 @@ const NotesPage = () => {
                 {image && <FileName>{image.name}</FileName>}
               </UploadSection>
              {image && (
-                  <ActionButton onClick={handleExtractText}>Extract Text</ActionButton>
+                  <ActionButton onClick={handleExtractText}>Generate Notes</ActionButton>
                 )}
                 {extractedText && (
                   <>
