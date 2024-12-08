@@ -6,7 +6,7 @@ from google.generativeai import GenerativeModel
 from PIL import Image
 from dotenv import load_dotenv
 
-load_dotenv()
+load_dotenv()#get the environment variables.
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
