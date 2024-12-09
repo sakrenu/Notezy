@@ -177,7 +177,9 @@ const NotesPage = () => {
               <>
                 <SectionTitle>Final Notes</SectionTitle>
                 <div dangerouslySetInnerHTML={{ __html: notes }} />
-                <ActionButton onClick={handleSaveNotes}>Save Notes</ActionButton>
+                {!isSaving && !saveMessage && (
+                  <ActionButton onClick={handleSaveNotes}>Save Notes</ActionButton>
+                )}
                 {isSaving && <SavingMessage>Saving<AnimatedDots>...</AnimatedDots></SavingMessage>}
                 {saveMessage && <SaveMessage>{saveMessage}</SaveMessage>}
               </>
