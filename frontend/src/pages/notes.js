@@ -1,4 +1,3 @@
-// notes.js
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
@@ -21,11 +20,15 @@ const NotesPage = () => {
   const [extractedText, setExtractedText] = useState('');
   const [keywords, setKeywords] = useState([]);
   const [notes, setNotes] = useState('');
-  const [template, setTemplate] = useState('default');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     setImage(file);
+
+    // Log the file details
+    console.log('Uploaded file:', file);
 
     // Set image preview
     const reader = new FileReader();
@@ -35,57 +38,47 @@ const NotesPage = () => {
     reader.readAsDataURL(file);
   };
 
-  const handleExtractText = async () => {
+  const handleGenerateNotes = async () => {
+    if (!image) {
+      alert('Please upload an image first.');
+      return;
+    }
+
+    setLoading(true);
+    setError(null);
+    setExtractedText('');
+    setKeywords([]);
+    setNotes('');
+
     const formData = new FormData();
-    formData.append('image', image);
+    formData.append('file', image);
 
     try {
-      const response = await axios.post('/api/extract-text', formData, {
+      // Extract text
+      const textResponse = await axios.post('http://localhost:5000/extract-text', formData, {
         headers: {
           'Content-Type': 'multipart/form-data',
         },
       });
-      setExtractedText(response.data.text);
-    } catch (error) {
-      console.error('Error extracting text:', error);
-    }
-  };
+      setExtractedText(textResponse.data.text);
 
-  const handleExtractKeywords = async () => {
-    try {
-      const response = await axios.post('/api/extract-keywords', {
-        text: extractedText,
+      // Extract keywords
+      const keywordsResponse = await axios.post('http://localhost:5000/extract-keywords', {
+        text: textResponse.data.text,
       });
-      setKeywords(response.data.keywords);
-    } catch (error) {
-      console.error('Error extracting keywords:', error);
-    }
-  };
+      setKeywords(keywordsResponse.data.keywords);
 
-  const handleTemplateChange = (event) => {
-    setTemplate(event.target.value);
-  };
-
-  const generateNotes = async () => {
-    try {
-      const response = await axios.post('/api/generate-notes', {
-        text: extractedText,
-        keywords: keywords,
-        template: template,
+      // Generate notes
+      const notesResponse = await axios.post('http://localhost:5000/generate-notes', {
+        keywords: keywordsResponse.data.keywords,
       });
-      setNotes(response.data.notes);
+      setNotes(notesResponse.data.notes);
     } catch (error) {
-      console.error('Error generating notes:', error);
+      console.error('Error generating notes:', error.response ? error.response.data : error.message);
+      setError('Error generating notes. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  };
-
-  const downloadNotes = () => {
-    const element = document.createElement('a');
-    const file = new Blob([notes], { type: 'text/plain' });
-    element.href = URL.createObjectURL(file);
-    element.download = 'notes.txt';
-    document.body.appendChild(element);
-    element.click();
   };
 
   return (
@@ -102,37 +95,30 @@ const NotesPage = () => {
               {image && <FileName>{image.name}</FileName>}
             </UploadSection>
             {image && (
-              <ActionButton onClick={handleExtractText}>Extract Text</ActionButton>
+              <ActionButton onClick={handleGenerateNotes}>Generate Notes</ActionButton>
             )}
+            {loading && <LoadingMessage>Your notes are on the way...</LoadingMessage>}
+            {error && <ErrorMessage>{error}</ErrorMessage>}
             {extractedText && (
               <>
                 <SectionTitle>Extracted Text</SectionTitle>
                 <TextArea value={extractedText} readOnly />
-                <ActionButton onClick={handleExtractKeywords}>Extract Keywords</ActionButton>
               </>
             )}
             {keywords.length > 0 && (
               <>
-                <SectionTitle>Keywords</SectionTitle>
-                <KeywordsList>
+                <SectionTitle>Key Points</SectionTitle>
+                <ul>
                   {keywords.map((keyword, index) => (
-                    <Keyword key={index}>{keyword}</Keyword>
+                    <li key={index}>{keyword}</li>
                   ))}
-                </KeywordsList>
-                <SectionTitle>Choose a Template</SectionTitle>
-                <TemplateSelect value={template} onChange={handleTemplateChange}>
-                  <option value="default">Default</option>
-                  <option value="template1">Template 1</option>
-                  <option value="template2">Template 2</option>
-                </TemplateSelect>
-                <GenerateButton onClick={generateNotes}>Generate Notes</GenerateButton>
-                {notes && (
-                  <>
-                    <SectionTitle>Generated Notes</SectionTitle>
-                    <TextArea value={notes} readOnly />
-                    <DownloadButton onClick={downloadNotes}>Download Notes</DownloadButton>
-                  </>
-                )}
+                </ul>
+              </>
+            )}
+            {notes && (
+              <>
+                <SectionTitle>Final Notes</SectionTitle>
+                <div dangerouslySetInnerHTML={{ __html: notes }} />
               </>
             )}
           </Content>
@@ -152,18 +138,18 @@ const GlobalStyle = createGlobalStyle`
   html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
+   height: 100%;
     overflow: hidden;
     background-color: #FFFFFF;
-    color: #0D173B;
-    font-family: 'Arial', sans-serif;
-  }
+     color: #0D173B;
+     font-family: 'Arial', sans-serif;
+   }
 
-  #root {
-    height: 100%;
-    overflow: hidden;
-  }
-`;
+   #root {
+     height: 100%;
+     overflow: hidden;
+   }
+ `;
 
 const Container = styled.div`
   background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);
@@ -260,59 +246,6 @@ const TextArea = styled.textarea`
   font-size: 1rem;
 `;
 
-const KeywordsList = styled.ul`
-  list-style-type: none;
-  padding: 0;
-  margin-bottom: 2rem;
-`;
-
-const Keyword = styled.li`
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  padding: 5px 10px;
-  margin: 5px;
-  display: inline-block;
-`;
-
-const TemplateSelect = styled.select`
-  padding: 10px;
-  margin-bottom: 2rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 1rem;
-`;
-
-const GenerateButton = styled.button`
-  padding: 10px 20px;
-  font-size: 1rem;
-  border-radius: 15px;
-  background: linear-gradient(90deg, #4AB7E0, #84AC64);
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease;
-
-  &:hover {
-    background: linear-gradient(90deg, #84AC64, #4AB7E0);
-  }
-`;
-
-const DownloadButton = styled.button`
-  padding: 10px 20px;
-  font-size: 1rem;
-  border-radius: 15px;
-  background: linear-gradient(90deg, #E2D64B, #FFD700);
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease;
-
-  &:hover {
-    background: linear-gradient(90deg, #FFD700, #E2D64B);
-  }
-`;
-
 const ImagePreviewContainer = styled.div`
   display: flex;
   flex-direction: column;
@@ -358,6 +291,20 @@ const ActionButton = styled.button`
   &:hover {
     background: linear-gradient(90deg, #84AC64, #4AB7E0);
   }
+`;
+
+const LoadingMessage = styled.p`
+  font-size: 1.2rem;
+  color: #5569af;
+  margin-bottom: 2rem;
+  text-align: center;
+`;
+
+const ErrorMessage = styled.p`
+  font-size: 1.2rem;
+  color: red;
+  margin-bottom: 2rem;
+  text-align: center;
 `;
 
 export default NotesPage;
