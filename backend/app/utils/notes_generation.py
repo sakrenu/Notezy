@@ -1,60 +1,14 @@
-# from gemini_client import call_gemini_api
+import os
+import logging
+import google.generativeai as genai
+from dotenv import load_dotenv
 
-# def generate_notes(keywords):
-#     """
-#     Generates comprehensive notes based on the provided keywords using the Gemini API.
+# Load environment variables from .env file
+load_dotenv()
 
-#     Args:
-#         keywords (list): A list of important keywords.
-
-#     Returns:
-#         str: Generated notes in Markdown format.
-#     """
-#     if not keywords:
-#         raise ValueError("Keyword list is empty. Cannot generate notes.")
-
-#     # Convert the list of keywords into a string
-#     keywords_string = ", ".join(keywords)
-
-#     # Define the system prompt
-#     system_prompt = """
-#     You are an intelligent note-generation assistant. 
-#     Based on the given keywords, generate structured notes. Ensure the notes include the following sections:
-
-#     - **Title**: Clearly state the main topic.
-#     - **Pre-requisites**: Concepts or knowledge required to understand the notes.
-#     - **Introduction**: A brief overview of the topic.
-#     - **Simpler Analogy (Optional)**: Provide a simplified analogy for complex topics.
-#     - **Examples (Optional)**: Include examples to illustrate the topic.
-#     - **Relevant Formulas (Optional)**: List formulas related to the topic.
-#     - **Similar Topics**: Suggest related topics worth exploring.
-#     - **Summary**: Concise summary of the notes.
-
-#     Format the notes using Markdown syntax.
-#     If any keyword is unfamiliar, explicitly state: "I don't have knowledge about this keyword."
-#     """
-
-#     # Construct the payload
-#     payload = {
-#         "model": "gemini-1.0",  # Replace with the correct Gemini model name
-#         "messages": [
-#             {"role": "system", "content": system_prompt},
-#             {"role": "user", "content": f"Write notes on the following keywords: {keywords_string}"}
-#         ],
-#         "max_tokens": 1000
-#     }
-
-#     # Call the Gemini API
-#     response = call_gemini_api(payload)
-
-#     # Extract the notes from the response
-#     notes = response.get("notes", "")
-#     if not notes:
-#         raise RuntimeError("Failed to generate notes. The response is empty or invalid.")
-
-#     return notes
-# backend/app/utils/notes_generation.py
-from app.utils.gemini_client import call_gemini_api
+# Configure logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def generate_notes(keywords):
     """
@@ -66,46 +20,58 @@ def generate_notes(keywords):
     Returns:
         str: Generated notes in Markdown format.
     """
-    if not keywords:
-        raise ValueError("Keyword list is empty. Cannot generate notes.")
+    try:
+        if not keywords:
+            raise ValueError("Keyword list is empty. Cannot generate notes.")
 
-    # Convert the list of keywords into a string
-    keywords_string = ", ".join(keywords)
+        # Load the Gemini API key from environment variables
+        gemini_api_key = os.getenv('GEMINI_API_KEY')
+        if not gemini_api_key:
+            logger.error("Gemini API key not found")
+            return "Gemini API key not found"
 
-    # Define the system prompt
-    system_prompt = """
-    You are an intelligent note-generation assistant.
-    Based on the given keywords, generate structured notes. Ensure the notes include the following sections:
+        # Configure the Generative AI client with the API key
+        genai.configure(api_key=gemini_api_key)
 
-    - **Title**: Clearly state the main topic.
-    - **Pre-requisites**: Concepts or knowledge required to understand the notes.
-    - **Introduction**: A brief overview of the topic.
-    - **Simpler Analogy (Optional)**: Provide a simplified analogy for complex topics.
-    - **Examples (Optional)**: Include examples to illustrate the topic.
-    - **Relevant Formulas (Optional)**: List formulas related to the topic.
-    - **Similar Topics**: Suggest related topics worth exploring.
-    - **Summary**: Concise summary of the notes.
+        # Convert the list of keywords into a string
+        keywords_string = ", ".join(keywords)
 
-    Format the notes using Markdown syntax.
-    If any keyword is unfamiliar, explicitly state: "I don't have knowledge about this keyword."
-    """
+        # Define the system prompt
+        system_prompt = """
+        You are an intelligent note-generation assistant.
+        Based on the given keywords, generate structured notes. Ensure the notes include the following sections:
 
-    # Construct the payload
-    payload = {
-        "model": "gemini-1.0",  # Replace with the correct Gemini model name
-        "messages": [
-            {"role": "system", "content": system_prompt},
-            {"role": "user", "content": f"Write notes on the following keywords: {keywords_string}"}
-        ],
-        "max_tokens": 1000
-    }
+        - **Title**: Clearly state the main topic.
+        - **Pre-requisites**: Concepts or knowledge required to understand the notes.
+        - **Introduction**: A brief overview of the topic.
+        - **Simpler Analogy (Optional)**: Provide a simplified analogy for complex topics.
+        - **Examples (Optional)**: Include examples to illustrate the topic.
+        - **Relevant Formulas (Optional)**: List formulas related to the topic.
+        - **Similar Topics**: Suggest related topics worth exploring.
+        - **Summary**: Concise summary of the notes.
 
-    # Call the Gemini API
-    response = call_gemini_api(payload)
+        Format the notes using Markdown syntax.
+        If any keyword is unfamiliar, explicitly state: "I don't have knowledge about this keyword."
+        """
 
-    # Extract the notes from the response
-    notes = response.get("extracted_text", "")
-    if not notes:
-        raise RuntimeError("Failed to generate notes. The response is empty or invalid.")
+        # Combine the system prompt and user query
+        query = f"{system_prompt}\n This following is the given keyowrds list : {keywords_string}"
 
-    return notes
+        # Call the Gemini API
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(query, stream=True)
+
+        # Collect the generated content from streaming response
+        notes = []
+        for chunk in response:
+            notes.append(chunk.text)
+
+        # Combine all chunks into a single string
+        full_notes = "\n".join(notes).strip()
+        if not full_notes:
+            raise RuntimeError("Failed to generate notes. The response is empty or invalid.")
+
+        return full_notes
+    except Exception as e:
+        logger.error(f"Error generating notes with Gemini API: {e}")
+        raise
