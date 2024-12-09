@@ -8,8 +8,8 @@ build/
 # Environment variables
 .env
 
-/backend/venv/
-/venv
+ backend/venv/
+ venv/
 
 # Logs
 *.log
