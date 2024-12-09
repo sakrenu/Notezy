@@ -9,11 +9,20 @@ const UpdateProfile = () => {
   const { user } = useAuthContext();
   const navigate = useNavigate();
 
+  // Education levels dropdown options
+  const educationLevels = [
+    'School',
+    'High School', 
+    'College', 
+    'Undergrad', 
+    'Postgrad'
+  ];
+
   const [formData, setFormData] = useState({
     name: '',
-    rollNo: '',
+    age: '',
     phoneNumber: '',
-    grade: '',
+    education: '',
     school: '',
     userId: user.uid,
   });
@@ -38,20 +47,16 @@ const UpdateProfile = () => {
 
       if (docSnap.exists()) {
         const data = docSnap.data();
-        console.log('Fetched user data:', data);
-
         const updatedFormData = {
           name: data.name || '',
-          rollNo: data.rollNo || '',
+          age: data.age || '',
           phoneNumber: data.phoneNumber || '',
-          grade: data.grade || '',
+          education: data.education || '',
           school: data.school || '',
           userId: user.uid,
         };
 
         setFormData(updatedFormData);
-      } else {
-        console.warn('No document found for user');
       }
 
       setIsLoading(false);
@@ -114,14 +119,16 @@ const UpdateProfile = () => {
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="rollNo">Roll Number</Label>
+              <Label htmlFor="age">Age</Label>
               <Input
-                id="rollNo"
-                name="rollNo"
-                value={formData.rollNo}
+                id="age"
+                name="age"
+                type="number"
+                value={formData.age}
                 onChange={handleChange}
-                placeholder="Enter your roll number"
+                placeholder="Enter your age"
                 required
+                min="0"
               />
             </FormGroup>
 
@@ -130,6 +137,7 @@ const UpdateProfile = () => {
               <Input
                 id="phoneNumber"
                 name="phoneNumber"
+                type="tel"
                 value={formData.phoneNumber}
                 onChange={handleChange}
                 placeholder="Enter your phone number"
@@ -138,15 +146,21 @@ const UpdateProfile = () => {
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="grade">Grade</Label>
-              <Input
-                id="grade"
-                name="grade"
-                value={formData.grade}
+              <Label htmlFor="education">Education Level</Label>
+              <Select
+                id="education"
+                name="education"
+                value={formData.education}
                 onChange={handleChange}
-                placeholder="Enter your grade"
                 required
-              />
+              >
+                <option value="">Select Education Level</option>
+                {educationLevels.map((level) => (
+                  <option key={level} value={level}>
+                    {level}
+                  </option>
+                ))}
+              </Select>
             </FormGroup>
 
             <FormGroup>
@@ -184,6 +198,25 @@ const UpdateProfile = () => {
     </>
   );
 };
+
+//styled-components
+const Select = styled.select`
+  padding: 0.75rem;
+  border: 1px solid #e0e7ff;
+  border-radius: 8px;
+  font-size: 1rem;
+
+  &:focus {
+    outline: none;
+    border-color: #4AB7E0;
+    box-shadow: 0 0 0 2px rgba(74, 183, 224, 0.2);
+  }
+
+  &:disabled {
+    background-color: #f0f0f0;
+    cursor: not-allowed;
+  }
+`;
 
 const ExternalBackButton = styled.button`
   position: fixed;

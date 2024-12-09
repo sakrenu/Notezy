@@ -6,13 +6,22 @@ import { useNavigate } from 'react-router-dom';
 
 const StudentForm = ({ user }) => {
   const [name, setName] = useState('');
-  const [rollNo, setRollNo] = useState('');
+  const [age, setAge] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [grade, setGrade] = useState('');
+  const [education, setEducation] = useState('');
   const [school, setSchool] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+
+  // Education levels dropdown options
+  const educationLevels = [
+    'School',
+    'High School', 
+    'College', 
+    'Undergrad', 
+    'Postgrad'
+  ];
 
   useEffect(() => {
     console.log('StudentForm mounted');
@@ -27,7 +36,7 @@ const StudentForm = ({ user }) => {
     setIsSubmitting(true);
     console.log('Starting form submission...');
 
-    if (!name || !rollNo || !phoneNumber || !grade || !school) {
+    if (!name || !age || !phoneNumber || !education || !school) {
       setError('Please fill in all fields.');
       setIsSubmitting(false);
       return;
@@ -38,9 +47,9 @@ const StudentForm = ({ user }) => {
       // Save student details to Firestore
       await setDoc(doc(db, 'students', user.uid), {
         name,
-        rollNo,
+        age,
         phoneNumber,
-        grade,
+        education,
         school,
         userId: user.uid,
         email: user.email,
@@ -54,7 +63,7 @@ const StudentForm = ({ user }) => {
         email: user.email,
         role: 'Student',
         isProfileComplete: true,
-        studentProfile: true  // Add this flag
+        studentProfile: true
       }, { merge: true });
 
       console.log('Student data saved to Firestore!');
@@ -90,20 +99,21 @@ const StudentForm = ({ user }) => {
           </InputGroup>
 
           <InputGroup>
-            <Label>Roll Number</Label>
+            <Label>Age</Label>
             <Input
-              type="text"
-              value={rollNo}
-              onChange={(e) => setRollNo(e.target.value)}
-              placeholder="Enter your roll number"
+              type="number"
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              placeholder="Enter your age"
               required
+              min="0"
             />
           </InputGroup>
 
           <InputGroup>
             <Label>Phone Number</Label>
             <Input
-              type="text"
+              type="tel"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="Enter your phone number"
@@ -112,14 +122,19 @@ const StudentForm = ({ user }) => {
           </InputGroup>
 
           <InputGroup>
-            <Label>Grade</Label>
-            <Input
-              type="text"
-              value={grade}
-              onChange={(e) => setGrade(e.target.value)}
-              placeholder="Enter your grade"
+            <Label>Education Level</Label>
+            <Select 
+              value={education}
+              onChange={(e) => setEducation(e.target.value)}
               required
-            />
+            >
+              <option value="">Select Education Level</option>
+              {educationLevels.map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </Select>
           </InputGroup>
 
           <InputGroup>
@@ -153,6 +168,25 @@ const fadeIn = keyframes`
 `;
 
 // Styled Components (similar to the login page)
+const Select = styled.select`
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  width: 100%;
+
+  &:focus {
+    border-color: #4a90e2;
+    outline: none;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px;
+    font-size: 12px;
+  }
+`;
+
 const Container = styled.div`
   display: flex;
   justify-content: center;
