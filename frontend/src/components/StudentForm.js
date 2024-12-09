@@ -8,7 +8,7 @@ const StudentForm = ({ user }) => {
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [grade, setGrade] = useState('');
+  const [education, setEducation] = useState('');
   const [school, setSchool] = useState('');
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -27,7 +27,7 @@ const StudentForm = ({ user }) => {
     setIsSubmitting(true);
     console.log('Starting form submission...');
 
-    if (!name || !age || !phoneNumber || !grade || !school) {
+    if (!name || !age || !phoneNumber || !education || !school) {
       setError('Please fill in all fields.');
       setIsSubmitting(false);
       return;
@@ -40,7 +40,7 @@ const StudentForm = ({ user }) => {
         name,
         age,
         phoneNumber,
-        grade,
+        education,
         school,
         userId: user.uid,
         email: user.email,
@@ -112,12 +112,12 @@ const StudentForm = ({ user }) => {
           </InputGroup>
 
           <InputGroup>
-            <Label>Grade</Label>
+            <Label>Education</Label>
             <Input
               type="text"
-              value={grade}
-              onChange={(e) => setGrade(e.target.value)}
-              placeholder="Enter your grade"
+              value={education}
+              onChange={(e) => setEducation(e.target.value)}
+              placeholder="You are currently studying..."
               required
             />
           </InputGroup>

@@ -13,7 +13,7 @@ const UpdateProfile = () => {
     name: '',
     age: '',
     phoneNumber: '',
-    grade: '',
+    education: '',
     school: '',
     userId: user.uid,
   });
@@ -44,7 +44,7 @@ const UpdateProfile = () => {
           name: data.name || '',
           age: data.age || '',
           phoneNumber: data.phoneNumber || '',
-          grade: data.grade || '',
+          education: data.education || '',
           school: data.school || '',
           userId: user.uid,
         };
@@ -138,13 +138,13 @@ const UpdateProfile = () => {
             </FormGroup>
 
             <FormGroup>
-              <Label htmlFor="grade">Grade</Label>
+              <Label htmlFor="education">Education</Label>
               <Input
-                id="grade"
-                name="grade"
-                value={formData.grade}
+                id="education"
+                name="education"
+                value={formData.education}
                 onChange={handleChange}
-                placeholder="Enter your grade"
+                placeholder="You are currently studying..."
                 required
               />
             </FormGroup>
