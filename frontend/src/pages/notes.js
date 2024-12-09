@@ -5,7 +5,7 @@ import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { db } from '../config/firebaseConfig';
 import { useAuthContext } from '../hooks/AuthProvider';
-import { doc, getDoc, setDoc, collection, getDocs, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion } from 'firebase/firestore';
 
 const fadeIn = keyframes`
   from {
@@ -14,6 +14,12 @@ const fadeIn = keyframes`
   to {
     opacity: 1;
   }
+`;
+
+const dotAnimation = keyframes`
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
 `;
 
 const NotesPage = () => {
@@ -27,6 +33,7 @@ const NotesPage = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [saveMessage, setSaveMessage] = useState(null);
+  const [isSaving, setIsSaving] = useState(false); // New state for saving status
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -96,6 +103,8 @@ const NotesPage = () => {
     const userEmail = user.email; // Get the user email from the authenticated user
     const today = new Date().toDateString();
 
+    setIsSaving(true); // Start saving
+
     try {
       const userRef = doc(db, 'notes_store', userId);
       const userDoc = await getDoc(userRef);
@@ -125,6 +134,8 @@ const NotesPage = () => {
     } catch (error) {
       console.error('Error saving notes:', error);
       setSaveMessage('Error saving notes. Please try again.');
+    } finally {
+      setIsSaving(false); // Finish saving
     }
   };
 
@@ -144,7 +155,7 @@ const NotesPage = () => {
             {image && (
               <ActionButton onClick={handleGenerateNotes}>Generate Notes</ActionButton>
             )}
-            {loading && <LoadingMessage>Your notes are on the way...</LoadingMessage>}
+            {loading && <LoadingMessage>Your notes are on the way<AnimatedDots>...</AnimatedDots></LoadingMessage>}
             {error && <ErrorMessage>{error}</ErrorMessage>}
             {extractedText && (
               <>
@@ -167,6 +178,7 @@ const NotesPage = () => {
                 <SectionTitle>Final Notes</SectionTitle>
                 <div dangerouslySetInnerHTML={{ __html: notes }} />
                 <ActionButton onClick={handleSaveNotes}>Save Notes</ActionButton>
+                {isSaving && <SavingMessage>Saving<AnimatedDots>...</AnimatedDots></SavingMessage>}
                 {saveMessage && <SaveMessage>{saveMessage}</SaveMessage>}
               </>
             )}
@@ -358,9 +370,23 @@ const ErrorMessage = styled.p`
 
 const SaveMessage = styled.p`
   font-size: 1.2rem;
-  color: green;git a
+  color: green;
   margin-bottom: 1rem;
   text-align: center;
+`;
+
+const SavingMessage = styled.p`
+  font-size: 1.2rem;
+  color: #5569af;
+  margin-bottom: 1rem;
+  text-align: center;
+`;
+
+const AnimatedDots = styled.span`
+  &::after {
+    content: '...';
+    animation: ${dotAnimation} 1.5s steps(5, end) infinite;
+  }
 `;
 
 export default NotesPage;
