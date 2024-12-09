@@ -3,6 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
+import { db } from '../config/firebaseConfig';
+import { useAuthContext } from '../hooks/AuthProvider';
+import { doc, getDoc, setDoc, collection, getDocs, updateDoc, arrayUnion } from 'firebase/firestore';
 
 const fadeIn = keyframes`
   from {
@@ -15,6 +18,7 @@ const fadeIn = keyframes`
 
 const NotesPage = () => {
   const navigate = useNavigate();
+  const { user } = useAuthContext(); // Get the authenticated user
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [extractedText, setExtractedText] = useState('');
@@ -22,6 +26,7 @@ const NotesPage = () => {
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [saveMessage, setSaveMessage] = useState(null);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -81,6 +86,48 @@ const NotesPage = () => {
     }
   };
 
+  const handleSaveNotes = async () => {
+    if (!notes) {
+      alert('No notes to save.');
+      return;
+    }
+
+    const userId = user.uid; // Get the user ID from the authenticated user
+    const userEmail = user.email; // Get the user email from the authenticated user
+    const today = new Date().toDateString();
+
+    try {
+      const userRef = doc(db, 'notes_store', userId);
+      const userDoc = await getDoc(userRef);
+
+      if (!userDoc.exists()) {
+        await setDoc(userRef, {
+          userId,
+          userEmail,
+          notes: {}
+        });
+      }
+
+      const notesRef = doc(collection(db, 'notes_store', userId, 'notes'), today);
+      const notesDoc = await getDoc(notesRef);
+
+      if (!notesDoc.exists()) {
+        await setDoc(notesRef, {
+          notes: []
+        });
+      }
+
+      await updateDoc(notesRef, {
+        notes: arrayUnion(notes)
+      });
+
+      setSaveMessage('Notes successfully saved.');
+    } catch (error) {
+      console.error('Error saving notes:', error);
+      setSaveMessage('Error saving notes. Please try again.');
+    }
+  };
+
   return (
     <>
       <GlobalStyle />
@@ -119,6 +166,8 @@ const NotesPage = () => {
               <>
                 <SectionTitle>Final Notes</SectionTitle>
                 <div dangerouslySetInnerHTML={{ __html: notes }} />
+                <ActionButton onClick={handleSaveNotes}>Save Notes</ActionButton>
+                {saveMessage && <SaveMessage>{saveMessage}</SaveMessage>}
               </>
             )}
           </Content>
@@ -138,18 +187,18 @@ const GlobalStyle = createGlobalStyle`
   html, body {
     margin: 0;
     padding: 0;
-   height: 100%;
+    height: 100%;
     overflow: hidden;
     background-color: #FFFFFF;
-     color: #0D173B;
-     font-family: 'Arial', sans-serif;
-   }
+    color: #0D173B;
+    font-family: 'Arial', sans-serif;
+  }
 
-   #root {
-     height: 100%;
-     overflow: hidden;
-   }
- `;
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+`;
 
 const Container = styled.div`
   background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);
@@ -304,6 +353,13 @@ const ErrorMessage = styled.p`
   font-size: 1.2rem;
   color: red;
   margin-bottom: 2rem;
+  text-align: center;
+`;
+
+const SaveMessage = styled.p`
+  font-size: 1.2rem;
+  color: green;git a
+  margin-bottom: 1rem;
   text-align: center;
 `;
 
