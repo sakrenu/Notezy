@@ -14,6 +14,15 @@ const StudentForm = ({ user }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
+  // Education levels dropdown options
+  const educationLevels = [
+    'School',
+    'High School', 
+    'College', 
+    'Undergrad', 
+    'Postgrad'
+  ];
+
   useEffect(() => {
     console.log('StudentForm mounted');
     return () => {
@@ -54,7 +63,7 @@ const StudentForm = ({ user }) => {
         email: user.email,
         role: 'Student',
         isProfileComplete: true,
-        studentProfile: true  // Add this flag
+        studentProfile: true
       }, { merge: true });
 
       console.log('Student data saved to Firestore!');
@@ -92,18 +101,19 @@ const StudentForm = ({ user }) => {
           <InputGroup>
             <Label>Age</Label>
             <Input
-              type="text"
+              type="number"
               value={age}
               onChange={(e) => setAge(e.target.value)}
               placeholder="Enter your age"
               required
+              min="0"
             />
           </InputGroup>
 
           <InputGroup>
             <Label>Phone Number</Label>
             <Input
-              type="text"
+              type="tel"
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="Enter your phone number"
@@ -112,14 +122,19 @@ const StudentForm = ({ user }) => {
           </InputGroup>
 
           <InputGroup>
-            <Label>Education</Label>
-            <Input
-              type="text"
+            <Label>Education Level</Label>
+            <Select 
               value={education}
               onChange={(e) => setEducation(e.target.value)}
-              placeholder="You are currently studying..."
               required
-            />
+            >
+              <option value="">Select Education Level</option>
+              {educationLevels.map((level) => (
+                <option key={level} value={level}>
+                  {level}
+                </option>
+              ))}
+            </Select>
           </InputGroup>
 
           <InputGroup>
@@ -153,6 +168,25 @@ const fadeIn = keyframes`
 `;
 
 // Styled Components (similar to the login page)
+const Select = styled.select`
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+  width: 100%;
+
+  &:focus {
+    border-color: #4a90e2;
+    outline: none;
+  }
+
+  @media (max-width: 480px) {
+    padding: 10px;
+    font-size: 12px;
+  }
+`;
+
 const Container = styled.div`
   display: flex;
   justify-content: center;
