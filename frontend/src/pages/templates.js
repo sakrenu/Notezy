@@ -1,25 +1,35 @@
 // frontend/src/pages/templates.js
 
-import React from 'react';
+import React, { useState } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import Navbar from '../components/Navbar';
 import TemplateCategory from '../components/TemplateCategory';
 
 const TemplatesPage = () => {
   const defaultTemplates = [
-    { id: 1, name: 'Template 1', description: 'This is a default template.' },
-    { id: 2, name: 'Template 2', description: 'Another default template.' },
+    { id: 1, name: 'Template 1', description: 'This is a default template.', image: '/path/to/template1.jpg' },
+    { id: 2, name: 'Template 2', description: 'Another default template.', image: '/path/to/template2.jpg' },
   ];
 
   const publicTemplates = [
-    { id: 1, name: 'Public Template 1', description: 'This is a public template.' },
-    { id: 2, name: 'Public Template 2', description: 'Another public template.' },
+    { id: 1, name: 'Public Template 1', description: 'This is a public template.', image: '/path/to/public1.jpg' },
+    { id: 2, name: 'Public Template 2', description: 'Another public template.', image: '/path/to/public2.jpg' },
   ];
 
   const privateTemplates = [
-    { id: 1, name: 'Private Template 1', description: 'This is a private template.' },
-    { id: 2, name: 'Private Template 2', description: 'Another private template.' },
+    { id: 1, name: 'Private Template 1', description: 'This is a private template.', image: '/path/to/private1.jpg' },
+    { id: 2, name: 'Private Template 2', description: 'Another private template.', image: '/path/to/private2.jpg' },
   ];
+
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+
+  const handleTemplateClick = (template) => {
+    setSelectedTemplate(template);
+  };
+
+  const handleCloseModal = () => {
+    setSelectedTemplate(null);
+  };
 
   return (
     <>
@@ -28,11 +38,21 @@ const TemplatesPage = () => {
         <Navbar />
         <MainContent>
           <Title>Templates</Title>
-          <TemplateCategory title="Default Templates" templates={defaultTemplates} />
-          <TemplateCategory title="Public Templates" templates={publicTemplates} />
-          <TemplateCategory title="Private Templates" templates={privateTemplates} />
+          <TemplateCategory title="Default Templates" templates={defaultTemplates} onTemplateClick={handleTemplateClick} />
+          <TemplateCategory title="Public Templates" templates={publicTemplates} onTemplateClick={handleTemplateClick} />
+          <TemplateCategory title="Private Templates" templates={privateTemplates} onTemplateClick={handleTemplateClick} />
           <AddTemplateButton>Add Template</AddTemplateButton>
         </MainContent>
+        {selectedTemplate && (
+          <ModalOverlay>
+            <ModalContent>
+              <CloseButton onClick={handleCloseModal}>×</CloseButton>
+              <TemplateImage src={selectedTemplate.image} alt={selectedTemplate.name} />
+              <TemplateName>{selectedTemplate.name}</TemplateName>
+              <TemplateDescription>{selectedTemplate.description}</TemplateDescription>
+            </ModalContent>
+          </ModalOverlay>
+        )}
       </Container>
     </>
   );
@@ -98,6 +118,57 @@ const AddTemplateButton = styled.button`
   &:hover {
     background: linear-gradient(90deg, #84AC64, #4AB7E0);
   }
+`;
+
+const ModalOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const ModalContent = styled.div`
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  max-width: 80%;
+  max-height: 80%;
+  overflow-y: auto;
+  position: relative;
+`;
+
+const CloseButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+`;
+
+const TemplateImage = styled.img`
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+  margin-bottom: 10px;
+`;
+
+const TemplateName = styled.h3`
+  font-size: 1.5rem;
+  color: #0D173B;
+  margin-bottom: 0.5rem;
+`;
+
+const TemplateDescription = styled.p`
+  font-size: 1rem;
+  color: #5569af;
 `;
 
 export default TemplatesPage;
