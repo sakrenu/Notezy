@@ -1,27 +1,31 @@
 // frontend/src/pages/templates.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import Navbar from '../components/Navbar';
 import TemplateCategory from '../components/TemplateCategory';
+import AddTemplateModal from '../components/AddTemplateModal';
+import { db } from '../config/firebaseConfig';
+import { collection, getDocs, query, where } from "firebase/firestore";
 
 const TemplatesPage = () => {
-  const defaultTemplates = [
-    { id: 1, name: 'Template 1', description: 'This is a default template.', image: '/path/to/template1.jpg' },
-    { id: 2, name: 'Template 2', description: 'Another default template.', image: '/path/to/template2.jpg' },
-  ];
-
-  const publicTemplates = [
-    { id: 1, name: 'Public Template 1', description: 'This is a public template.', image: '/path/to/public1.jpg' },
-    { id: 2, name: 'Public Template 2', description: 'Another public template.', image: '/path/to/public2.jpg' },
-  ];
-
-  const privateTemplates = [
-    { id: 1, name: 'Private Template 1', description: 'This is a private template.', image: '/path/to/private1.jpg' },
-    { id: 2, name: 'Private Template 2', description: 'Another private template.', image: '/path/to/private2.jpg' },
-  ];
-
+  const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const fetchTemplates = async () => {
+      const templatesCollection = collection(db, 'templates');
+      const templatesSnapshot = await getDocs(templatesCollection);
+      const templatesData = templatesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setTemplates(templatesData);
+    };
+
+    fetchTemplates();
+  }, []);
 
   const handleTemplateClick = (template) => {
     setSelectedTemplate(template);
@@ -30,6 +34,29 @@ const TemplatesPage = () => {
   const handleCloseModal = () => {
     setSelectedTemplate(null);
   };
+
+  const handleAddTemplate = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleTemplateAdded = () => {
+    setIsModalOpen(false);
+    // Refetch templates after adding a new one
+    const fetchTemplates = async () => {
+      const templatesCollection = collection(db, 'templates');
+      const templatesSnapshot = await getDocs(templatesCollection);
+      const templatesData = templatesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setTemplates(templatesData);
+    };
+
+    fetchTemplates();
+  };
+
+  const defaultTemplates = templates.filter(template => !template.isPublic);
+  const publicTemplates = templates.filter(template => template.isPublic);
 
   return (
     <>
@@ -40,19 +67,19 @@ const TemplatesPage = () => {
           <Title>Templates</Title>
           <TemplateCategory title="Default Templates" templates={defaultTemplates} onTemplateClick={handleTemplateClick} />
           <TemplateCategory title="Public Templates" templates={publicTemplates} onTemplateClick={handleTemplateClick} />
-          <TemplateCategory title="Private Templates" templates={privateTemplates} onTemplateClick={handleTemplateClick} />
-          <AddTemplateButton>Add Template</AddTemplateButton>
+          <AddTemplateButton onClick={handleAddTemplate}>Add Template</AddTemplateButton>
         </MainContent>
         {selectedTemplate && (
           <ModalOverlay>
             <ModalContent>
               <CloseButton onClick={handleCloseModal}>×</CloseButton>
-              <TemplateImage src={selectedTemplate.image} alt={selectedTemplate.name} />
+              <TemplateImage src={selectedTemplate.imageUrl} alt={selectedTemplate.name} />
               <TemplateName>{selectedTemplate.name}</TemplateName>
               <TemplateDescription>{selectedTemplate.description}</TemplateDescription>
             </ModalContent>
           </ModalOverlay>
         )}
+        <AddTemplateModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTemplateAdded={handleTemplateAdded} />
       </Container>
     </>
   );
@@ -102,8 +129,10 @@ const Title = styled.h1`
   font-weight: bold;
   color: #0D173B;
   margin-bottom: 2rem;
-  align-self: center;
+  text-align: center;
+  border-bottom: 2px solid #0D173B; /* Add a line under the heading */
   padding-bottom: 5px; /* Add some padding below the line */
+  width: 100%; /* Ensure the title takes the full width */
 `;
 
 const AddTemplateButton = styled.button`
