@@ -13,22 +13,23 @@ const AddTemplateModal = ({ isOpen, onClose, onTemplateAdded }) => {
   const [name, setName] = useState('');
   const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [imageUrl, setImageUrl] = useState(''); // Store the image URL
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     setImage(file);
-  
+
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result);
     };
     reader.readAsDataURL(file);
-  
+
     // Upload to Cloudinary
     const formData = new FormData();
     formData.append('file', file);
     formData.append('upload_preset', 'notezy-preset');
-  
+
     try {
       const response = await axios.post(
         `https://api.cloudinary.com/v1_1/dg8zy7lct/image/upload`,
@@ -36,29 +37,29 @@ const AddTemplateModal = ({ isOpen, onClose, onTemplateAdded }) => {
       );
       const imageUrl = response.data.secure_url;
       console.log('Image uploaded to Cloudinary:', imageUrl);
-  
+
       // Store the URL for later use
-      setImage(imageUrl);
+      setImageUrl(imageUrl);
     } catch (error) {
       console.error('Error uploading image:', error);
     }
   };
 
   const handleAddTemplate = async () => {
-    if (!image || !name) {
+    if (!imageUrl || !name) {
       alert('Please upload an image and provide a name.');
       return;
     }
-  
+
     setLoading(true);
-  
+
     const templateData = {
       name,
-      imageUrl: image,
+      imageUrl,
       isPublic,
       createdAt: new Date(),
     };
-  
+
     try {
       await addDoc(collection(db, 'templates'), templateData);
       setLoading(false);
@@ -69,7 +70,6 @@ const AddTemplateModal = ({ isOpen, onClose, onTemplateAdded }) => {
       setLoading(false);
     }
   };
-  
 
   if (!isOpen) return null;
 

@@ -10,7 +10,7 @@ const TemplateCategory = ({ title, templates, onTemplateClick }) => {
       <TemplateList>
         {templates.map((template) => (
           <TemplateItem key={template.id} onClick={() => onTemplateClick(template)}>
-            <TemplateImage src={template.image} alt={template.name} />
+            <TemplateImage src={template.imageUrl} alt={template.name} />
             <TemplateName>{template.name}</TemplateName>
             <TemplateDescription>{template.description}</TemplateDescription>
           </TemplateItem>
@@ -31,8 +31,7 @@ const CategoryTitle = styled.h2`
   color: #0D173B;
   margin-bottom: 1rem;
   text-align: left;
-  border-bottom: 1px solid #0D173B; /* Add a line under the heading */
-  margin-right: 15px;
+  border-bottom: 2px solid #0D173B; /* Add a line under the heading */
   padding-bottom: 5px; /* Add some padding below the line */
 `;
 

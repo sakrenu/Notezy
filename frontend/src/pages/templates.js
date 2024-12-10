@@ -5,13 +5,19 @@ import styled, { createGlobalStyle } from 'styled-components';
 import Navbar from '../components/Navbar';
 import TemplateCategory from '../components/TemplateCategory';
 import AddTemplateModal from '../components/AddTemplateModal';
+import ConfirmationModal from '../components/ConfirmationModal';
 import { db } from '../config/firebaseConfig';
-import { collection, getDocs, query, where } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import axios from 'axios';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
 
 const TemplatesPage = () => {
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+  const [templateToDelete, setTemplateToDelete] = useState(null);
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -55,6 +61,36 @@ const TemplatesPage = () => {
     fetchTemplates();
   };
 
+  const handleDeleteTemplate = async (templateId, imagePublicId) => {
+    setTemplateToDelete({ id: templateId, imagePublicId });
+    setIsConfirmationOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    const { id, imagePublicId } = templateToDelete;
+    try {
+      // Delete from Firestore
+      await deleteDoc(doc(db, 'templates', id));
+
+      // Delete from Cloudinary via server-side function
+      await axios.post('http://localhost:5000/delete-image', { publicId: imagePublicId });
+
+      // Reload the page to update the UI
+      window.location.reload();
+    } catch (error) {
+      console.error('Error deleting template:', error);
+    }
+  };
+
+  const handleDownloadTemplate = (imageUrl) => {
+    const link = document.createElement('a');
+    link.href = imageUrl;
+    link.download = 'template.png'; // You can customize the filename
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const defaultTemplates = templates.filter(template => !template.isPublic);
   const publicTemplates = templates.filter(template => template.isPublic);
 
@@ -73,13 +109,29 @@ const TemplatesPage = () => {
           <ModalOverlay>
             <ModalContent>
               <CloseButton onClick={handleCloseModal}>×</CloseButton>
-              <TemplateImage src={selectedTemplate.imageUrl} alt={selectedTemplate.name} />
+              <DownloadButton onClick={() => handleDownloadTemplate(selectedTemplate.imageUrl)}>
+                <FontAwesomeIcon icon={faDownload} />
+              </DownloadButton>
+              <TemplateImageContainer>
+                <TemplateImage src={selectedTemplate.imageUrl} alt={selectedTemplate.name} />
+                <DeleteButton
+                  onClick={() => handleDeleteTemplate(selectedTemplate.id, selectedTemplate.imageUrl.split('/').pop().split('.')[0])}
+                >
+                  <FontAwesomeIcon icon={faTrash} />
+                </DeleteButton>
+              </TemplateImageContainer>
               <TemplateName>{selectedTemplate.name}</TemplateName>
               <TemplateDescription>{selectedTemplate.description}</TemplateDescription>
             </ModalContent>
           </ModalOverlay>
         )}
         <AddTemplateModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTemplateAdded={handleTemplateAdded} />
+        <ConfirmationModal
+          isOpen={isConfirmationOpen}
+          onClose={() => setIsConfirmationOpen(false)}
+          onConfirm={handleConfirmDelete}
+          message={`Are you sure you want to delete ${selectedTemplate ? selectedTemplate.name : ''}?`}
+        />
       </Container>
     </>
   );
@@ -185,11 +237,48 @@ const CloseButton = styled.button`
   cursor: pointer;
 `;
 
+const DownloadButton = styled.button`
+  position: absolute;
+  top: 10px;
+  right: 60px; /* Adjust the position as needed */
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #0D173B;
+
+  &:hover {
+    color: #4AB7E0;
+  }
+`;
+
+const TemplateImageContainer = styled.div`
+  position: relative;
+`;
+
 const TemplateImage = styled.img`
   width: 100%;
   height: auto;
   border-radius: 5px;
   margin-bottom: 10px;
+`;
+
+const DeleteButton = styled.button`
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  background: white;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 5px;
+  transition: background 0.3s ease;
+
+  &:hover {
+    background: red;
+    color: white;
+  }
 `;
 
 const TemplateName = styled.h3`
