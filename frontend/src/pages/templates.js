@@ -89,11 +89,12 @@ const Container = styled.div`
 const MainContent = styled.div`
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: flex-start; /* Align content to the left */
   flex-grow: 1;
   padding: 20px;
   overflow-y: auto;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add box-shadow for better visual separation */
+  width: 100%; /* Ensure the content takes the full width */
 `;
 
 const Title = styled.h1`
@@ -101,7 +102,8 @@ const Title = styled.h1`
   font-weight: bold;
   color: #0D173B;
   margin-bottom: 2rem;
-  text-align: center;
+  align-self: center;
+  padding-bottom: 5px; /* Add some padding below the line */
 `;
 
 const AddTemplateButton = styled.button`
@@ -114,6 +116,7 @@ const AddTemplateButton = styled.button`
   cursor: pointer;
   transition: background 0.3s ease;
   margin-top: 2rem;
+  align-self: center; /* Center the button */
 
   &:hover {
     background: linear-gradient(90deg, #84AC64, #4AB7E0);

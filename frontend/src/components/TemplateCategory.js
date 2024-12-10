@@ -30,7 +30,10 @@ const CategoryTitle = styled.h2`
   font-weight: bold;
   color: #0D173B;
   margin-bottom: 1rem;
-  text-align: center;
+  text-align: left;
+  border-bottom: 1px solid #0D173B; /* Add a line under the heading */
+  margin-right: 15px;
+  padding-bottom: 5px; /* Add some padding below the line */
 `;
 
 const TemplateList = styled.ul`
@@ -38,7 +41,7 @@ const TemplateList = styled.ul`
   padding: 0;
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start; /* Align templates to the left */
   gap: 20px;
 `;
 
