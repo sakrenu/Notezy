@@ -1,3 +1,5 @@
+// frontend/src/App.js
+
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuthContext } from './hooks/AuthProvider';
@@ -5,6 +7,7 @@ import Login from './components/Login';
 import StudentForm from './components/StudentForm';
 import HomePage from './pages/home';
 import NotesPage from './pages/notes';
+import TemplatesPage from './pages/templates';
 import UserProfile from './components/UserProfile';
 import UpdateProfile from './components/UpdateProfile';
 
@@ -95,6 +98,19 @@ function App() {
                 <Navigate to="/student/form" replace />
               ) : (
                 <NotesPage />
+              )}
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/templates"
+          element={
+            <ProtectedRoute requiredRole="Student">
+              {!user.isProfileComplete && location.state?.isProfileComplete !== true ? (
+                <Navigate to="/student/form" replace />
+              ) : (
+                <TemplatesPage />
               )}
             </ProtectedRoute>
           }
