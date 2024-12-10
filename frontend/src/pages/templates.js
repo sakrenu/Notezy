@@ -70,15 +70,10 @@ const MainContent = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start; /* Changed to flex-start */
   flex-grow: 1;
   padding: 20px;
   overflow-y: auto;
-  margin-top: 60px; /* Adjust this value to ensure content starts below the Navbar */
-  background: #FFFFFF; /* Ensure the background is white */
-  border-radius: 10px; /* Optional: Add border-radius for better visual separation */
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add box-shadow for better visual separation */
-  width: 90%; /* Optional: Limit the width to ensure it doesn't touch the edges */
 `;
 
 const Title = styled.h1`
