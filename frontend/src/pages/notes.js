@@ -38,6 +38,7 @@ const NotesPage = () => {
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
     setImage(file);
+    setSaveMessage(null); // Reset save message when a new file is uploaded
 
     // Log the file details
     console.log('Uploaded file:', file);
