@@ -1,4 +1,5 @@
-// home.js
+// frontend/src/pages/home.js
+
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
