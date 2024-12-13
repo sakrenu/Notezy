@@ -1,4 +1,5 @@
 // frontend/src/components/Navbar.js
+
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
@@ -22,6 +23,7 @@ const Navbar = () => {
       <NavLinks>
         <StyledNavLink to="/home">Home</StyledNavLink>
         <StyledNavLink to="/notes">Notes</StyledNavLink>
+        <StyledNavLink to="/templates">Templates</StyledNavLink> {/* New link for TemplatesPage */}
       </NavLinks>
     </NavbarContainer>
   );

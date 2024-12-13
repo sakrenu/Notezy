@@ -1,3 +1,4 @@
+# routes.py
 from flask import Blueprint, request, jsonify
 from werkzeug.utils import secure_filename
 import os
@@ -5,8 +6,18 @@ import tempfile
 from app.utils.text_extraction import extract_text_adv
 from app.utils.keyword_extraction import extract_keywords
 from app.utils.notes_generation import generate_notes
+from cloudinary.uploader import destroy
+import cloudinary
+import cloudinary.api
 
 bp = Blueprint('main', __name__)
+
+# Configure Cloudinary
+cloudinary.config(
+    cloud_name=os.getenv('REACT_APP_CLOUDINARY_CLOUD_NAME'),
+    api_key=os.getenv('REACT_APP_CLOUDINARY_API_KEY'),
+    api_secret=os.getenv('REACT_APP_CLOUDINARY_API_SECRET')
+)
 
 @bp.route('/extract-text', methods=['POST'])
 def extract_text():
@@ -58,3 +69,14 @@ def generate_notes_route():
         return jsonify({"notes": notes})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
+@bp.route('/delete-image', methods=['POST'])
+def delete_image():
+    data = request.get_json()
+    public_id = data.get('publicId')
+
+    try:
+        destroy(public_id)
+        return jsonify({'message': 'Image deleted successfully'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
