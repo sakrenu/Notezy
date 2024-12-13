@@ -1,10 +1,9 @@
-// frontend/src/pages/notes.js
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
+import ReactMarkdown from 'react-markdown';
 
 const fadeIn = keyframes`
   from {
@@ -102,26 +101,28 @@ const NotesPage = () => {
             {loading && <LoadingMessage>Your notes are on the way...</LoadingMessage>}
             {error && <ErrorMessage>{error}</ErrorMessage>}
             {extractedText && (
-              <>
+              <Section>
                 <SectionTitle>Extracted Text</SectionTitle>
                 <TextArea value={extractedText} readOnly />
-              </>
+              </Section>
             )}
             {keywords.length > 0 && (
-              <>
+              <Section>
                 <SectionTitle>Key Points</SectionTitle>
                 <ul>
                   {keywords.map((keyword, index) => (
                     <li key={index}>{keyword}</li>
                   ))}
                 </ul>
-              </>
+              </Section>
             )}
             {notes && (
-              <>
+              <Section>
                 <SectionTitle>Final Notes</SectionTitle>
-                <div dangerouslySetInnerHTML={{ __html: notes }} />
-              </>
+                <NotesContainer>
+                  <ReactMarkdown>{notes}</ReactMarkdown>
+                </NotesContainer>
+              </Section>
             )}
           </Content>
           {imagePreview && (
@@ -140,21 +141,21 @@ const GlobalStyle = createGlobalStyle`
   html, body {
     margin: 0;
     padding: 0;
-   height: 100%;
+    height: 100%;
     overflow: hidden;
     background-color: #FFFFFF;
-     color: #0D173B;
-     font-family: 'Arial', sans-serif;
-   }
+    color: #0D173B;
+    font-family: 'Arial', sans-serif;
+  }
 
-   #root {
-     height: 100%;
-     overflow: hidden;
-   }
- `;
+  #root {
+    height: 100%;
+    overflow: hidden;
+  }
+`;
 
 const Container = styled.div`
-  background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);
+  background: url('https://www.transparenttextures.com/patterns/notebook-paper.png') repeat;
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -230,6 +231,15 @@ const FileName = styled.span`
   color: #0D173B;
 `;
 
+const Section = styled.div`
+  width: 100%;
+  margin-bottom: 2rem;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: bold;
@@ -254,7 +264,7 @@ const ImagePreviewContainer = styled.div`
   margin-left: 20px;
   margin-right: 50px;
   padding: 20px;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.8);
   border-radius: 5px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 `;
@@ -307,6 +317,15 @@ const ErrorMessage = styled.p`
   color: red;
   margin-bottom: 2rem;
   text-align: center;
+`;
+
+const NotesContainer = styled.div`
+  width: 100%;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 `;
 
 export default NotesPage;
