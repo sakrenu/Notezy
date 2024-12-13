@@ -82,14 +82,33 @@ const TemplatesPage = () => {
     }
   };
 
-  const handleDownloadTemplate = (imageUrl) => {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = 'template.png'; // You can customize the filename
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownloadTemplate = async (imageUrl) => {
+    try {
+      // Fetch the file as a blob
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error('Failed to download the file');
+      }
+      const blob = await response.blob();
+  
+      // Create a temporary URL for the blob
+      const url = URL.createObjectURL(blob);
+  
+      // Trigger the download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'template.png'; // Customize the filename if needed
+      document.body.appendChild(link);
+      link.click();
+  
+      // Clean up the URL object
+      URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading template:', error);
+    }
   };
+  
 
   const defaultTemplates = templates.filter(template => !template.isPublic);
   const publicTemplates = templates.filter(template => template.isPublic);
@@ -108,11 +127,13 @@ const TemplatesPage = () => {
         {selectedTemplate && (
           <ModalOverlay>
             <ModalContent>
-              <CloseButton onClick={handleCloseModal}>×</CloseButton>
-              <DownloadButton onClick={() => handleDownloadTemplate(selectedTemplate.imageUrl)}>
-                <FontAwesomeIcon icon={faDownload} />
-              </DownloadButton>
+              <CloseButtonContainer>
+                <CloseButton onClick={handleCloseModal}>×</CloseButton>
+              </CloseButtonContainer>
               <TemplateImageContainer>
+                <DownloadButton onClick={() => handleDownloadTemplate(selectedTemplate.imageUrl)}>
+                  <FontAwesomeIcon icon={faDownload} />
+                </DownloadButton>
                 <TemplateImage src={selectedTemplate.imageUrl} alt={selectedTemplate.name} />
                 <DeleteButton
                   onClick={() => handleDeleteTemplate(selectedTemplate.id, selectedTemplate.imageUrl.split('/').pop().split('.')[0])}
@@ -227,20 +248,39 @@ const ModalContent = styled.div`
   position: relative;
 `;
 
-const CloseButton = styled.button`
+const CloseButtonContainer = styled.div`
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: -1px; /* Move the close button outside the modal content */
+  right: 1px;
+  background: #fff;
+  border-radius: 50%;
+  padding: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const CloseButton = styled.button`
   background: none;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
 `;
 
+const TemplateImageContainer = styled.div`
+  position: relative;
+  margin-top: 20px; /* Add margin to separate the image from the close button */
+`;
+
+const TemplateImage = styled.img`
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+  margin-bottom: 10px;
+`;
+
 const DownloadButton = styled.button`
   position: absolute;
   top: 10px;
-  right: 60px; /* Adjust the position as needed */
+  right: 10px;
   background: none;
   border: none;
   font-size: 1.5rem;
@@ -250,17 +290,6 @@ const DownloadButton = styled.button`
   &:hover {
     color: #4AB7E0;
   }
-`;
-
-const TemplateImageContainer = styled.div`
-  position: relative;
-`;
-
-const TemplateImage = styled.img`
-  width: 100%;
-  height: auto;
-  border-radius: 5px;
-  margin-bottom: 10px;
 `;
 
 const DeleteButton = styled.button`
