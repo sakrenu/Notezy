@@ -1,3 +1,5 @@
+// frontend/src/pages/notes.js
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
