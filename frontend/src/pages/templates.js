@@ -269,7 +269,7 @@ const TemplateImageContainer = styled.div`
 `;
 
 const TemplateImage = styled.img`
-  width: 100%;
+  width: 50rem;
   height: auto;
   border-radius: 5px;
   margin-bottom: 10px;
