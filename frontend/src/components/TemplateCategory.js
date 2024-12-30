@@ -32,6 +32,7 @@ const CategoryTitle = styled.h2`
   margin-bottom: 1rem;
   text-align: left;
   border-bottom: 2px solid #0D173B; /* Add a line under the heading */
+  margin-right: 15px;
   padding-bottom: 5px; /* Add some padding below the line */
 `;
 
@@ -62,7 +63,7 @@ const TemplateItem = styled.li`
 
 const TemplateImage = styled.img`
   width: 100%;
-  height: auto;
+  height: 7rem;
   border-radius: 5px;
   margin-bottom: 10px;
 `;

@@ -203,8 +203,6 @@ const Title = styled.h1`
   color: #0D173B;
   margin-bottom: 2rem;
   text-align: center;
-  border-bottom: 2px solid #0D173B; /* Add a line under the heading */
-  padding-bottom: 5px; /* Add some padding below the line */
   width: 100%; /* Ensure the title takes the full width */
 `;
 

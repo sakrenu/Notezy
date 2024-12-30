@@ -1,5 +1,3 @@
-// frontend/src/components/AddTemplateModal.js
-
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
@@ -79,7 +77,11 @@ const AddTemplateModal = ({ isOpen, onClose, onTemplateAdded }) => {
         <CloseButton onClick={onClose}>×</CloseButton>
         <ModalTitle>Add Template</ModalTitle>
         <InputFile type="file" accept="image/*" onChange={handleImageUpload} />
-        {imagePreview && <ImagePreview src={imagePreview} alt="Template Preview" />}
+        {imagePreview && (
+          <ImagePreviewContainer>
+            <ImagePreview src={imagePreview} alt="Template Preview" />
+          </ImagePreviewContainer>
+        )}
         <InputName
           type="text"
           placeholder="Template Name"
@@ -145,11 +147,18 @@ const InputFile = styled.input`
   margin-bottom: 1rem;
 `;
 
+const ImagePreviewContainer = styled.div`
+  max-width: 100%;
+  max-height: 300px; /* Set a maximum height for the preview */
+  overflow: auto; /* Make it scrollable */
+  margin-bottom: 1rem;
+  border-radius: 5px;
+`;
+
 const ImagePreview = styled.img`
   width: 100%;
   height: auto;
   border-radius: 5px;
-  margin-bottom: 1rem;
 `;
 
 const InputName = styled.input`
