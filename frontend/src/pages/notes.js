@@ -1,13 +1,11 @@
-// frontend/src/pages/notes.js
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { db } from '../config/firebaseConfig';
 import { useAuthContext } from '../hooks/AuthProvider';
-import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
 
 const fadeIn = keyframes`
   from {
@@ -26,6 +24,7 @@ const dotAnimation = keyframes`
 
 const NotesPage = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuthContext(); // Get the authenticated user
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -36,6 +35,47 @@ const NotesPage = () => {
   const [error, setError] = useState(null);
   const [saveMessage, setSaveMessage] = useState(null);
   const [isSaving, setIsSaving] = useState(false); // New state for saving status
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
+
+  useEffect(() => {
+    const fetchDefaultTemplate = async () => {
+      const defaultTemplatesCollection = collection(db, 'default_templates');
+      const defaultTemplatesSnapshot = await getDocs(defaultTemplatesCollection);
+      const defaultTemplatesData = defaultTemplatesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setSelectedTemplate(defaultTemplatesData[0]); // Set the default template
+    };
+
+    if (location.state && location.state.selectedTemplate) {
+      setSelectedTemplate(location.state.selectedTemplate);
+    } else {
+      fetchDefaultTemplate();
+    }
+
+    // Restore state from local storage
+    const storedImage = localStorage.getItem('image');
+    const storedImagePreview = localStorage.getItem('imagePreview');
+    const storedExtractedText = localStorage.getItem('extractedText');
+    const storedKeywords = localStorage.getItem('keywords');
+    const storedNotes = localStorage.getItem('notes');
+
+    if (storedImage) setImage(storedImage);
+    if (storedImagePreview) setImagePreview(storedImagePreview);
+    if (storedExtractedText) setExtractedText(storedExtractedText);
+    if (storedKeywords) setKeywords(JSON.parse(storedKeywords));
+    if (storedNotes) setNotes(storedNotes);
+  }, [location.state]);
+
+  useEffect(() => {
+    // Save state to local storage
+    if (image) localStorage.setItem('image', image);
+    if (imagePreview) localStorage.setItem('imagePreview', imagePreview);
+    if (extractedText) localStorage.setItem('extractedText', extractedText);
+    if (keywords) localStorage.setItem('keywords', JSON.stringify(keywords));
+    if (notes) localStorage.setItem('notes', notes);
+  }, [image, imagePreview, extractedText, keywords, notes]);
 
   const handleImageUpload = (event) => {
     const file = event.target.files[0];
@@ -83,9 +123,10 @@ const NotesPage = () => {
       });
       setKeywords(keywordsResponse.data.keywords);
 
-      // Generate notes
+      // Generate notes using the selected template
       const notesResponse = await axios.post('http://localhost:5000/generate-notes', {
         keywords: keywordsResponse.data.keywords,
+        template: selectedTemplate.name // Use the selected template
       });
       setNotes(notesResponse.data.notes);
     } catch (error) {
@@ -192,6 +233,15 @@ const NotesPage = () => {
             <ImagePreviewContainer>
               <PreviewTitle>Uploaded Image Preview</PreviewTitle>
               <ImagePreview src={imagePreview} alt="Uploaded Image Preview" />
+              {selectedTemplate && (
+                <TemplateSelectedContainer>
+                  <TemplateSelectedTitle>Template Selected</TemplateSelectedTitle>
+                  <TemplateImageContainer>
+                    <TemplateImage src={selectedTemplate.imageUrl} alt={selectedTemplate.name} />
+                  </TemplateImageContainer>
+                  <ChooseTemplateButton onClick={() => navigate('/templates')}>Choose Template</ChooseTemplateButton>
+                </TemplateSelectedContainer>
+              )}
             </ImagePreviewContainer>
           )}
         </MainContent>
@@ -391,6 +441,57 @@ const AnimatedDots = styled.span`
   &::after {
     content: '...';
     animation: ${dotAnimation} 1.5s steps(5, end) infinite;
+  }
+`;
+
+const TemplateSelectedContainer = styled.div`
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const TemplateSelectedTitle = styled.h2`
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #0D173B;
+  margin-bottom: 1rem;
+  text-align: center;
+`;
+
+const TemplateImageContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
+
+const TemplateImage = styled.img`
+  max-width: 300px;
+  max-height: 300px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
+const ChooseTemplateButton = styled.button`
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 15px;
+  background: linear-gradient(90deg, #4AB7E0, #84AC64);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 20px;
+
+  &:hover {
+    background: linear-gradient(90deg, #84AC64, #4AB7E0);
   }
 `;
 

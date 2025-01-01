@@ -10,6 +10,7 @@ import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faDownload, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
 import { getAuth } from "firebase/auth";
+import { useNavigate } from 'react-router-dom';
 
 const TemplatesPage = () => {
   const [templates, setTemplates] = useState({ default: [], public: [], private: [] });
@@ -20,6 +21,7 @@ const TemplatesPage = () => {
   const [categoryToAdd, setCategoryToAdd] = useState(null);
   const auth = getAuth();
   const user = auth.currentUser;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTemplates = async () => {
@@ -153,6 +155,10 @@ const TemplatesPage = () => {
     }
   };
 
+  const handleUseTemplate = (template) => {
+    navigate('/notes', { state: { selectedTemplate: template } });
+  };
+
   return (
     <>
       <GlobalStyle />
@@ -195,6 +201,7 @@ const TemplatesPage = () => {
               </TemplateImageContainer>
               <TemplateName>{selectedTemplate.name}</TemplateName>
               <TemplateDescription>{selectedTemplate.description}</TemplateDescription>
+              <UseTemplateButton onClick={() => handleUseTemplate(selectedTemplate)}>Use Template</UseTemplateButton>
             </ModalContent>
           </ModalOverlay>
         )}
@@ -304,7 +311,7 @@ const TemplateImageContainer = styled.div`
 `;
 
 const TemplateImage = styled.img`
-  width: 50rem;
+  width: 100%;
   height: auto;
   border-radius: 5px;
   margin-bottom: 10px;
@@ -352,6 +359,22 @@ const TemplateName = styled.h3`
 const TemplateDescription = styled.p`
   font-size: 1rem;
   color: #5569af;
+`;
+
+const UseTemplateButton = styled.button`
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 15px;
+  background: linear-gradient(90deg, #4AB7E0, #84AC64);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 20px;
+
+  &:hover {
+    background: linear-gradient(90deg, #84AC64, #4AB7E0);
+  }
 `;
 
 export default TemplatesPage;
