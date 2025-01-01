@@ -4,14 +4,16 @@ import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db } from '../config/firebaseConfig';
 import { collection, addDoc } from "firebase/firestore";
 import axios from 'axios';
+import { getAuth } from "firebase/auth";
 
-const AddTemplateModal = ({ isOpen, onClose, onTemplateAdded }) => {
+const AddTemplateModal = ({ isOpen, onClose, onTemplateAdded, category }) => {
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const [name, setName] = useState('');
-  const [isPublic, setIsPublic] = useState(false);
   const [loading, setLoading] = useState(false);
   const [imageUrl, setImageUrl] = useState(''); // Store the image URL
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
@@ -54,12 +56,13 @@ const AddTemplateModal = ({ isOpen, onClose, onTemplateAdded }) => {
     const templateData = {
       name,
       imageUrl,
-      isPublic,
       createdAt: new Date(),
+      userId: category === 'private' ? user.uid : null
     };
 
     try {
-      await addDoc(collection(db, 'templates'), templateData);
+      const collectionName = category === 'public' ? 'public_templates' : 'private_templates';
+      await addDoc(collection(db, collectionName), templateData);
       setLoading(false);
       onTemplateAdded();
       onClose();
@@ -88,14 +91,6 @@ const AddTemplateModal = ({ isOpen, onClose, onTemplateAdded }) => {
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
-        <CheckboxContainer>
-          <Checkbox
-            type="checkbox"
-            checked={isPublic}
-            onChange={(e) => setIsPublic(e.target.checked)}
-          />
-          <CheckboxLabel>Public</CheckboxLabel>
-        </CheckboxContainer>
         <AddButton onClick={handleAddTemplate} disabled={loading}>
           {loading ? 'Adding...' : 'Add Template'}
         </AddButton>
@@ -167,21 +162,6 @@ const InputName = styled.input`
   margin-bottom: 1rem;
   border: 1px solid #ccc;
   border-radius: 5px;
-`;
-
-const CheckboxContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
-`;
-
-const Checkbox = styled.input`
-  margin-right: 10px;
-`;
-
-const CheckboxLabel = styled.label`
-  font-size: 1rem;
-  color: #0D173B;
 `;
 
 const AddButton = styled.button`
