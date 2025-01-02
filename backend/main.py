@@ -6,7 +6,7 @@ from app.routes import bp
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 app.register_blueprint(bp)
 
 if __name__ == '__main__':
