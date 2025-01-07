@@ -53,7 +53,6 @@ const StudentForm = ({ user }) => {
         school,
         userId: user.uid,
         email: user.email,
-        notes: [""]
       });
       console.log('Student details saved successfully');
 
@@ -61,9 +60,7 @@ const StudentForm = ({ user }) => {
       // Update the user's profile completion status
       await setDoc(doc(db, 'users', user.uid), {
         email: user.email,
-        role: 'Student',
         isProfileComplete: true,
-        studentProfile: true
       }, { merge: true });
 
       console.log('Student data saved to Firestore!');

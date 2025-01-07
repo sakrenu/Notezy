@@ -1,10 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import styled, { keyframes } from 'styled-components';
+import styled from 'styled-components';
 import { useAuthContext } from '../hooks/AuthProvider';
-import { signOut } from 'firebase/auth';
-import { auth } from '../config/firebaseConfig';
-import UpdateProfile from './UpdateProfile'; // Assuming you have an UpdateProfile component
 
 const UserProfile = () => {
   const { user, logout } = useAuthContext();

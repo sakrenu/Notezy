@@ -40,7 +40,6 @@ const Login = () => {
         // Save basic user data to Firestore
         await setDoc(doc(db, 'users', user.uid), {
           email: user.email,
-          role: 'Student',
           isProfileComplete: false // Add this flag
         });
 
@@ -84,7 +83,6 @@ const Login = () => {
         // New Google user - create profile
         await setDoc(doc(db, 'users', user.uid), {
           email: user.email,
-          role: 'Student',
           isProfileComplete: false
         });
         console.log('New Google user:', user);

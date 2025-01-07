@@ -30,32 +30,18 @@ export function AuthProvider({ children }) {
               const userData = doc.data();
               console.log("Real-time user data update:", userData);
 
-              if (userData.role) {
-                setUser({
-                  ...currentUser,
-                  uid: currentUser.uid,
-                  email: currentUser.email,
-                  role: userData.role,
-                  isProfileComplete: !!userData.isProfileComplete,
-                  ...userData // Include any other fields from Firestore
-                });
-                console.log("Updated user state:", {
-                  uid: currentUser.uid,
-                  email: currentUser.email,
-                  role: userData.role,
-                  isProfileComplete: !!userData.isProfileComplete
-                });
-              } else {
-                console.warn("Role is missing in Firestore document:", userData);
-                setError("Role is missing in Firestore document");
-                setUser({
-                  ...currentUser,
-                  uid: currentUser.uid,
-                  email: currentUser.email,
-                  role: null,
-                  isProfileComplete: false
-                });
-              }
+              setUser({
+                ...currentUser,
+                uid: currentUser.uid,
+                email: currentUser.email,
+                isProfileComplete: !!userData.isProfileComplete,
+                ...userData // Include any other fields from Firestore
+              });
+              console.log("Updated user state:", {
+                uid: currentUser.uid,
+                email: currentUser.email,
+                isProfileComplete: !!userData.isProfileComplete
+              });
             } else {
               console.warn("User document does not exist for UID:", currentUser.uid);
               setError("User document does not exist");
@@ -63,7 +49,6 @@ export function AuthProvider({ children }) {
                 ...currentUser,
                 uid: currentUser.uid,
                 email: currentUser.email,
-                role: null,
                 isProfileComplete: false
               });
             }
@@ -79,7 +64,6 @@ export function AuthProvider({ children }) {
             ...currentUser,
             uid: currentUser.uid,
             email: currentUser.email,
-            role: null,
             isProfileComplete: false
           });
         }
@@ -107,7 +91,6 @@ export function AuthProvider({ children }) {
     if (user) {
       console.log("Auth state updated:", {
         uid: user.uid,
-        role: user.role,
         isProfileComplete: user.isProfileComplete
       });
     }
