@@ -29,6 +29,7 @@ const NotesPage = () => {
   const { user } = useAuthContext(); // Get the authenticated user
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageUrl, setImageUrl] = useState(''); // Store the image URL
   const [extractedText, setExtractedText] = useState('');
   const [keywords, setKeywords] = useState([]);
   const [notes, setNotes] = useState('');
@@ -78,7 +79,7 @@ const NotesPage = () => {
     if (notes) localStorage.setItem('notes', notes);
   }, [image, imagePreview, extractedText, keywords, notes]);
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     setImage(file);
     setSaveMessage(null); // Reset save message when a new file is uploaded
@@ -92,6 +93,25 @@ const NotesPage = () => {
       setImagePreview(reader.result);
     };
     reader.readAsDataURL(file);
+
+    // Upload to Cloudinary
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'notezy-preset');
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/dg8zy7lct/image/upload`,
+        formData
+      );
+      const imageUrl = response.data.secure_url;
+      console.log('Image uploaded to Cloudinary:', imageUrl);
+
+      // Store the URL for later use
+      setImageUrl(imageUrl);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
   };
 
   const handleGenerateNotes = async () => {
@@ -171,7 +191,7 @@ const NotesPage = () => {
       }
 
       await updateDoc(notesRef, {
-        notes: arrayUnion(notes)
+        notes: arrayUnion({ content: notes, imageUrl })
       });
 
       setSaveMessage('Notes successfully saved.');
