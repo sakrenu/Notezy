@@ -157,7 +157,6 @@ const NotesPage = () => {
         await setDoc(userRef, {
           userId,
           userEmail,
-          notes: {}
         });
       }
 
