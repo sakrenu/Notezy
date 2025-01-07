@@ -6,6 +6,7 @@ import Navbar from '../components/Navbar';
 import { db } from '../config/firebaseConfig';
 import { useAuthContext } from '../hooks/AuthProvider';
 import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
+import ReactMarkdown from 'react-markdown';
 
 const fadeIn = keyframes`
   from {
@@ -198,34 +199,36 @@ const NotesPage = () => {
             {image && (
               <ActionButton onClick={handleGenerateNotes}>Generate Notes</ActionButton>
             )}
-            {loading && <LoadingMessage>Your notes are on the way<AnimatedDots>...</AnimatedDots></LoadingMessage>}
+            {loading && <LoadingMessage>Your notes are on the way<AnimatedDots></AnimatedDots></LoadingMessage>}
             {error && <ErrorMessage>{error}</ErrorMessage>}
             {extractedText && (
-              <>
+              <Section>
                 <SectionTitle>Extracted Text</SectionTitle>
                 <TextArea value={extractedText} readOnly />
-              </>
+              </Section>
             )}
             {keywords.length > 0 && (
-              <>
+              <Section>
                 <SectionTitle>Key Points</SectionTitle>
                 <ul>
                   {keywords.map((keyword, index) => (
                     <li key={index}>{keyword}</li>
                   ))}
                 </ul>
-              </>
+              </Section>
             )}
             {notes && (
-              <>
+              <Section>
                 <SectionTitle>Final Notes</SectionTitle>
-                <div dangerouslySetInnerHTML={{ __html: notes }} />
+                <NotesContainer>
+                  <ReactMarkdown>{notes}</ReactMarkdown>
+                </NotesContainer>
                 {!isSaving && !saveMessage && (
                   <ActionButton onClick={handleSaveNotes}>Save Notes</ActionButton>
                 )}
-                {isSaving && <SavingMessage>Saving<AnimatedDots>...</AnimatedDots></SavingMessage>}
+                {isSaving && <SavingMessage>Saving<AnimatedDots></AnimatedDots></SavingMessage>}
                 {saveMessage && <SaveMessage>{saveMessage}</SaveMessage>}
-              </>
+              </Section>
             )}
           </Content>
           {imagePreview && (
@@ -267,7 +270,7 @@ const GlobalStyle = createGlobalStyle`
 `;
 
 const Container = styled.div`
-  background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);
+  background: url('https://www.transparenttextures.com/patterns/notebook-paper.png') repeat;
   height: 100vh;
   width: 100vw;
   display: flex;
@@ -343,6 +346,15 @@ const FileName = styled.span`
   color: #0D173B;
 `;
 
+const Section = styled.div`
+  width: 100%;
+  margin-bottom: 2rem;
+  padding: 20px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+`;
+
 const SectionTitle = styled.h2`
   font-size: 1.5rem;
   font-weight: bold;
@@ -367,7 +379,7 @@ const ImagePreviewContainer = styled.div`
   margin-left: 20px;
   margin-right: 50px;
   padding: 20px;
-  background-color: #fff;
+  background-color: rgba(255, 255, 255, 0.8);
   border-radius: 5px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 `;
@@ -420,6 +432,15 @@ const ErrorMessage = styled.p`
   color: red;
   margin-bottom: 2rem;
   text-align: center;
+`;
+
+const NotesContainer = styled.div`
+  width: 98%;
+  padding: 10px;
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 5px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 2rem;
 `;
 
 const SaveMessage = styled.p`
