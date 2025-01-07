@@ -436,8 +436,8 @@ const ErrorMessage = styled.p`
 `;
 
 const NotesContainer = styled.div`
-  width: 100%;
-  padding: 20px;
+  width: 98%;
+  padding: 10px;
   background-color: rgba(255, 255, 255, 0.8);
   border-radius: 5px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
