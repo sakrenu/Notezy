@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import styled from 'styled-components';
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db } from '../config/firebaseConfig';
 import { collection, addDoc } from "firebase/firestore";
 import axios from 'axios';

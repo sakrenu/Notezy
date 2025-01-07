@@ -2,19 +2,43 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import { useAuthContext } from '../hooks/AuthProvider';
+import { db } from '../config/firebaseConfig';
+import { doc, getDoc } from 'firebase/firestore';
 
 const UserProfile = () => {
   const { user, logout } = useAuthContext();
   const [isOpen, setIsOpen] = useState(false);
   const [profileError, setProfileError] = useState(null);
+  const [studentName, setStudentName] = useState('');
   const dropdownRef = useRef(null);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    const fetchStudentName = async () => {
+      if (user?.uid) {
+        try {
+          const studentRef = doc(db, 'students', user.uid);
+          const studentDoc = await getDoc(studentRef);
+          
+          if (studentDoc.exists()) {
+            const studentData = studentDoc.data();
+            setStudentName(studentData.name || '');
+          }
+        } catch (error) {
+          console.error('Error fetching student name:', error);
+          setStudentName('');
+        }
+      }
+    };
+
+    fetchStudentName();
+  }, [user?.uid]);
+
   const handleSignOut = async () => {
     try {
-      setIsOpen(false); // Close dropdown before signing out
+      setIsOpen(false);
       await logout();
-      navigate('/'); // Redirect to home after signout
+      navigate('/');
     } catch (error) {
       console.error('Error signing out:', error);
       setProfileError('Failed to sign out. Please try again.');
@@ -34,13 +58,34 @@ const UserProfile = () => {
 
   const handleUpdateProfile = () => {
     navigate('/update_profile');
-    setIsOpen(false); // Close dropdown after navigation
+    setIsOpen(false);
   };
 
-  // Early return if no user
   if (!user) {
-    return null; // Or a fallback UI
+    return null;
   }
+
+  // Get the initial to display
+  const getInitial = () => {
+    if (studentName && studentName.length > 0) {
+      return studentName[0].toUpperCase();
+    }
+    if (user.email && user.email.length > 0) {
+      return user.email[0].toUpperCase();
+    }
+    return 'U';
+  };
+
+  // Get the display name
+  const getDisplayName = () => {
+    if (studentName && studentName.length > 0) {
+      return studentName;
+    }
+    if (user.email) {
+      return user.email.split('@')[0];
+    }
+    return 'User';
+  };
 
   return (
     <ProfileContainer ref={dropdownRef}>
@@ -50,7 +95,7 @@ const UserProfile = () => {
         aria-expanded={isOpen}
       >
         <ProfileInitial>
-          {user.displayName?.[0].toUpperCase() || user.email?.[0].toUpperCase() || 'U'}
+          {getInitial()}
         </ProfileInitial>
       </ProfileButton>
 
@@ -58,16 +103,14 @@ const UserProfile = () => {
         <DropdownMenu role="menu">
           <UserInfo>
             <UserDetails>
-              <UserName>{user.displayName || 'User'}</UserName>
+              <UserName>{getDisplayName()}</UserName>
               <UserEmail>{user.email}</UserEmail>
-              <UserRole>Role: {user.role || 'Not Set'}</UserRole>
             </UserDetails>
           </UserInfo>
           <Divider />
           <MenuItem
             onClick={handleUpdateProfile}
             role="menuitem"
-            disabled={!user.role}
           >
             <MenuIcon>⚙</MenuIcon>
             Update Profile
@@ -89,12 +132,6 @@ const UserProfile = () => {
     </ProfileContainer>
   );
 };
-
-const UserRole = styled.span`
-  font-size: 12px;
-  color: #666;
-  font-style: italic;
-`;
 
 const ErrorMessage = styled.div`
   color: #dc3545;

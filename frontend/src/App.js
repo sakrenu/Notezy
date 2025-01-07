@@ -1,6 +1,6 @@
 // frontend/src/App.js
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuthContext } from './hooks/AuthProvider';
 import Login from './components/Login';
@@ -28,7 +28,6 @@ const ProtectedRoute = ({ children, requiredRole }) => {
 
 function App() {
   const { user } = useAuthContext(); // Get the current authenticated user
-  const [error, setError] = useState('');
   const location = useLocation();
 
   useEffect(() => {
