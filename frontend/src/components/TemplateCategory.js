@@ -1,12 +1,22 @@
-// frontend/src/components/TemplateCategory.js
-
 import React from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
-const TemplateCategory = ({ title, templates, onTemplateClick }) => {
+const TemplateCategory = ({ title, templates, onTemplateClick, onAddTemplate, showAddButton }) => {
+  const navigate = useNavigate();
+
+  const handleUseTemplate = (template) => {
+    navigate('/notes', { state: { selectedTemplate: template } });
+  };
+
   return (
     <CategoryContainer>
-      <CategoryTitle>{title}</CategoryTitle>
+      <CategoryTitle>
+        {title}
+        {showAddButton && onAddTemplate && (
+          <AddTemplateButton onClick={onAddTemplate}>Add Template</AddTemplateButton>
+        )}
+      </CategoryTitle>
       <TemplateList>
         {templates.map((template) => (
           <TemplateItem key={template.id} onClick={() => onTemplateClick(template)}>
@@ -32,7 +42,27 @@ const CategoryTitle = styled.h2`
   margin-bottom: 1rem;
   text-align: left;
   border-bottom: 2px solid #0D173B; /* Add a line under the heading */
+  margin-right: 15px;
   padding-bottom: 5px; /* Add some padding below the line */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+`;
+
+const AddTemplateButton = styled.button`
+  padding: 5px 10px;
+  font-size: 1rem;
+  border-radius: 15px;
+  background: linear-gradient(90deg, #4AB7E0, #84AC64);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-left: 10px;
+
+  &:hover {
+    background: linear-gradient(90deg, #84AC64, #4AB7E0);
+  }
 `;
 
 const TemplateList = styled.ul`
@@ -62,7 +92,7 @@ const TemplateItem = styled.li`
 
 const TemplateImage = styled.img`
   width: 100%;
-  height: auto;
+  height: 7rem;
   border-radius: 5px;
   margin-bottom: 10px;
 `;

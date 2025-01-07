@@ -1,5 +1,3 @@
-// frontend/src/pages/templates.js
-
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import Navbar from '../components/Navbar';
@@ -7,31 +5,57 @@ import TemplateCategory from '../components/TemplateCategory';
 import AddTemplateModal from '../components/AddTemplateModal';
 import ConfirmationModal from '../components/ConfirmationModal';
 import { db } from '../config/firebaseConfig';
-import { collection, getDocs, deleteDoc, doc } from "firebase/firestore";
+import { collection, getDocs, deleteDoc, doc, query, where } from "firebase/firestore";
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faDownload, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { getAuth } from "firebase/auth";
+import { useNavigate } from 'react-router-dom';
 
 const TemplatesPage = () => {
-  const [templates, setTemplates] = useState([]);
+  const [templates, setTemplates] = useState({ default: [], public: [], private: [] });
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState(null);
+  const [categoryToAdd, setCategoryToAdd] = useState(null);
+  const auth = getAuth();
+  const user = auth.currentUser;
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTemplates = async () => {
-      const templatesCollection = collection(db, 'templates');
-      const templatesSnapshot = await getDocs(templatesCollection);
-      const templatesData = templatesSnapshot.docs.map(doc => ({
+      const defaultTemplatesCollection = collection(db, 'default_templates');
+      const publicTemplatesCollection = collection(db, 'public_templates');
+      const privateTemplatesCollection = collection(db, 'private_templates');
+
+      const defaultTemplatesSnapshot = await getDocs(defaultTemplatesCollection);
+      const publicTemplatesSnapshot = await getDocs(publicTemplatesCollection);
+      const privateTemplatesQuery = query(privateTemplatesCollection, where("userId", "==", user.uid));
+      const privateTemplatesSnapshot = await getDocs(privateTemplatesQuery);
+
+      const defaultTemplatesData = defaultTemplatesSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      setTemplates(templatesData);
+      const publicTemplatesData = publicTemplatesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      const privateTemplatesData = privateTemplatesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      setTemplates({
+        default: defaultTemplatesData,
+        public: publicTemplatesData,
+        private: privateTemplatesData
+      });
     };
 
     fetchTemplates();
-  }, []);
+  }, [user.uid]);
 
   const handleTemplateClick = (template) => {
     setSelectedTemplate(template);
@@ -41,21 +65,43 @@ const TemplatesPage = () => {
     setSelectedTemplate(null);
   };
 
-  const handleAddTemplate = () => {
+  const handleAddTemplate = (category) => {
+    setCategoryToAdd(category);
     setIsModalOpen(true);
   };
 
   const handleTemplateAdded = () => {
     setIsModalOpen(false);
+    setCategoryToAdd(null);
     // Refetch templates after adding a new one
     const fetchTemplates = async () => {
-      const templatesCollection = collection(db, 'templates');
-      const templatesSnapshot = await getDocs(templatesCollection);
-      const templatesData = templatesSnapshot.docs.map(doc => ({
+      const defaultTemplatesCollection = collection(db, 'default_templates');
+      const publicTemplatesCollection = collection(db, 'public_templates');
+      const privateTemplatesCollection = collection(db, 'private_templates');
+
+      const defaultTemplatesSnapshot = await getDocs(defaultTemplatesCollection);
+      const publicTemplatesSnapshot = await getDocs(publicTemplatesCollection);
+      const privateTemplatesQuery = query(privateTemplatesCollection, where("userId", "==", user.uid));
+      const privateTemplatesSnapshot = await getDocs(privateTemplatesQuery);
+
+      const defaultTemplatesData = defaultTemplatesSnapshot.docs.map(doc => ({
         id: doc.id,
         ...doc.data()
       }));
-      setTemplates(templatesData);
+      const publicTemplatesData = publicTemplatesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      const privateTemplatesData = privateTemplatesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+
+      setTemplates({
+        default: defaultTemplatesData,
+        public: publicTemplatesData,
+        private: privateTemplatesData
+      });
     };
 
     fetchTemplates();
@@ -70,7 +116,7 @@ const TemplatesPage = () => {
     const { id, imagePublicId } = templateToDelete;
     try {
       // Delete from Firestore
-      await deleteDoc(doc(db, 'templates', id));
+      await deleteDoc(doc(db, 'public_templates', id));
 
       // Delete from Cloudinary via server-side function
       await axios.post('http://localhost:5000/delete-image', { publicId: imagePublicId });
@@ -82,17 +128,36 @@ const TemplatesPage = () => {
     }
   };
 
-  const handleDownloadTemplate = (imageUrl) => {
-    const link = document.createElement('a');
-    link.href = imageUrl;
-    link.download = 'template.png'; // You can customize the filename
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const handleDownloadTemplate = async (imageUrl) => {
+    try {
+      // Fetch the file as a blob
+      const response = await fetch(imageUrl);
+      if (!response.ok) {
+        throw new Error('Failed to download the file');
+      }
+      const blob = await response.blob();
+
+      // Create a temporary URL for the blob
+      const url = URL.createObjectURL(blob);
+
+      // Trigger the download
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'template.png'; // Customize the filename if needed
+      document.body.appendChild(link);
+      link.click();
+
+      // Clean up the URL object
+      URL.revokeObjectURL(url);
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error('Error downloading template:', error);
+    }
   };
 
-  const defaultTemplates = templates.filter(template => !template.isPublic);
-  const publicTemplates = templates.filter(template => template.isPublic);
+  const handleUseTemplate = (template) => {
+    navigate('/notes', { state: { selectedTemplate: template } });
+  };
 
   return (
     <>
@@ -101,31 +166,46 @@ const TemplatesPage = () => {
         <Navbar />
         <MainContent>
           <Title>Templates</Title>
-          <TemplateCategory title="Default Templates" templates={defaultTemplates} onTemplateClick={handleTemplateClick} />
-          <TemplateCategory title="Public Templates" templates={publicTemplates} onTemplateClick={handleTemplateClick} />
-          <AddTemplateButton onClick={handleAddTemplate}>Add Template</AddTemplateButton>
+          <TemplateCategory title="Default Templates" templates={templates.default} onTemplateClick={handleTemplateClick} />
+          <TemplateCategory
+            title="Public Templates"
+            templates={templates.public}
+            onTemplateClick={handleTemplateClick}
+            onAddTemplate={() => handleAddTemplate('public')}
+          />
+          <TemplateCategory
+            title="Private Templates"
+            templates={templates.private}
+            onTemplateClick={handleTemplateClick}
+            onAddTemplate={() => handleAddTemplate('private')}
+          />
         </MainContent>
         {selectedTemplate && (
           <ModalOverlay>
             <ModalContent>
-              <CloseButton onClick={handleCloseModal}>×</CloseButton>
-              <DownloadButton onClick={() => handleDownloadTemplate(selectedTemplate.imageUrl)}>
-                <FontAwesomeIcon icon={faDownload} />
-              </DownloadButton>
+              <CloseButtonContainer>
+                <CloseButton onClick={handleCloseModal}>×</CloseButton>
+              </CloseButtonContainer>
               <TemplateImageContainer>
+                <DownloadButton onClick={() => handleDownloadTemplate(selectedTemplate.imageUrl)}>
+                  <FontAwesomeIcon icon={faDownload} />
+                </DownloadButton>
                 <TemplateImage src={selectedTemplate.imageUrl} alt={selectedTemplate.name} />
-                <DeleteButton
-                  onClick={() => handleDeleteTemplate(selectedTemplate.id, selectedTemplate.imageUrl.split('/').pop().split('.')[0])}
-                >
-                  <FontAwesomeIcon icon={faTrash} />
-                </DeleteButton>
+                {selectedTemplate.isPublic !== undefined && (
+                  <DeleteButton
+                    onClick={() => handleDeleteTemplate(selectedTemplate.id, selectedTemplate.imageUrl.split('/').pop().split('.')[0])}
+                  >
+                    <FontAwesomeIcon icon={faTrash} />
+                  </DeleteButton>
+                )}
               </TemplateImageContainer>
               <TemplateName>{selectedTemplate.name}</TemplateName>
               <TemplateDescription>{selectedTemplate.description}</TemplateDescription>
+              <UseTemplateButton onClick={() => handleUseTemplate(selectedTemplate)}>Use Template</UseTemplateButton>
             </ModalContent>
           </ModalOverlay>
         )}
-        <AddTemplateModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTemplateAdded={handleTemplateAdded} />
+        <AddTemplateModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTemplateAdded={handleTemplateAdded} category={categoryToAdd} />
         <ConfirmationModal
           isOpen={isConfirmationOpen}
           onClose={() => setIsConfirmationOpen(false)}
@@ -182,26 +262,7 @@ const Title = styled.h1`
   color: #0D173B;
   margin-bottom: 2rem;
   text-align: center;
-  border-bottom: 2px solid #0D173B; /* Add a line under the heading */
-  padding-bottom: 5px; /* Add some padding below the line */
   width: 100%; /* Ensure the title takes the full width */
-`;
-
-const AddTemplateButton = styled.button`
-  padding: 10px 20px;
-  font-size: 1rem;
-  border-radius: 15px;
-  background: linear-gradient(90deg, #4AB7E0, #84AC64);
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  margin-top: 2rem;
-  align-self: center; /* Center the button */
-
-  &:hover {
-    background: linear-gradient(90deg, #84AC64, #4AB7E0);
-  }
 `;
 
 const ModalOverlay = styled.div`
@@ -227,20 +288,39 @@ const ModalContent = styled.div`
   position: relative;
 `;
 
-const CloseButton = styled.button`
+const CloseButtonContainer = styled.div`
   position: absolute;
-  top: 10px;
-  right: 10px;
+  top: -1px; /* Move the close button outside the modal content */
+  right: 1px;
+  background: #fff;
+  border-radius: 50%;
+  padding: 5px;
+  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const CloseButton = styled.button`
   background: none;
   border: none;
   font-size: 1.5rem;
   cursor: pointer;
 `;
 
+const TemplateImageContainer = styled.div`
+  position: relative;
+  margin-top: 20px; /* Add margin to separate the image from the close button */
+`;
+
+const TemplateImage = styled.img`
+  width: 100%;
+  height: auto;
+  border-radius: 5px;
+  margin-bottom: 10px;
+`;
+
 const DownloadButton = styled.button`
   position: absolute;
   top: 10px;
-  right: 60px; /* Adjust the position as needed */
+  right: 10px;
   background: none;
   border: none;
   font-size: 1.5rem;
@@ -250,17 +330,6 @@ const DownloadButton = styled.button`
   &:hover {
     color: #4AB7E0;
   }
-`;
-
-const TemplateImageContainer = styled.div`
-  position: relative;
-`;
-
-const TemplateImage = styled.img`
-  width: 100%;
-  height: auto;
-  border-radius: 5px;
-  margin-bottom: 10px;
 `;
 
 const DeleteButton = styled.button`
@@ -290,6 +359,22 @@ const TemplateName = styled.h3`
 const TemplateDescription = styled.p`
   font-size: 1rem;
   color: #5569af;
+`;
+
+const UseTemplateButton = styled.button`
+  padding: 10px 20px;
+  font-size: 1rem;
+  border-radius: 15px;
+  background: linear-gradient(90deg, #4AB7E0, #84AC64);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 20px;
+
+  &:hover {
+    background: linear-gradient(90deg, #84AC64, #4AB7E0);
+  }
 `;
 
 export default TemplatesPage;
