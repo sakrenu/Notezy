@@ -28,3 +28,6 @@ backend/.env
 __pycache__/
 
 .codegpt
+
+# Firebase config
+frontend/config/firebaseConfig.js
