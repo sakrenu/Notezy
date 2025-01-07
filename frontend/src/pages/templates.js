@@ -1,3 +1,4 @@
+// frontend/src/pages/templates.js
 import React, { useState, useEffect } from 'react';
 import styled, { createGlobalStyle } from 'styled-components';
 import Navbar from '../components/Navbar';
@@ -40,10 +41,12 @@ const TemplatesPage = () => {
       }));
       const publicTemplatesData = publicTemplatesSnapshot.docs.map(doc => ({
         id: doc.id,
+        isPublic: true,
         ...doc.data()
       }));
       const privateTemplatesData = privateTemplatesSnapshot.docs.map(doc => ({
         id: doc.id,
+        isPublic: false,
         ...doc.data()
       }));
 
@@ -90,10 +93,12 @@ const TemplatesPage = () => {
       }));
       const publicTemplatesData = publicTemplatesSnapshot.docs.map(doc => ({
         id: doc.id,
+        isPublic: true,
         ...doc.data()
       }));
       const privateTemplatesData = privateTemplatesSnapshot.docs.map(doc => ({
         id: doc.id,
+        isPublic: false,
         ...doc.data()
       }));
 
@@ -115,8 +120,9 @@ const TemplatesPage = () => {
   const handleConfirmDelete = async () => {
     const { id, imagePublicId } = templateToDelete;
     try {
-      // Delete from Firestore
-      await deleteDoc(doc(db, 'public_templates', id));
+      // Delete from correct collection based on template type
+      const collectionName = selectedTemplate.isPublic ? 'public_templates' : 'private_templates';
+      await deleteDoc(doc(db, collectionName, id));
 
       // Delete from Cloudinary via server-side function
       await axios.post('http://localhost:5000/delete-image', { publicId: imagePublicId });
@@ -172,12 +178,14 @@ const TemplatesPage = () => {
             templates={templates.public}
             onTemplateClick={handleTemplateClick}
             onAddTemplate={() => handleAddTemplate('public')}
+            showAddButton={true}
           />
           <TemplateCategory
             title="Private Templates"
             templates={templates.private}
             onTemplateClick={handleTemplateClick}
             onAddTemplate={() => handleAddTemplate('private')}
+            showAddButton={true}
           />
         </MainContent>
         {selectedTemplate && (
@@ -191,7 +199,7 @@ const TemplatesPage = () => {
                   <FontAwesomeIcon icon={faDownload} />
                 </DownloadButton>
                 <TemplateImage src={selectedTemplate.imageUrl} alt={selectedTemplate.name} />
-                {selectedTemplate.isPublic !== undefined && (
+                {(selectedTemplate.isPublic || selectedTemplate.userId === user.uid) && (
                   <DeleteButton
                     onClick={() => handleDeleteTemplate(selectedTemplate.id, selectedTemplate.imageUrl.split('/').pop().split('.')[0])}
                   >

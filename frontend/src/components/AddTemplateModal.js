@@ -1,3 +1,4 @@
+// frontend/src/components/AddTemplateModal.js
 import React, { useState } from 'react';
 import styled from 'styled-components';
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
