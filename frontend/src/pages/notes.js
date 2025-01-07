@@ -200,7 +200,7 @@ const NotesPage = () => {
             {image && (
               <ActionButton onClick={handleGenerateNotes}>Generate Notes</ActionButton>
             )}
-            {loading && <LoadingMessage>Your notes are on the way<AnimatedDots>...</AnimatedDots></LoadingMessage>}
+            {loading && <LoadingMessage>Your notes are on the way<AnimatedDots></AnimatedDots></LoadingMessage>}
             {error && <ErrorMessage>{error}</ErrorMessage>}
             {extractedText && (
               <Section>
@@ -227,7 +227,7 @@ const NotesPage = () => {
                 {!isSaving && !saveMessage && (
                   <ActionButton onClick={handleSaveNotes}>Save Notes</ActionButton>
                 )}
-                {isSaving && <SavingMessage>Saving<AnimatedDots>...</AnimatedDots></SavingMessage>}
+                {isSaving && <SavingMessage>Saving<AnimatedDots></AnimatedDots></SavingMessage>}
                 {saveMessage && <SaveMessage>{saveMessage}</SaveMessage>}
               </Section>
             )}
