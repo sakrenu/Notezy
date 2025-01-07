@@ -1,6 +1,4 @@
-// frontend/src/App.js
-
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuthContext } from './hooks/AuthProvider';
 import Login from './components/Login';
@@ -11,44 +9,32 @@ import TemplatesPage from './pages/templates';
 import UserProfile from './components/UserProfile';
 import UpdateProfile from './components/UpdateProfile';
 
-// Protected Route Component
-const ProtectedRoute = ({ children, requiredRole }) => {
+const ProtectedRoute = ({ children }) => {
   const { user } = useAuthContext();
-
   if (!user) {
     return <Navigate to="/" replace />;
   }
-
-  if (requiredRole && user.role !== requiredRole) {
-    return <Navigate to="/" replace />;
-  }
-
   return children;
 };
 
 function App() {
-  const { user } = useAuthContext(); // Get the current authenticated user
-  const [error, setError] = useState('');
+  const { user } = useAuthContext();
   const location = useLocation();
 
   useEffect(() => {
     if (user) {
       console.log('Current user state:', {
-        role: user.role,
         isProfileComplete: user.isProfileComplete,
         path: location.pathname
       });
     }
   }, [user, location]);
 
-  // If no user is logged in, show the Login page
   if (!user) {
     return <Login />;
   }
 
-  // Add this debug log to help understand the values
   console.log('User state:', {
-    role: user.role,
     isProfileComplete: user.isProfileComplete
   });
 
@@ -63,11 +49,10 @@ function App() {
             <Navigate to="/student/form" replace />
           )
         } />
-
         <Route
           path="/student/form"
           element={
-            <ProtectedRoute requiredRole="Student">
+            <ProtectedRoute>
               {user.isProfileComplete ? (
                 <Navigate to="/home" replace />
               ) : (
@@ -76,11 +61,10 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/home"
           element={
-            <ProtectedRoute requiredRole="Student">
+            <ProtectedRoute>
               {!user.isProfileComplete && location.state?.isProfileComplete !== true ? (
                 <Navigate to="/student/form" replace />
               ) : (
@@ -89,11 +73,10 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/notes"
           element={
-            <ProtectedRoute requiredRole="Student">
+            <ProtectedRoute>
               {!user.isProfileComplete && location.state?.isProfileComplete !== true ? (
                 <Navigate to="/student/form" replace />
               ) : (
@@ -102,11 +85,10 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/templates"
           element={
-            <ProtectedRoute requiredRole="Student">
+            <ProtectedRoute>
               {!user.isProfileComplete && location.state?.isProfileComplete !== true ? (
                 <Navigate to="/student/form" replace />
               ) : (
@@ -115,17 +97,14 @@ function App() {
             </ProtectedRoute>
           }
         />
-
         <Route
           path="/update_profile"
           element={
-            <ProtectedRoute requiredRole="Student">
+            <ProtectedRoute>
               <UpdateProfile />
             </ProtectedRoute>
           }
         />
-
-        {/* Default route for invalid paths */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
