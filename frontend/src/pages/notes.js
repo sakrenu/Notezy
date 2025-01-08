@@ -1954,6 +1954,24 @@ import { db } from '../config/firebaseConfig';
 import { useAuthContext } from '../hooks/AuthProvider';
 import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs, deleteField, deleteDoc } from 'firebase/firestore';
 import './notes.css'; // Import the CSS file
+// import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
+import ReactMarkdown from 'react-markdown';
+import styled, { keyframes, createGlobalStyle } from 'styled-components';
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
+
+const dotAnimation = keyframes`
+  0% { opacity: 0; }
+  50% { opacity: 1; }
+  100% { opacity: 0; }
+`;
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -1961,6 +1979,7 @@ const NotesPage = () => {
   const { user } = useAuthContext(); // Get the authenticated user
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+  const [imageUrl, setImageUrl] = useState(''); // Store the image URL
   const [extractedText, setExtractedText] = useState('');
   const [keywords, setKeywords] = useState([]);
   const [notes, setNotes] = useState('');
@@ -2038,7 +2057,7 @@ const NotesPage = () => {
     if (notes) localStorage.setItem('notes', notes);
   }, [image, imagePreview, extractedText, keywords, notes]);
 
-  const handleImageUpload = (event) => {
+  const handleImageUpload = async (event) => {
     const file = event.target.files[0];
     setImage(file);
     setSaveMessage(null); // Reset save message when a new file is uploaded
@@ -2052,6 +2071,25 @@ const NotesPage = () => {
       setImagePreview(reader.result);
     };
     reader.readAsDataURL(file);
+
+    // Upload to Cloudinary
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('upload_preset', 'notezy-preset');
+
+    try {
+      const response = await axios.post(
+        `https://api.cloudinary.com/v1_1/dg8zy7lct/image/upload`,
+        formData
+      );
+      const imageUrl = response.data.secure_url;
+      console.log('Image uploaded to Cloudinary:', imageUrl);
+
+      // Store the URL for later use
+      setImageUrl(imageUrl);
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    }
   };
 
   const handleGenerateNotes = async () => {
@@ -2118,7 +2156,6 @@ const NotesPage = () => {
         await setDoc(userRef, {
           userId,
           userEmail,
-          notes: {}
         });
       }
 

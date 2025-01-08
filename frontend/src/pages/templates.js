@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import styled, { createGlobalStyle } from 'styled-components';
+import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import Navbar from '../components/Navbar';
 import TemplateCategory from '../components/TemplateCategory';
 import AddTemplateModal from '../components/AddTemplateModal';
@@ -19,6 +19,8 @@ const TemplatesPage = () => {
   const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
   const [templateToDelete, setTemplateToDelete] = useState(null);
   const [categoryToAdd, setCategoryToAdd] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [successMessage, setSuccessMessage] = useState(null);
   const auth = getAuth();
   const user = auth.currentUser;
   const navigate = useNavigate();
@@ -40,10 +42,12 @@ const TemplatesPage = () => {
       }));
       const publicTemplatesData = publicTemplatesSnapshot.docs.map(doc => ({
         id: doc.id,
+        isPublic: true,
         ...doc.data()
       }));
       const privateTemplatesData = privateTemplatesSnapshot.docs.map(doc => ({
         id: doc.id,
+        isPublic: false,
         ...doc.data()
       }));
 
@@ -55,6 +59,16 @@ const TemplatesPage = () => {
     };
 
     fetchTemplates();
+
+    // Check for success message in localStorage
+    const storedMessage = localStorage.getItem('successMessage');
+    if (storedMessage) {
+      setSuccessMessage(storedMessage);
+      localStorage.removeItem('successMessage');
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 2000); // Fade out after 2 seconds
+    }
   }, [user.uid]);
 
   const handleTemplateClick = (template) => {
@@ -90,10 +104,12 @@ const TemplatesPage = () => {
       }));
       const publicTemplatesData = publicTemplatesSnapshot.docs.map(doc => ({
         id: doc.id,
+        isPublic: true,
         ...doc.data()
       }));
       const privateTemplatesData = privateTemplatesSnapshot.docs.map(doc => ({
         id: doc.id,
+        isPublic: false,
         ...doc.data()
       }));
 
@@ -114,17 +130,23 @@ const TemplatesPage = () => {
 
   const handleConfirmDelete = async () => {
     const { id, imagePublicId } = templateToDelete;
+    setIsDeleting(true);
     try {
-      // Delete from Firestore
-      await deleteDoc(doc(db, 'public_templates', id));
+      // Delete from correct collection based on template type
+      const collectionName = selectedTemplate.isPublic ? 'public_templates' : 'private_templates';
+      await deleteDoc(doc(db, collectionName, id));
 
       // Delete from Cloudinary via server-side function
       await axios.post('http://localhost:5000/delete-image', { publicId: imagePublicId });
+
+      // Store success message in localStorage
+      localStorage.setItem('successMessage', `Template "${selectedTemplate.name}" successfully deleted.`);
 
       // Reload the page to update the UI
       window.location.reload();
     } catch (error) {
       console.error('Error deleting template:', error);
+      setIsDeleting(false);
     }
   };
 
@@ -172,13 +194,18 @@ const TemplatesPage = () => {
             templates={templates.public}
             onTemplateClick={handleTemplateClick}
             onAddTemplate={() => handleAddTemplate('public')}
+            showAddButton={true}
           />
           <TemplateCategory
             title="Private Templates"
             templates={templates.private}
             onTemplateClick={handleTemplateClick}
             onAddTemplate={() => handleAddTemplate('private')}
+            showAddButton={true}
           />
+          {successMessage && (
+            <SuccessMessage>{successMessage}</SuccessMessage>
+          )}
         </MainContent>
         {selectedTemplate && (
           <ModalOverlay>
@@ -191,7 +218,7 @@ const TemplatesPage = () => {
                   <FontAwesomeIcon icon={faDownload} />
                 </DownloadButton>
                 <TemplateImage src={selectedTemplate.imageUrl} alt={selectedTemplate.name} />
-                {selectedTemplate.isPublic !== undefined && (
+                {(selectedTemplate.isPublic || selectedTemplate.userId === user.uid) && (
                   <DeleteButton
                     onClick={() => handleDeleteTemplate(selectedTemplate.id, selectedTemplate.imageUrl.split('/').pop().split('.')[0])}
                   >
@@ -212,10 +239,20 @@ const TemplatesPage = () => {
           onConfirm={handleConfirmDelete}
           message={`Are you sure you want to delete ${selectedTemplate ? selectedTemplate.name : ''}?`}
         />
+        {isDeleting && (
+          <DeletingOverlay>
+            <DeletingMessage>Deleting<AnimatedDots></AnimatedDots></DeletingMessage>
+          </DeletingOverlay>
+        )}
       </Container>
     </>
   );
 };
+
+const fadeOut = keyframes`
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+`;
 
 const GlobalStyle = createGlobalStyle`
   html, body {
@@ -374,6 +411,58 @@ const UseTemplateButton = styled.button`
 
   &:hover {
     background: linear-gradient(90deg, #84AC64, #4AB7E0);
+  }
+`;
+
+const SuccessMessage = styled.div`
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  color: #155724;
+  padding: 15px;
+  border-radius: 5px;
+  z-index: 1001;
+  animation: ${fadeOut} 3s forwards;
+`;
+
+const DeletingOverlay = styled.div`
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+`;
+
+const DeletingMessage = styled.div`
+  background: #fff;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+`;
+
+const AnimatedDots = styled.span`
+  &::after {
+    display: inline-block;
+    animation: dotAnimation 1s steps(5, end) infinite;
+    content: '.....';
+    font-size: 2rem;
+  }
+
+  @keyframes dotAnimation {
+    0% { content: '.....'; }
+    20% { content: '.'; }
+    40% { content: '..'; }
+    60% { content: '...'; }
+    80% { content: '....'; }
+    100% { content: '.....'; }
   }
 `;
 
