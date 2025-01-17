@@ -300,7 +300,7 @@ const NotesPage = () => {
 
   return (
     <div className="container">
-      <Navbar /> {/* Use the Navbar component */}
+      <Navbar />
       <div className="main-content">
         <Sidebar
           isSidebarOpen={isSidebarOpen}
@@ -312,7 +312,7 @@ const NotesPage = () => {
           handleViewNote={handleViewNote}
           handleDeleteNote={handleDeleteNote}
         />
-        <div className={`content`}>
+      <div className={`content`} style={{ marginLeft: isSidebarOpen ? '300px' : '0' }}>
           <div className="title">Notes Generation Page</div>
           <div className="subtitle">Upload an image to generate notes.</div>
           <div className="upload-section">
