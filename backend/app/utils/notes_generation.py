@@ -50,7 +50,7 @@ def generate_notes(keywords):
         - **Similar Topics**: Suggest related topics worth exploring.
         - **Summary**: Concise summary of the notes.
 
-        Format the notes using Markdown syntax.
+        Format the notes using Markdown syntax using appropriate headings styles.
         If any keyword is unfamiliar, explicitly state: "I don't have knowledge about this keyword."
         """
 
@@ -58,7 +58,7 @@ def generate_notes(keywords):
         query = f"{system_prompt}\n This following is the given keyowrds list : {keywords_string}"
 
         # Call the Gemini API
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-2.0-flash")
         response = model.generate_content(query, stream=True)
 
         # Collect the generated content from streaming response
