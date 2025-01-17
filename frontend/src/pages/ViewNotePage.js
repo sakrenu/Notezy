@@ -1,10 +1,50 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import styled, { createGlobalStyle } from 'styled-components';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '../config/firebaseConfig';
+import { useAuthContext } from '../hooks/AuthProvider';
+import ReactMarkdown from 'react-markdown';
 
 const ViewNotePage = () => {
   const location = useLocation();
-  const { note, date } = location.state;
+  const { date, noteIndex } = location.state;
+  const { user } = useAuthContext();
+  const [note, setNote] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchNote = async () => {
+      const userId = user.uid;
+      const notesRef = doc(db, 'notes_store', userId, 'notes', date);
+
+      try {
+        const notesDoc = await getDoc(notesRef);
+        if (notesDoc.exists()) {
+          const notesData = notesDoc.data().notes;
+          setNote(notesData[noteIndex]);
+        } else {
+          setError('Note not found.');
+        }
+      } catch (error) {
+        console.error('Error fetching note:', error);
+        setError('Error fetching note. Please try again.');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchNote();
+  }, [date, noteIndex, user.uid]);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
 
   return (
     <>
@@ -13,10 +53,14 @@ const ViewNotePage = () => {
         <Content>
           <Title>Note Details</Title>
           <Date>{date}</Date>
-          <NoteContainer>
-            <ImagePreview src={note.image} alt="Uploaded Image Preview" />
-            <NotesContent dangerouslySetInnerHTML={{ __html: note.notes }} />
-          </NoteContainer>
+          {note && (
+            <NoteContainer>
+              <ImagePreview src={note.imageUrl} alt="Uploaded Image Preview" />
+              <NotesContent>
+                <ReactMarkdown>{note.content}</ReactMarkdown>
+              </NotesContent>
+            </NoteContainer>
+          )}
         </Content>
       </Container>
     </>

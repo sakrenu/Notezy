@@ -208,10 +208,25 @@ const NotesPage = () => {
       }
 
       await updateDoc(notesRef, {
-        notes: arrayUnion({ title, content: notes, imageUrl }) // Include the title
+        notes: arrayUnion({ title, content: notes, imageUrl })
       });
 
       setSaveMessage('Notes successfully saved.');
+      // Fetch the saved notes immediately after saving
+      const fetchSavedNotes = async () => {
+        const notesCollection = collection(db, 'notes_store', userId, 'notes');
+        const notesSnapshot = await getDocs(notesCollection);
+        const notesData = notesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setSavedNotes(notesData);
+
+        const dates = notesData.map(note => note.id);
+        setDateOptions(dates);
+      };
+
+      await fetchSavedNotes();
     } catch (error) {
       console.error('Error saving notes:', error);
       setSaveMessage('Error saving notes. Please try again.');

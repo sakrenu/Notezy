@@ -1,6 +1,8 @@
 // frontend/src/components/Sidebar.js
 import React from 'react';
 import styled from 'styled-components';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faTrash, faDownload, faShare } from '@fortawesome/free-solid-svg-icons'; // Import FontAwesome icons
 
 const SidebarContainer = styled.div`
   width: var(--sidebar-width, 300px);
@@ -39,6 +41,30 @@ const NoteTile = styled.div`
   display: flex;
   align-items: center;
   gap: 15px;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-5px);
+  }
+`;
+
+const NoteContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+`;
+
+const NoteTitle = styled.div`
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #0D173B;
+`;
+
+const NoteDate = styled.div`
+  font-size: 0.9rem;
+  color: #5569af;
 `;
 
 const NoteImage = styled.img`
@@ -48,36 +74,21 @@ const NoteImage = styled.img`
   object-fit: cover;
 `;
 
-const NoteContent = styled.div`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-`;
-
-const NoteTitle = styled.div`
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: #0D173B;
-`;
-
 const NoteActions = styled.div`
   display: flex;
   gap: 10px;
+  margin-top: 10px;
 `;
 
-const ActionButton = styled.button`
-  padding: 5px 10px;
-  font-size: 0.9rem;
-  border-radius: 5px;
-  background: linear-gradient(90deg, #4AB7E0, #84AC64);
-  color: white;
+const IconButton = styled.button`
+  background: none;
   border: none;
   cursor: pointer;
-  transition: background 0.3s ease;
+  color: #0D173B;
+  transition: color 0.3s ease;
 
   &:hover {
-    background: linear-gradient(90deg, #84AC64, #4AB7E0);
+    color: #4AB7E0;
   }
 `;
 
@@ -99,16 +110,38 @@ const Sidebar = ({
           .filter(note => !selectedDate || note.id === selectedDate)
           .map(note => (
             note.notes.map((item, index) => (
-              <NoteTile key={index}>
-                <NoteImage src={item.imageUrl} alt="Saved Note" />
+              <NoteTile key={index} onClick={() => handleViewNote(note.id, index)}>
                 <NoteContent>
                   <NoteTitle>{item.title}</NoteTitle>
+                  <NoteDate>{note.id}</NoteDate> {/* Display the date of creation */}
                   <NoteActions>
-                    <ActionButton onClick={() => handleViewNote(note.id, index)}>View</ActionButton>
-                    <ActionButton onClick={() => handleDeleteNote(note.id, index)}>Delete</ActionButton>
-                    <ActionButton onClick={() => alert('Share functionality to be implemented')}>Share</ActionButton>
+                    <IconButton
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent tile click event
+                        handleDeleteNote(note.id, index);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faTrash} /> {/* Delete icon */}
+                    </IconButton>
+                    <IconButton
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent tile click event
+                        alert('Share functionality to be implemented');
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faShare} /> {/* Share icon */}
+                    </IconButton>
+                    <IconButton
+                      onClick={(e) => {
+                        e.stopPropagation(); // Prevent tile click event
+                        alert('Download functionality to be implemented');
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faDownload} /> {/* Download icon */}
+                    </IconButton>
                   </NoteActions>
                 </NoteContent>
+                <NoteImage src={item.imageUrl} alt="Saved Note" />
               </NoteTile>
             ))
           ))}
