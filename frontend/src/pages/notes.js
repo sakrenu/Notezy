@@ -11,7 +11,6 @@ import ReactMarkdown from 'react-markdown';
 import Sidebar from '../components/Sidebar';
 import SaveNotesModal from '../components/SaveNotesModal';
 
-
 const NotesPage = () => {
   const navigate = useNavigate();
   const location = useLocation();

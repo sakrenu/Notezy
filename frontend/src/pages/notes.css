@@ -124,7 +124,7 @@ html, body {
   background-color: #fff;
   border-radius: 5px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-  width: calc(100% - 40px); /* Adjust width to fit the container */
+  width: 100%;
 }
 
 .preview-title {
