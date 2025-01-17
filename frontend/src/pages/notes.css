@@ -256,14 +256,14 @@ html, body {
 
 .toggle-button {
   position: fixed;
-  top: 80px; /* Adjust the top position to be below the logo */
+  top: 80px;
   left: 20px;
-  background: linear-gradient(90deg, #4AB7E0, #84AC64);
+  background: linear-gradient(90deg, #eebbec, #82dcd0);
   color: white;
   border: none;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
+  border-radius: 25%;
+  width: 35px;
+  height: 35px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -273,5 +273,5 @@ html, body {
 }
 
 .toggle-button:hover {
-  background: linear-gradient(90deg, #84AC64, #4AB7E0);
+  background: linear-gradient(90deg, #bf5cb9, #44a5bb);
 }

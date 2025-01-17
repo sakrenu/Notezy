@@ -8,20 +8,13 @@ const SidebarContainer = styled.div`
   padding: 20px;
   border-right: 1px solid #ccc;
   overflow-y: auto;
-  height: 100vh; /* Ensure the sidebar spans the full height of the page */
+  height: 100vh;
   position: absolute;
   top: 0;
   left: 0;
   transform: translateX(var(--sidebar-translate, -100%));
   transition: transform 0.3s ease;
   z-index: 1000;
-`;
-
-const SidebarHeader = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
 `;
 
 const SidebarTitle = styled.div`
@@ -32,80 +25,60 @@ const SidebarTitle = styled.div`
   text-align: center;
 `;
 
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
+const NotesTileContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const NoteTile = styled.div`
+  background-color: #fff;
+  border-radius: 10px;
+  padding: 15px;
+  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 15px;
+`;
+
+const NoteImage = styled.img`
+  width: 80px;
+  height: 80px;
+  border-radius: 10px;
+  object-fit: cover;
+`;
+
+const NoteContent = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+`;
+
+const NoteTitle = styled.div`
+  font-size: 1.2rem;
+  font-weight: bold;
   color: #0D173B;
 `;
 
-const SearchInput = styled.input`
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 20px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 1rem;
+const NoteActions = styled.div`
+  display: flex;
+  gap: 10px;
 `;
 
-const DateDropdown = styled.div`
-  position: relative;
-  display: inline-block;
-  margin-bottom: 20px;
-`;
-
-const DateDropdownButton = styled.button`
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
-  border: 1px solid #ccc;
+const ActionButton = styled.button`
+  padding: 5px 10px;
+  font-size: 0.9rem;
   border-radius: 5px;
-  background-color: #fff;
-  font-size: 1rem;
+  background: linear-gradient(90deg, #4AB7E0, #84AC64);
+  color: white;
+  border: none;
   cursor: pointer;
-  text-align: left;
-`;
-
-const DateDropdownItem = styled.div`
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  background-color: #fff;
-  font-size: 1rem;
-  cursor: pointer;
+  transition: background 0.3s ease;
 
   &:hover {
-    background-color: #f0f0f0;
+    background: linear-gradient(90deg, #84AC64, #4AB7E0);
   }
-`;
-
-const NotesTable = styled.table`
-  width: 100%;
-  border-collapse: collapse;
-`;
-
-const NotesTableCell = styled.td`
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: left;
-`;
-
-const NotesTableHeader = styled.th`
-  background-color: #f0f0f0;
-  border: 1px solid #ccc;
-  padding: 10px;
-  text-align: left;
-`;
-
-const DragHandle = styled.div`
-  width: 10px;
-  height: 100%;
-  position: absolute;
-  right: 0;
-  top: 0;
-  cursor: ew-resize;
-  z-index: 10;
 `;
 
 const Sidebar = ({
@@ -120,52 +93,26 @@ const Sidebar = ({
 }) => {
   return (
     <SidebarContainer>
-      <SidebarHeader>
-        <SidebarTitle>Saved Notes</SidebarTitle>
-        <CloseButton onClick={toggleSidebar}>×</CloseButton>
-      </SidebarHeader>
-      <SearchInput
-        type="text"
-        placeholder="Search by date"
-        value={selectedDate}
-        onChange={(e) => setSelectedDate(e.target.value)}
-      />
-      <DateDropdown>
-        <DateDropdownButton onClick={() => setSelectedDate(null)}>
-          All Dates
-        </DateDropdownButton>
-        {dateOptions.map(date => (
-          <DateDropdownItem key={date} onClick={() => setSelectedDate(date)}>
-            {date}
-          </DateDropdownItem>
-        ))}
-      </DateDropdown>
-      <NotesTable>
-        <thead>
-          <tr>
-            <NotesTableHeader>Notes</NotesTableHeader>
-            <NotesTableHeader>Image</NotesTableHeader>
-            <NotesTableHeader>Actions</NotesTableHeader>
-          </tr>
-        </thead>
-        <tbody>
-          {savedNotes
-            .filter(note => !selectedDate || note.id === selectedDate)
-            .map(note => (
-              note.notes.map((item, index) => (
-                <tr key={index}>
-                  <NotesTableCell>{item.notes}</NotesTableCell>
-                  <NotesTableCell><img src={item.image} alt="Saved" style={{ maxWidth: '50px' }} /></NotesTableCell>
-                  <NotesTableCell>
-                    <button className="action-button" onClick={() => handleViewNote(note.id, index)}>View</button>
-                    <button className="action-button" onClick={() => handleDeleteNote(note.id, index)}>Delete</button>
-                  </NotesTableCell>
-                </tr>
-              ))
-            ))}
-        </tbody>
-      </NotesTable>
-      <DragHandle />
+      <SidebarTitle>Saved Notes</SidebarTitle>
+      <NotesTileContainer>
+        {savedNotes
+          .filter(note => !selectedDate || note.id === selectedDate)
+          .map(note => (
+            note.notes.map((item, index) => (
+              <NoteTile key={index}>
+                <NoteImage src={item.imageUrl} alt="Saved Note" />
+                <NoteContent>
+                  <NoteTitle>{item.title}</NoteTitle>
+                  <NoteActions>
+                    <ActionButton onClick={() => handleViewNote(note.id, index)}>View</ActionButton>
+                    <ActionButton onClick={() => handleDeleteNote(note.id, index)}>Delete</ActionButton>
+                    <ActionButton onClick={() => alert('Share functionality to be implemented')}>Share</ActionButton>
+                  </NoteActions>
+                </NoteContent>
+              </NoteTile>
+            ))
+          ))}
+      </NotesTileContainer>
     </SidebarContainer>
   );
 };

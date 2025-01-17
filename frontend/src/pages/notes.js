@@ -6,9 +6,11 @@ import Navbar from '../components/Navbar';
 import { db } from '../config/firebaseConfig';
 import { useAuthContext } from '../hooks/AuthProvider';
 import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
-import './notes.css'; // Import the new CSS file
+import './notes.css';
 import ReactMarkdown from 'react-markdown';
-import Sidebar from '../components/Sidebar'; // Import the Sidebar component
+import Sidebar from '../components/Sidebar';
+import SaveNotesModal from '../components/SaveNotesModal';
+
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -31,6 +33,7 @@ const NotesPage = () => {
   const [dateOptions, setDateOptions] = useState([]);
   const [isDragging, setIsDragging] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(300);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchDefaultTemplate = async () => {
@@ -172,17 +175,17 @@ const NotesPage = () => {
     }
   };
 
-  const handleSaveNotes = async () => {
+  const handleSaveNotes = async (title) => {
     if (!notes) {
       alert('No notes to save.');
       return;
     }
 
-    const userId = user.uid; // Get the user ID from the authenticated user
-    const userEmail = user.email; // Get the user email from the authenticated user
+    const userId = user.uid;
+    const userEmail = user.email;
     const today = new Date().toDateString();
 
-    setIsSaving(true); // Start saving
+    setIsSaving(true);
 
     try {
       const userRef = doc(db, 'notes_store', userId);
@@ -205,7 +208,7 @@ const NotesPage = () => {
       }
 
       await updateDoc(notesRef, {
-        notes: arrayUnion({ content: notes, imageUrl })
+        notes: arrayUnion({ title, content: notes, imageUrl }) // Include the title
       });
 
       setSaveMessage('Notes successfully saved.');
@@ -213,7 +216,7 @@ const NotesPage = () => {
       console.error('Error saving notes:', error);
       setSaveMessage('Error saving notes. Please try again.');
     } finally {
-      setIsSaving(false); // Finish saving
+      setIsSaving(false);
     }
   };
 
@@ -324,16 +327,28 @@ const NotesPage = () => {
           )}
           {notes && (
             <>
-              <div className="section-title">Final Notes</div>
-              <ReactMarkdown>{notes}</ReactMarkdown>
-              {!isSaving && !saveMessage && (
-                <button className="action-button" onClick={handleSaveNotes}>Save Notes</button>
-              )}
-              {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
-              {saveMessage && <div className="save-message">{saveMessage}</div>}
-            </>
-          )}
-        </div>
+            <div className="section-title">Final Notes</div>
+                      <ReactMarkdown>{notes}</ReactMarkdown>
+                      {!isSaving && !saveMessage && (
+                        <button
+                          className="action-button"
+                          onClick={() => setIsSaveModalOpen(true)} // Open the modal
+                        >
+                          Save Notes
+                        </button>
+                      )}
+                      {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
+                      {saveMessage && <div className="save-message">{saveMessage}</div>}
+                    </>
+                  )}
+
+                  {/* Save Notes Modal */}
+                  <SaveNotesModal
+                    isOpen={isSaveModalOpen}
+                    onClose={() => setIsSaveModalOpen(false)}
+                    onSave={handleSaveNotes}
+                  />
+              </div>
         {imagePreview && (
           <div className="image-preview-container">
             <div className="preview-title">Uploaded Image Preview</div>
