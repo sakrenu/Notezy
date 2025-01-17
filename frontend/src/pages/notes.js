@@ -5,7 +5,7 @@ import Navbar from '../components/Navbar';
 import { db } from '../config/firebaseConfig';
 import { useAuthContext } from '../hooks/AuthProvider';
 import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs, deleteField, deleteDoc } from 'firebase/firestore';
-import './notes.css'; 
+import './notes.css';
 import ReactMarkdown from 'react-markdown';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
 
@@ -392,7 +392,7 @@ const NotesPage = () => {
           {notes && (
             <>
               <div className="section-title">Final Notes</div>
-              <div dangerouslySetInnerHTML={{ __html: notes }} />
+              <ReactMarkdown>{notes}</ReactMarkdown>
               {!isSaving && !saveMessage && (
                 <button className="action-button" onClick={handleSaveNotes}>Save Notes</button>
               )}
