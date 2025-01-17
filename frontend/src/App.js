@@ -8,6 +8,7 @@ import NotesPage from './pages/notes';
 import TemplatesPage from './pages/templates';
 import UserProfile from './components/UserProfile';
 import UpdateProfile from './components/UpdateProfile';
+import ViewNotePage from './pages/ViewNotePage'; // Import the ViewNotePage component
 
 const ProtectedRoute = ({ children }) => {
   const { user } = useAuthContext();
@@ -105,6 +106,17 @@ function App() {
             </ProtectedRoute>
           }
         />
+
+        <Route
+          path="/view-note"
+          element={
+            <ProtectedRoute>
+              <ViewNotePage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Default route for invalid paths */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </>
