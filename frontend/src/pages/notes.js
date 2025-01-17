@@ -1,13 +1,14 @@
-//frontend/src/pages/notes.js
-import React, { useState, useEffect, useRef } from 'react';
+// frontend/src/pages/notes.js
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { db } from '../config/firebaseConfig';
 import { useAuthContext } from '../hooks/AuthProvider';
 import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
-import './notes.css';
+import './notes.css'; // Import the new CSS file
 import ReactMarkdown from 'react-markdown';
+import Sidebar from '../components/Sidebar'; // Import the Sidebar component
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -28,7 +29,6 @@ const NotesPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [dateOptions, setDateOptions] = useState([]);
-  const sidebarRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(300);
 
@@ -284,59 +284,16 @@ const NotesPage = () => {
     <div className="container">
       <Navbar /> {/* Use the Navbar component */}
       <div className="main-content">
-        <div className={`sidebar-container`} ref={sidebarRef}>
-          <div className="sidebar-header">
-            <div className="sidebar-title">Saved Notes</div>
-            <button className="close-button" onClick={toggleSidebar}>×</button>
-          </div>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search by date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-          />
-          <div className="date-dropdown">
-            <button className="date-dropdown-button" onClick={() => setSelectedDate(null)}>
-              All Dates
-            </button>
-            {dateOptions.map(date => (
-              <div
-                key={date}
-                className="date-dropdown-item"
-                onClick={() => setSelectedDate(date)}
-              >
-                {date}
-              </div>
-            ))}
-          </div>
-          <table className="notes-table">
-            <thead>
-              <tr>
-                <th>Notes</th>
-                <th>Image</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {savedNotes
-                .filter(note => !selectedDate || note.id === selectedDate)
-                .map(note => (
-                  note.notes.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.notes}</td>
-                      <td><img src={item.image} alt="Saved" style={{ maxWidth: '50px' }} /></td>
-                      <td>
-                        <button className="action-button" onClick={() => handleViewNote(note.id, index)}>View</button>
-                        <button className="action-button" onClick={() => handleDeleteNote(note.id, index)}>Delete</button>
-                      </td>
-                    </tr>
-                  ))
-                ))}
-            </tbody>
-          </table>
-          <div className="drag-handle" onMouseDown={startDragging} />
-        </div>
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          dateOptions={dateOptions}
+          savedNotes={savedNotes}
+          handleViewNote={handleViewNote}
+          handleDeleteNote={handleDeleteNote}
+        />
         <div className={`content`}>
           <div className="title">Notes Generation Page</div>
           <div className="subtitle">Upload an image to generate notes.</div>
