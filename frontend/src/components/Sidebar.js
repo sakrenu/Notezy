@@ -2,13 +2,12 @@
 import React from 'react';
 import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faDownload, faShare } from '@fortawesome/free-solid-svg-icons'; // Import FontAwesome icons
+import { faTrash, faDownload, faShare } from '@fortawesome/free-solid-svg-icons';
 
 const SidebarContainer = styled.div`
-  width: var(--sidebar-width, 300px);
-  background-color: #4AB7E0;
-  padding: 20px;
-  border-right: 1px solid #ccc;
+  width: var(--sidebar-width, 280px);
+  background: linear-gradient(90deg,rgba(242, 210, 245, 0.7) 0%,rgba(109, 182, 213, 0.42) 100%);
+  padding: 15px;
   overflow-y: auto;
   height: 100vh;
   position: absolute;

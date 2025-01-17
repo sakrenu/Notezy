@@ -258,7 +258,7 @@ html, body {
   position: fixed;
   top: 80px;
   left: 20px;
-  background: linear-gradient(90deg, #eebbec, #82dcd0);
+  background: linear-gradient(90deg, #ea9494a1, #edf8cb);
   color: white;
   border: none;
   border-radius: 25%;
@@ -273,5 +273,5 @@ html, body {
 }
 
 .toggle-button:hover {
-  background: linear-gradient(90deg, #bf5cb9, #44a5bb);
+  background: linear-gradient(90deg, #b75757a2, #bcd467b4);
 }

@@ -312,7 +312,7 @@ const NotesPage = () => {
           handleViewNote={handleViewNote}
           handleDeleteNote={handleDeleteNote}
         />
-      <div className={`content`} style={{ marginLeft: isSidebarOpen ? '300px' : '0' }}>
+        <div className={`content`} style={{ marginLeft: isSidebarOpen ? '300px' : '0' }}>
           <div className="title">Notes Generation Page</div>
           <div className="subtitle">Upload an image to generate notes.</div>
           <div className="upload-section">
