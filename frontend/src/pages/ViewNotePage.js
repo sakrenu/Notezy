@@ -1,15 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
-import styled, { createGlobalStyle, keyframes } from 'styled-components';
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`;
+import styled, { createGlobalStyle } from 'styled-components';
 
 const ViewNotePage = () => {
   const location = useLocation();

@@ -1,28 +1,13 @@
+//frontend/src/pages/notes.js
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { db } from '../config/firebaseConfig';
 import { useAuthContext } from '../hooks/AuthProvider';
-import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs, deleteField, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
 import './notes.css';
 import ReactMarkdown from 'react-markdown';
-import styled, { keyframes, createGlobalStyle } from 'styled-components';
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`;
-
-const dotAnimation = keyframes`
-  0% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-`;
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -220,19 +205,10 @@ const NotesPage = () => {
       }
 
       await updateDoc(notesRef, {
-        notes: arrayUnion({
-          notes,
-          date: today,
-          image: imagePreview
-        })
+        notes: arrayUnion({ content: notes, imageUrl })
       });
 
       setSaveMessage('Notes successfully saved.');
-      setSavedNotes(prevNotes => [...prevNotes, {
-        id: today,
-        notes: [{ notes, date: today, image: imagePreview }]
-      }]);
-      setDateOptions(prevDates => [...new Set([...prevDates, today])]);
     } catch (error) {
       console.error('Error saving notes:', error);
       setSaveMessage('Error saving notes. Please try again.');

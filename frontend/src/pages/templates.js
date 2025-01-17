@@ -8,7 +8,7 @@ import { db } from '../config/firebaseConfig';
 import { collection, getDocs, deleteDoc, doc, query, where } from "firebase/firestore";
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTrash, faDownload, faInfoCircle } from '@fortawesome/free-solid-svg-icons';
+import { faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { getAuth } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
 

@@ -1,14 +1,8 @@
 // frontend/src/components/TemplateCategory.js
 import React from 'react';
 import styled from 'styled-components';
-import { useNavigate } from 'react-router-dom';
 
 const TemplateCategory = ({ title, templates, onTemplateClick, onAddTemplate, showAddButton }) => {
-  const navigate = useNavigate();
-
-  const handleUseTemplate = (template) => {
-    navigate('/notes', { state: { selectedTemplate: template } });
-  };
 
   return (
     <CategoryContainer>
