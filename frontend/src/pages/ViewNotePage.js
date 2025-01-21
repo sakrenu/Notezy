@@ -7,7 +7,7 @@ import { X, Download, Share2, Trash2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import html2pdf from 'html2pdf.js';
 import { marked } from 'marked';
-import { doc, getDoc, collection, updateDoc, arrayUnion, getDocs, arrayRemove } from 'firebase/firestore';
+import { doc, getDoc, collection, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebaseConfig';
 
 const ViewNotePage = () => {
@@ -59,6 +59,17 @@ const ViewNotePage = () => {
     html2pdf().from(element).set(opt).save();
   };
 
+  const handleShareNote = (noteId) => {
+    const shareableLink = `${window.location.origin}/shared-note/${noteId}`;
+    navigator.clipboard.writeText(shareableLink)
+      .then(() => {
+        alert('Link copied to clipboard!');
+      })
+      .catch((err) => {
+        console.error('Failed to copy link: ', err);
+      });
+  };
+
   const handleDeleteNote = async (date, noteIndex) => {
     const userId = user.uid; // Get the user ID from the authenticated user
     const notesRef = doc(collection(db, 'notes_store', userId, 'notes'), date);
@@ -85,7 +96,7 @@ const ViewNotePage = () => {
   };
 
   const handleShare = () => {
-    console.log('Share functionality to be implemented');
+    handleShareNote(note.noteId);
   };
 
   const handleDelete = () => {
