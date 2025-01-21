@@ -98,7 +98,8 @@ const Sidebar = ({
   dateOptions,
   savedNotes,
   handleViewNote,
-  handleDeleteNote
+  handleDeleteNote,
+  handleDownloadNote
 }) => {
   return (
     <SidebarContainer>
@@ -131,8 +132,8 @@ const Sidebar = ({
                     </IconButton>
                     <IconButton
                       onClick={(e) => {
-                        e.stopPropagation(); // Prevent tile click event
-                        alert('Download functionality to be implemented');
+                        e.stopPropagation(); 
+                        handleDownloadNote(item); 
                       }}
                     >
                       <FontAwesomeIcon icon={faDownload} /> {/* Download icon */}

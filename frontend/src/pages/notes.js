@@ -266,6 +266,18 @@ const NotesPage = () => {
     }
   };
 
+  const handleDownloadNote = (note) => {
+    const blob = new Blob([note.content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${note.title}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
     document.documentElement.style.setProperty('--sidebar-translate', isSidebarOpen ? '-100%' : '0');
@@ -310,6 +322,7 @@ const NotesPage = () => {
           savedNotes={savedNotes}
           handleViewNote={handleViewNote}
           handleDeleteNote={handleDeleteNote}
+          handleDownloadNote={handleDownloadNote} // Pass the download function
         />
         <div className={`content`} style={{ marginLeft: isSidebarOpen ? '300px' : '0' }}>
           <div className="title">Notes Generation Page</div>
