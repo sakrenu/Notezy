@@ -58,7 +58,7 @@ def generate_notes(keywords):
         query = f"{system_prompt}\n This following is the given keyowrds list : {keywords_string}"
 
         # Call the Gemini API
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel("gemini-2.0-flash-exp")
         response = model.generate_content(query, stream=True)
 
         # Collect the generated content from streaming response
