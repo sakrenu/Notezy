@@ -1,4 +1,3 @@
-// frontend/src/pages/notes.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -10,6 +9,8 @@ import './notes.css';
 import ReactMarkdown from 'react-markdown';
 import Sidebar from '../components/Sidebar';
 import SaveNotesModal from '../components/SaveNotesModal';
+import html2pdf from 'html2pdf.js';
+import { marked } from 'marked';
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -267,15 +268,34 @@ const NotesPage = () => {
   };
 
   const handleDownloadNote = (note) => {
-    const blob = new Blob([note.content], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `${note.title}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { color: #333; }
+            p { color: #666; }
+          </style>
+        </head>
+        <body>
+          <h1>${note.title}</h1>
+          <div>${marked(note.content)}</div>
+        </body>
+      </html>
+    `;
+
+    const element = document.createElement('div');
+    element.innerHTML = htmlContent;
+
+    const opt = {
+      margin: 1,
+      filename: `${note.title}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().from(element).set(opt).save();
   };
 
   const toggleSidebar = () => {
