@@ -8,10 +8,9 @@ const SidebarContainer = styled.div`
   width: var(--sidebar-width, 280px);
   background: linear-gradient(90deg,rgba(242, 210, 245, 0.7) 0%,rgba(109, 182, 213, 0.42) 100%);
   padding: 15px;
-  overflow-y: auto;
   height: 100vh;
-  position: absolute;
-  top: 0;
+  position: fixed;
+  top: 70px;
   left: 0;
   transform: translateX(var(--sidebar-translate, -100%));
   transition: transform 0.3s ease;
