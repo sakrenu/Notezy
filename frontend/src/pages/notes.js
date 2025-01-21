@@ -1,28 +1,15 @@
-import React, { useState, useEffect, useRef } from 'react';
+// frontend/src/pages/notes.js
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import Navbar from '../components/Navbar';
 import { db } from '../config/firebaseConfig';
 import { useAuthContext } from '../hooks/AuthProvider';
-import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs, deleteField, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
 import './notes.css';
 import ReactMarkdown from 'react-markdown';
-import styled, { keyframes, createGlobalStyle } from 'styled-components';
-
-const fadeIn = keyframes`
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-`;
-
-const dotAnimation = keyframes`
-  0% { opacity: 0; }
-  50% { opacity: 1; }
-  100% { opacity: 0; }
-`;
+import Sidebar from '../components/Sidebar';
+import SaveNotesModal from '../components/SaveNotesModal';
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -43,9 +30,9 @@ const NotesPage = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [selectedDate, setSelectedDate] = useState(null);
   const [dateOptions, setDateOptions] = useState([]);
-  const sidebarRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(300);
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
   useEffect(() => {
     const fetchDefaultTemplate = async () => {
@@ -187,17 +174,17 @@ const NotesPage = () => {
     }
   };
 
-  const handleSaveNotes = async () => {
+  const handleSaveNotes = async (title) => {
     if (!notes) {
       alert('No notes to save.');
       return;
     }
 
-    const userId = user.uid; // Get the user ID from the authenticated user
-    const userEmail = user.email; // Get the user email from the authenticated user
+    const userId = user.uid;
+    const userEmail = user.email;
     const today = new Date().toDateString();
 
-    setIsSaving(true); // Start saving
+    setIsSaving(true);
 
     try {
       const userRef = doc(db, 'notes_store', userId);
@@ -220,24 +207,30 @@ const NotesPage = () => {
       }
 
       await updateDoc(notesRef, {
-        notes: arrayUnion({
-          notes,
-          date: today,
-          image: imagePreview
-        })
+        notes: arrayUnion({ title, content: notes, imageUrl })
       });
 
       setSaveMessage('Notes successfully saved.');
-      setSavedNotes(prevNotes => [...prevNotes, {
-        id: today,
-        notes: [{ notes, date: today, image: imagePreview }]
-      }]);
-      setDateOptions(prevDates => [...new Set([...prevDates, today])]);
+      // Fetch the saved notes immediately after saving
+      const fetchSavedNotes = async () => {
+        const notesCollection = collection(db, 'notes_store', userId, 'notes');
+        const notesSnapshot = await getDocs(notesCollection);
+        const notesData = notesSnapshot.docs.map(doc => ({
+          id: doc.id,
+          ...doc.data()
+        }));
+        setSavedNotes(notesData);
+
+        const dates = notesData.map(note => note.id);
+        setDateOptions(dates);
+      };
+
+      await fetchSavedNotes();
     } catch (error) {
       console.error('Error saving notes:', error);
       setSaveMessage('Error saving notes. Please try again.');
     } finally {
-      setIsSaving(false); // Finish saving
+      setIsSaving(false);
     }
   };
 
@@ -306,62 +299,19 @@ const NotesPage = () => {
 
   return (
     <div className="container">
-      <Navbar /> {/* Use the Navbar component */}
+      <Navbar />
       <div className="main-content">
-        <div className={`sidebar-container`} ref={sidebarRef}>
-          <div className="sidebar-header">
-            <div className="sidebar-title">Saved Notes</div>
-            <button className="close-button" onClick={toggleSidebar}>×</button>
-          </div>
-          <input
-            type="text"
-            className="search-input"
-            placeholder="Search by date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-          />
-          <div className="date-dropdown">
-            <button className="date-dropdown-button" onClick={() => setSelectedDate(null)}>
-              All Dates
-            </button>
-            {dateOptions.map(date => (
-              <div
-                key={date}
-                className="date-dropdown-item"
-                onClick={() => setSelectedDate(date)}
-              >
-                {date}
-              </div>
-            ))}
-          </div>
-          <table className="notes-table">
-            <thead>
-              <tr>
-                <th>Notes</th>
-                <th>Image</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {savedNotes
-                .filter(note => !selectedDate || note.id === selectedDate)
-                .map(note => (
-                  note.notes.map((item, index) => (
-                    <tr key={index}>
-                      <td>{item.notes}</td>
-                      <td><img src={item.image} alt="Saved" style={{ maxWidth: '50px' }} /></td>
-                      <td>
-                        <button className="action-button" onClick={() => handleViewNote(note.id, index)}>View</button>
-                        <button className="action-button" onClick={() => handleDeleteNote(note.id, index)}>Delete</button>
-                      </td>
-                    </tr>
-                  ))
-                ))}
-            </tbody>
-          </table>
-          <div className="drag-handle" onMouseDown={startDragging} />
-        </div>
-        <div className={`content`}>
+        <Sidebar
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+          selectedDate={selectedDate}
+          setSelectedDate={setSelectedDate}
+          dateOptions={dateOptions}
+          savedNotes={savedNotes}
+          handleViewNote={handleViewNote}
+          handleDeleteNote={handleDeleteNote}
+        />
+        <div className={`content`} style={{ marginLeft: isSidebarOpen ? '300px' : '0' }}>
           <div className="title">Notes Generation Page</div>
           <div className="subtitle">Upload an image to generate notes.</div>
           <div className="upload-section">
@@ -391,16 +341,28 @@ const NotesPage = () => {
           )}
           {notes && (
             <>
-              <div className="section-title">Final Notes</div>
-              <ReactMarkdown>{notes}</ReactMarkdown>
-              {!isSaving && !saveMessage && (
-                <button className="action-button" onClick={handleSaveNotes}>Save Notes</button>
-              )}
-              {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
-              {saveMessage && <div className="save-message">{saveMessage}</div>}
-            </>
-          )}
-        </div>
+            <div className="section-title">Final Notes</div>
+                      <ReactMarkdown>{notes}</ReactMarkdown>
+                      {!isSaving && !saveMessage && (
+                        <button
+                          className="action-button"
+                          onClick={() => setIsSaveModalOpen(true)} // Open the modal
+                        >
+                          Save Notes
+                        </button>
+                      )}
+                      {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
+                      {saveMessage && <div className="save-message">{saveMessage}</div>}
+                    </>
+                  )}
+
+                  {/* Save Notes Modal */}
+                  <SaveNotesModal
+                    isOpen={isSaveModalOpen}
+                    onClose={() => setIsSaveModalOpen(false)}
+                    onSave={handleSaveNotes}
+                  />
+              </div>
         {imagePreview && (
           <div className="image-preview-container">
             <div className="preview-title">Uploaded Image Preview</div>
