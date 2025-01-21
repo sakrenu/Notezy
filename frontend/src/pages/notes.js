@@ -11,6 +11,7 @@ import Sidebar from '../components/Sidebar';
 import SaveNotesModal from '../components/SaveNotesModal';
 import html2pdf from 'html2pdf.js';
 import { marked } from 'marked';
+import { v4 as uuidv4 } from 'uuid';
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -184,6 +185,7 @@ const NotesPage = () => {
     const userId = user.uid;
     const userEmail = user.email;
     const today = new Date().toDateString();
+    const noteId = uuidv4(); // Generate a unique ID for the note
 
     setIsSaving(true);
 
@@ -208,7 +210,7 @@ const NotesPage = () => {
       }
 
       await updateDoc(notesRef, {
-        notes: arrayUnion({ title, content: notes, imageUrl })
+        notes: arrayUnion({ title, content: notes, imageUrl, noteId }) // Include noteId
       });
 
       setSaveMessage('Notes successfully saved.');

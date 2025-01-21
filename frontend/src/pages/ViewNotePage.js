@@ -5,6 +5,10 @@ import { useAuthContext } from '../hooks/AuthProvider';
 import ReactMarkdown from 'react-markdown';
 import { X, Download, Share2, Trash2 } from 'lucide-react';
 import Navbar from '../components/Navbar';
+import html2pdf from 'html2pdf.js';
+import { marked } from 'marked';
+import { doc, getDoc, collection, updateDoc, arrayUnion, getDocs, arrayRemove } from 'firebase/firestore';
+import { db } from '../config/firebaseConfig';
 
 const ViewNotePage = () => {
   const location = useLocation();
@@ -24,8 +28,60 @@ const ViewNotePage = () => {
     navigate(-1);
   };
 
+  const handleDownloadNote = (note) => {
+    const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { color: #333; }
+            p { color: #666; }
+          </style>
+        </head>
+        <body>
+          <h1>${note.title}</h1>
+          <div>${marked(note.content)}</div>
+        </body>
+      </html>
+    `;
+
+    const element = document.createElement('div');
+    element.innerHTML = htmlContent;
+
+    const opt = {
+      margin: 1,
+      filename: `${note.title}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().from(element).set(opt).save();
+  };
+
+  const handleDeleteNote = async (date, noteIndex) => {
+    const userId = user.uid; // Get the user ID from the authenticated user
+    const notesRef = doc(collection(db, 'notes_store', userId, 'notes'), date);
+
+    try {
+      const notesDoc = await getDoc(notesRef);
+      if (notesDoc.exists()) {
+        const notesData = notesDoc.data().notes;
+        notesData.splice(noteIndex, 1);
+        await updateDoc(notesRef, {
+          notes: notesData
+        });
+        setError(null);
+        navigate(-1); // Navigate back after deletion
+      }
+    } catch (error) {
+      console.error('Error deleting note:', error);
+      setError('Error deleting note. Please try again.');
+    }
+  };
+
   const handleDownload = () => {
-    console.log('Download functionality to be implemented');
+    handleDownloadNote(note);
   };
 
   const handleShare = () => {
@@ -33,7 +89,7 @@ const ViewNotePage = () => {
   };
 
   const handleDelete = () => {
-    console.log('Delete functionality to be implemented');
+    handleDeleteNote(date, note.index);
   };
 
   if (loading) {
