@@ -99,7 +99,8 @@ const Sidebar = ({
   savedNotes,
   handleViewNote,
   handleDeleteNote,
-  handleDownloadNote
+  handleDownloadNote,
+  handleShareNote
 }) => {
   return (
     <SidebarContainer>
@@ -125,7 +126,7 @@ const Sidebar = ({
                     <IconButton
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent tile click event
-                        alert('Share functionality to be implemented');
+                        handleShareNote(item.noteId); // Use the handleShareNote function
                       }}
                     >
                       <FontAwesomeIcon icon={faShare} /> {/* Share icon */}

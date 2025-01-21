@@ -300,6 +300,17 @@ const NotesPage = () => {
     html2pdf().from(element).set(opt).save();
   };
 
+  const handleShareNote = (noteId) => {
+    const shareableLink = `${window.location.origin}/shared-note/${noteId}`;
+    navigator.clipboard.writeText(shareableLink)
+      .then(() => {
+        alert('Link copied to clipboard!');
+      })
+      .catch((err) => {
+        console.error('Failed to copy link: ', err);
+      });
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
     document.documentElement.style.setProperty('--sidebar-translate', isSidebarOpen ? '-100%' : '0');
@@ -344,7 +355,8 @@ const NotesPage = () => {
           savedNotes={savedNotes}
           handleViewNote={handleViewNote}
           handleDeleteNote={handleDeleteNote}
-          handleDownloadNote={handleDownloadNote} // Pass the download function
+          handleDownloadNote={handleDownloadNote} 
+          handleShareNote={handleShareNote}
         />
         <div className={`content`} style={{ marginLeft: isSidebarOpen ? '300px' : '0' }}>
           <div className="title">Notes Generation Page</div>
