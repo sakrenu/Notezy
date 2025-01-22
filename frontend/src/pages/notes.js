@@ -1,3 +1,4 @@
+// frontend/src/pages/notes.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -13,6 +14,11 @@ import html2pdf from 'html2pdf.js';
 import { marked } from 'marked';
 import { v4 as uuidv4 } from 'uuid';
 import { Volume2 } from 'lucide-react';
+import { BlobServiceClient } from '@azure/storage-blob';
+import * as speechSdk from 'microsoft-cognitiveservices-speech-sdk';
+import { Buffer } from 'buffer';
+
+window.Buffer = Buffer;
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -36,6 +42,7 @@ const NotesPage = () => {
   const [isDragging, setIsDragging] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(300);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   useEffect(() => {
     const fetchDefaultTemplate = async () => {
@@ -99,37 +106,48 @@ const NotesPage = () => {
   }, [image, imagePreview, extractedText, keywords, notes]);
 
   const handleImageUpload = async (event) => {
+    console.log('Azure connection string:', process.env.REACT_APP_AZURE_STORAGE_CONNECTION_STRING ? 'Loaded' : 'Not Loaded');
+
     const file = event.target.files[0];
     setImage(file);
-    setSaveMessage(null); // Reset save message when a new file is uploaded
-
-    // Log the file details
-    console.log('Uploaded file:', file);
-
+    setSaveMessage(null);
+  
     // Set image preview
     const reader = new FileReader();
     reader.onloadend = () => {
       setImagePreview(reader.result);
     };
     reader.readAsDataURL(file);
-
-    // Upload to Cloudinary
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('upload_preset', 'notezy-preset');
-
+  
     try {
-      const response = await axios.post(
-        `https://api.cloudinary.com/v1_1/dg8zy7lct/image/upload`,
-        formData
+      const connectionString = process.env.REACT_APP_AZURE_STORAGE_CONNECTION_STRING;
+      if (!connectionString) {
+        throw new Error('Azure Storage connection string is not configured');
+      }
+  
+      const blobServiceClient = new BlobServiceClient(
+        `https://${process.env.REACT_APP_AZURE_STORAGE_ACCOUNT}.blob.core.windows.net?${process.env.REACT_APP_AZURE_SAS_TOKEN}`
       );
-      const imageUrl = response.data.secure_url;
-      console.log('Image uploaded to Cloudinary:', imageUrl);
-
-      // Store the URL for later use
+      const containerClient = blobServiceClient.getContainerClient('image-container');
+      
+      // Generate unique blob name
+      const blobName = `${Date.now()}-${file.name}`;
+      const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+  
+      // Log for debugging
+      console.log('Attempting to upload to container:', containerClient.containerName);
+      
+      const uploadResponse = await blockBlobClient.uploadData(file, {
+        blobHTTPHeaders: { blobContentType: file.type }
+      });
+  
+      console.log('Upload response:', uploadResponse);
+      const imageUrl = blockBlobClient.url;
       setImageUrl(imageUrl);
+  
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('Detailed error:', error);
+      setSaveMessage('Error uploading image. Please try again.');
     }
   };
 
@@ -312,6 +330,39 @@ const NotesPage = () => {
       });
   };
 
+  const handleTextToSpeech = async () => {
+    if (!notes) {
+      alert('No notes available to read.');
+      return;
+    }
+  
+    const speechConfig = speechSdk.SpeechConfig.fromSubscription(
+      process.env.REACT_APP_AZURE_SPEECH_KEY,
+      process.env.REACT_APP_AZURE_SPEECH_REGION
+    );
+    speechConfig.speechSynthesisLanguage = 'en-US';
+    speechConfig.speechSynthesisVoiceName = 'en-US-JennyNeural';
+  
+    const audioConfig = speechSdk.AudioConfig.fromDefaultSpeakerOutput();
+    const synthesizer = new speechSdk.SpeechSynthesizer(speechConfig, audioConfig);
+  
+    synthesizer.speakTextAsync(
+      notes,
+      (result) => {
+        if (result.reason === speechSdk.ResultReason.SynthesizingAudioCompleted) {
+          console.log('Speech synthesis finished.');
+        } else {
+          console.error('Speech synthesis error:', result.errorDetails);
+        }
+        synthesizer.close();
+      },
+      (err) => {
+        console.error('Error during speech synthesis:', err);
+        synthesizer.close();
+      }
+    );
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
     document.documentElement.style.setProperty('--sidebar-translate', isSidebarOpen ? '-100%' : '0');
@@ -402,7 +453,7 @@ const NotesPage = () => {
               )}
               <button
                 className="action-button speaker-button" // Add a new class for the speaker button
-                onClick={() => { /* Functionality to be implemented later */ }}
+                onClick={handleTextToSpeech}
               >
                 <Volume2 size={20} /> {/* Speaker icon */}
               </button>
