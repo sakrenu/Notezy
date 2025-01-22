@@ -12,6 +12,7 @@ import SaveNotesModal from '../components/SaveNotesModal';
 import html2pdf from 'html2pdf.js';
 import { marked } from 'marked';
 import { v4 as uuidv4 } from 'uuid';
+import { Volume2 } from 'lucide-react';
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -355,7 +356,7 @@ const NotesPage = () => {
           savedNotes={savedNotes}
           handleViewNote={handleViewNote}
           handleDeleteNote={handleDeleteNote}
-          handleDownloadNote={handleDownloadNote} 
+          handleDownloadNote={handleDownloadNote}
           handleShareNote={handleShareNote}
         />
         <div className={`content`} style={{ marginLeft: isSidebarOpen ? '300px' : '0' }}>
@@ -389,27 +390,34 @@ const NotesPage = () => {
           {notes && (
             <>
             <div className="section-title">Final Notes</div>
-                      <ReactMarkdown>{notes}</ReactMarkdown>
-                      {!isSaving && !saveMessage && (
-                        <button
-                          className="action-button"
-                          onClick={() => setIsSaveModalOpen(true)} // Open the modal
-                        >
-                          Save Notes
-                        </button>
-                      )}
-                      {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
-                      {saveMessage && <div className="save-message">{saveMessage}</div>}
-                    </>
-                  )}
-
-                  {/* Save Notes Modal */}
-                  <SaveNotesModal
-                    isOpen={isSaveModalOpen}
-                    onClose={() => setIsSaveModalOpen(false)}
-                    onSave={handleSaveNotes}
-                  />
-              </div>
+            <ReactMarkdown>{notes}</ReactMarkdown>
+            <div className="action-buttons-container"> {/* New container for buttons */}
+              {!isSaving && !saveMessage && (
+                <button
+                  className="action-button"
+                  onClick={() => setIsSaveModalOpen(true)} // Open the modal
+                >
+                  Save Notes
+                </button>
+              )}
+              <button
+                className="action-button speaker-button" // Add a new class for the speaker button
+                onClick={() => { /* Functionality to be implemented later */ }}
+              >
+                <Volume2 size={20} /> {/* Speaker icon */}
+              </button>
+            </div>
+            {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
+            {saveMessage && <div className="save-message">{saveMessage}</div>}
+          </>
+        )}
+            {/* Save Notes Modal */}
+            <SaveNotesModal
+              isOpen={isSaveModalOpen}
+              onClose={() => setIsSaveModalOpen(false)}
+              onSave={handleSaveNotes}
+            />
+        </div>
         {imagePreview && (
           <div className="image-preview-container">
             <div className="preview-title">Uploaded Image Preview</div>
