@@ -1,4 +1,3 @@
-// frontend/src/pages/notes.js
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -10,6 +9,10 @@ import './notes.css';
 import ReactMarkdown from 'react-markdown';
 import Sidebar from '../components/Sidebar';
 import SaveNotesModal from '../components/SaveNotesModal';
+import html2pdf from 'html2pdf.js';
+import { marked } from 'marked';
+import { v4 as uuidv4 } from 'uuid';
+import { Volume2 } from 'lucide-react';
 
 const NotesPage = () => {
   const navigate = useNavigate();
@@ -183,6 +186,7 @@ const NotesPage = () => {
     const userId = user.uid;
     const userEmail = user.email;
     const today = new Date().toDateString();
+    const noteId = uuidv4(); // Generate a unique ID for the note
 
     setIsSaving(true);
 
@@ -207,7 +211,7 @@ const NotesPage = () => {
       }
 
       await updateDoc(notesRef, {
-        notes: arrayUnion({ title, content: notes, imageUrl })
+        notes: arrayUnion({ title, content: notes, imageUrl, noteId }) // Include noteId
       });
 
       setSaveMessage('Notes successfully saved.');
@@ -266,6 +270,48 @@ const NotesPage = () => {
     }
   };
 
+  const handleDownloadNote = (note) => {
+    const htmlContent = `
+      <html>
+        <head>
+          <style>
+            body { font-family: Arial, sans-serif; }
+            h1 { color: #333; }
+            p { color: #666; }
+          </style>
+        </head>
+        <body>
+          <h1>${note.title}</h1>
+          <div>${marked(note.content)}</div>
+        </body>
+      </html>
+    `;
+
+    const element = document.createElement('div');
+    element.innerHTML = htmlContent;
+
+    const opt = {
+      margin: 1,
+      filename: `${note.title}.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { scale: 2 },
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+    };
+
+    html2pdf().from(element).set(opt).save();
+  };
+
+  const handleShareNote = (noteId) => {
+    const shareableLink = `${window.location.origin}/shared-note/${noteId}`;
+    navigator.clipboard.writeText(shareableLink)
+      .then(() => {
+        alert('Link copied to clipboard!');
+      })
+      .catch((err) => {
+        console.error('Failed to copy link: ', err);
+      });
+  };
+
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
     document.documentElement.style.setProperty('--sidebar-translate', isSidebarOpen ? '-100%' : '0');
@@ -310,6 +356,8 @@ const NotesPage = () => {
           savedNotes={savedNotes}
           handleViewNote={handleViewNote}
           handleDeleteNote={handleDeleteNote}
+          handleDownloadNote={handleDownloadNote}
+          handleShareNote={handleShareNote}
         />
         <div className={`content`} style={{ marginLeft: isSidebarOpen ? '300px' : '0' }}>
           <div className="title">Notes Generation Page</div>
@@ -342,27 +390,34 @@ const NotesPage = () => {
           {notes && (
             <>
             <div className="section-title">Final Notes</div>
-                      <ReactMarkdown>{notes}</ReactMarkdown>
-                      {!isSaving && !saveMessage && (
-                        <button
-                          className="action-button"
-                          onClick={() => setIsSaveModalOpen(true)} // Open the modal
-                        >
-                          Save Notes
-                        </button>
-                      )}
-                      {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
-                      {saveMessage && <div className="save-message">{saveMessage}</div>}
-                    </>
-                  )}
-
-                  {/* Save Notes Modal */}
-                  <SaveNotesModal
-                    isOpen={isSaveModalOpen}
-                    onClose={() => setIsSaveModalOpen(false)}
-                    onSave={handleSaveNotes}
-                  />
-              </div>
+            <ReactMarkdown>{notes}</ReactMarkdown>
+            <div className="action-buttons-container"> {/* New container for buttons */}
+              {!isSaving && !saveMessage && (
+                <button
+                  className="action-button"
+                  onClick={() => setIsSaveModalOpen(true)} // Open the modal
+                >
+                  Save Notes
+                </button>
+              )}
+              <button
+                className="action-button speaker-button" // Add a new class for the speaker button
+                onClick={() => { /* Functionality to be implemented later */ }}
+              >
+                <Volume2 size={20} /> {/* Speaker icon */}
+              </button>
+            </div>
+            {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
+            {saveMessage && <div className="save-message">{saveMessage}</div>}
+          </>
+        )}
+            {/* Save Notes Modal */}
+            <SaveNotesModal
+              isOpen={isSaveModalOpen}
+              onClose={() => setIsSaveModalOpen(false)}
+              onSave={handleSaveNotes}
+            />
+        </div>
         {imagePreview && (
           <div className="image-preview-container">
             <div className="preview-title">Uploaded Image Preview</div>

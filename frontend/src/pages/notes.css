@@ -201,6 +201,7 @@ html, body {
 
 .action-button {
   padding: 10px 20px;
+  gap: 10px;
   font-size: 1rem;
   border-radius: 15px;
   background: linear-gradient(90deg, #4AB7E0, #84AC64);
@@ -274,4 +275,20 @@ html, body {
 
 .toggle-button:hover {
   background: linear-gradient(90deg, #b75757a2, #bcd467b4);
+}
+
+.speaker-button {
+  display: inline;
+  width: 50px;
+  height: 50px;
+  margin-left: 20px;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+  border-radius: 50%;
+  background: linear-gradient(90deg, #4AB7E0, #84AC64);
+  color: white;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
 }

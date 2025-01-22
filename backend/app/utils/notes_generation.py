@@ -39,7 +39,7 @@ def generate_notes(keywords):
         # Define the system prompt
         system_prompt = """
         You are an intelligent note-generation assistant.
-        Based on the given keywords, generate structured notes. Ensure the notes include the following sections:
+        Based on the given keywords, generate structured notes in the same language as keywords. Ensure the notes include the following sections:
 
         - **Title**: Clearly state the main topic.
         - **Pre-requisites**: Concepts or knowledge required to understand the notes.
