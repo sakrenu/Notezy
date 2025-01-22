@@ -124,6 +124,16 @@ const NotesPage = () => {
       if (!connectionString) {
         throw new Error('Azure Storage connection string is not configured');
       }
+
+      const account = process.env.REACT_APP_AZURE_STORAGE_ACCOUNT;
+      const sasToken = process.env.REACT_APP_AZURE_SAS_TOKEN;
+
+      if (!account) {
+        console.error("Azure storage account");
+        return;
+      }
+      if(!sasToken)
+        console.error("Azure sas token is missing")
   
       const blobServiceClient = new BlobServiceClient(
         `https://${process.env.REACT_APP_AZURE_STORAGE_ACCOUNT}.blob.core.windows.net?${process.env.REACT_APP_AZURE_SAS_TOKEN}`
