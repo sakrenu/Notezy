@@ -1,3 +1,876 @@
+// // import React, { useState, useEffect } from 'react';
+// // import { useNavigate, useLocation } from 'react-router-dom';
+// // import axios from 'axios';
+// // import Navbar from '../components/Navbar';
+// // import { db } from '../config/firebaseConfig';
+// // import { useAuthContext } from '../hooks/AuthProvider';
+// // import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
+// // import './notes.css';
+// // import ReactMarkdown from 'react-markdown';
+// // import Sidebar from '../components/Sidebar';
+// // import SaveNotesModal from '../components/SaveNotesModal';
+// // import html2pdf from 'html2pdf.js';
+// // import { marked } from 'marked';
+// // import { v4 as uuidv4 } from 'uuid';
+// // import { Volume2 } from 'lucide-react';
+
+// // const NotesPage = () => {
+// //   const navigate = useNavigate();
+// //   const location = useLocation();
+// //   const { user } = useAuthContext(); // Get the authenticated user
+// //   const [image, setImage] = useState(null);
+// //   const [imagePreview, setImagePreview] = useState(null);
+// //   const [imageUrl, setImageUrl] = useState(''); // Store the image URL
+// //   const [extractedText, setExtractedText] = useState('');
+// //   const [keywords, setKeywords] = useState([]);
+// //   const [notes, setNotes] = useState('');
+// //   const [loading, setLoading] = useState(false);
+// //   const [error, setError] = useState(null);
+// //   const [saveMessage, setSaveMessage] = useState(null);
+// //   const [isSaving, setIsSaving] = useState(false); // New state for saving status
+// //   const [selectedTemplate, setSelectedTemplate] = useState(null);
+// //   const [savedNotes, setSavedNotes] = useState([]);
+// //   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+// //   const [selectedDate, setSelectedDate] = useState(null);
+// //   const [dateOptions, setDateOptions] = useState([]);
+// //   const [isDragging, setIsDragging] = useState(false);
+// //   const [sidebarWidth, setSidebarWidth] = useState(300);
+// //   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+
+// //   useEffect(() => {
+// //     const fetchDefaultTemplate = async () => {
+// //       const defaultTemplatesCollection = collection(db, 'default_templates');
+// //       const defaultTemplatesSnapshot = await getDocs(defaultTemplatesCollection);
+// //       const defaultTemplatesData = defaultTemplatesSnapshot.docs.map(doc => ({
+// //         id: doc.id,
+// //         ...doc.data()
+// //       }));
+// //       setSelectedTemplate(defaultTemplatesData[0]); // Set the default template
+// //     };
+
+// //     if (location.state && location.state.selectedTemplate) {
+// //       setSelectedTemplate(location.state.selectedTemplate);
+// //     } else {
+// //       fetchDefaultTemplate();
+// //     }
+
+// //     // Restore state from local storage
+// //     const storedImage = localStorage.getItem('image');
+// //     const storedImagePreview = localStorage.getItem('imagePreview');
+// //     const storedExtractedText = localStorage.getItem('extractedText');
+// //     const storedKeywords = localStorage.getItem('keywords');
+// //     const storedNotes = localStorage.getItem('notes');
+
+// //     if (storedImage) setImage(storedImage);
+// //     if (storedImagePreview) setImagePreview(storedImagePreview);
+// //     if (storedExtractedText) setExtractedText(storedExtractedText);
+// //     if (storedKeywords) setKeywords(JSON.parse(storedKeywords));
+// //     if (storedNotes) setNotes(storedNotes);
+
+// //     const fetchSavedNotes = async () => {
+// //       const userId = user.uid;
+// //       const userRef = doc(db, 'notes_store', userId);
+// //       const userDoc = await getDoc(userRef);
+
+// //       if (userDoc.exists()) {
+// //         const notesCollection = collection(db, 'notes_store', userId, 'notes');
+// //         const notesSnapshot = await getDocs(notesCollection);
+// //         const notesData = notesSnapshot.docs.map(doc => ({
+// //           id: doc.id,
+// //           ...doc.data()
+// //         }));
+// //         setSavedNotes(notesData);
+
+// //         const dates = notesData.map(note => note.id);
+// //         setDateOptions(dates);
+// //       }
+// //     };
+
+// //     fetchSavedNotes();
+// //   }, [location.state, user.uid]);
+
+// //   useEffect(() => {
+// //     // Save state to local storage
+// //     if (image) localStorage.setItem('image', image);
+// //     if (imagePreview) localStorage.setItem('imagePreview', imagePreview);
+// //     if (extractedText) localStorage.setItem('extractedText', extractedText);
+// //     if (keywords) localStorage.setItem('keywords', JSON.stringify(keywords));
+// //     if (notes) localStorage.setItem('notes', notes);
+// //   }, [image, imagePreview, extractedText, keywords, notes]);
+
+// //   const handleImageUpload = async (event) => {
+// //     const file = event.target.files[0];
+// //     setImage(file);
+// //     setSaveMessage(null); // Reset save message when a new file is uploaded
+
+// //     // Log the file details
+// //     console.log('Uploaded file:', file);
+
+// //     // Set image preview
+// //     const reader = new FileReader();
+// //     reader.onloadend = () => {
+// //       setImagePreview(reader.result);
+// //     };
+// //     reader.readAsDataURL(file);
+
+// //     // Upload to Cloudinary
+// //     const formData = new FormData();
+// //     formData.append('file', file);
+// //     formData.append('upload_preset', 'notezy-preset');
+
+// //     try {
+// //       const response = await axios.post(
+// //         `https://api.cloudinary.com/v1_1/dg8zy7lct/image/upload`,
+// //         formData
+// //       );
+// //       const imageUrl = response.data.secure_url;
+// //       console.log('Image uploaded to Cloudinary:', imageUrl);
+
+// //       // Store the URL for later use
+// //       setImageUrl(imageUrl);
+// //     } catch (error) {
+// //       console.error('Error uploading image:', error);
+// //     }
+// //   };
+
+// //   const handleGenerateNotes = async () => {
+// //     if (!image) {
+// //       alert('Please upload an image first.');
+// //       return;
+// //     }
+
+// //     setLoading(true);
+// //     setError(null);
+// //     setExtractedText('');
+// //     setKeywords([]);
+// //     setNotes('');
+
+// //     const formData = new FormData();
+// //     formData.append('file', image);
+
+// //     try {
+// //       // Extract text
+// //       const textResponse = await axios.post('http://localhost:5000/extract-text', formData, {
+// //         headers: {
+// //           'Content-Type': 'multipart/form-data',
+// //         },
+// //       });
+// //       setExtractedText(textResponse.data.text);
+
+// //       // Extract keywords
+// //       const keywordsResponse = await axios.post('http://localhost:5000/extract-keywords', {
+// //         text: textResponse.data.text,
+// //       });
+// //       setKeywords(keywordsResponse.data.keywords);
+
+// //       // Generate notes using the selected template
+// //       const notesResponse = await axios.post('http://localhost:5000/generate-notes', {
+// //         keywords: keywordsResponse.data.keywords,
+// //         template: selectedTemplate.name // Use the selected template
+// //       });
+// //       setNotes(notesResponse.data.notes);
+// //     } catch (error) {
+// //       console.error('Error generating notes:', error.response ? error.response.data : error.message);
+// //       setError('Error generating notes. Please try again.');
+// //     } finally {
+// //       setLoading(false);
+// //     }
+// //   };
+
+// //   const handleSaveNotes = async (title) => {
+// //     if (!notes) {
+// //       alert('No notes to save.');
+// //       return;
+// //     }
+
+// //     const userId = user.uid;
+// //     const userEmail = user.email;
+// //     const today = new Date().toDateString();
+// //     const noteId = uuidv4(); // Generate a unique ID for the note
+
+// //     setIsSaving(true);
+
+// //     try {
+// //       const userRef = doc(db, 'notes_store', userId);
+// //       const userDoc = await getDoc(userRef);
+
+// //       if (!userDoc.exists()) {
+// //         await setDoc(userRef, {
+// //           userId,
+// //           userEmail,
+// //         });
+// //       }
+
+// //       const notesRef = doc(collection(db, 'notes_store', userId, 'notes'), today);
+// //       const notesDoc = await getDoc(notesRef);
+
+// //       if (!notesDoc.exists()) {
+// //         await setDoc(notesRef, {
+// //           notes: []
+// //         });
+// //       }
+
+// //       await updateDoc(notesRef, {
+// //         notes: arrayUnion({ title, content: notes, imageUrl, noteId }) // Include noteId
+// //       });
+
+// //       setSaveMessage('Notes successfully saved.');
+// //       // Fetch the saved notes immediately after saving
+// //       const fetchSavedNotes = async () => {
+// //         const notesCollection = collection(db, 'notes_store', userId, 'notes');
+// //         const notesSnapshot = await getDocs(notesCollection);
+// //         const notesData = notesSnapshot.docs.map(doc => ({
+// //           id: doc.id,
+// //           ...doc.data()
+// //         }));
+// //         setSavedNotes(notesData);
+
+// //         const dates = notesData.map(note => note.id);
+// //         setDateOptions(dates);
+// //       };
+
+// //       await fetchSavedNotes();
+// //     } catch (error) {
+// //       console.error('Error saving notes:', error);
+// //       setSaveMessage('Error saving notes. Please try again.');
+// //     } finally {
+// //       setIsSaving(false);
+// //     }
+// //   };
+
+// //   const handleDeleteNote = async (date, noteIndex) => {
+// //     const userId = user.uid; // Get the user ID from the authenticated user
+// //     const notesRef = doc(collection(db, 'notes_store', userId, 'notes'), date);
+
+// //     try {
+// //       const notesDoc = await getDoc(notesRef);
+// //       if (notesDoc.exists()) {
+// //         const notesData = notesDoc.data().notes;
+// //         notesData.splice(noteIndex, 1);
+// //         await updateDoc(notesRef, {
+// //           notes: notesData
+// //         });
+// //         setSaveMessage('Note successfully deleted.');
+// //         setSavedNotes(prevNotes => {
+// //           const updatedNotes = prevNotes.map(note => {
+// //             if (note.id === date) {
+// //               return {
+// //                 ...note,
+// //                 notes: notesData
+// //               };
+// //             }
+// //             return note;
+// //           });
+// //           return updatedNotes;
+// //         });
+// //       }
+// //     } catch (error) {
+// //       console.error('Error deleting note:', error);
+// //       setSaveMessage('Error deleting note. Please try again.');
+// //     }
+// //   };
+
+// //   const handleDownloadNote = (note) => {
+// //     const htmlContent = `
+// //       <html>
+// //         <head>
+// //           <style>
+// //             body { font-family: Arial, sans-serif; }
+// //             h1 { color: #333; }
+// //             p { color: #666; }
+// //           </style>
+// //         </head>
+// //         <body>
+// //           <h1>${note.title}</h1>
+// //           <div>${marked(note.content)}</div>
+// //         </body>
+// //       </html>
+// //     `;
+
+// //     const element = document.createElement('div');
+// //     element.innerHTML = htmlContent;
+
+// //     const opt = {
+// //       margin: 1,
+// //       filename: `${note.title}.pdf`,
+// //       image: { type: 'jpeg', quality: 0.98 },
+// //       html2canvas: { scale: 2 },
+// //       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+// //     };
+
+// //     html2pdf().from(element).set(opt).save();
+// //   };
+
+// //   const handleShareNote = (noteId) => {
+// //     const shareableLink = `${window.location.origin}/shared-note/${noteId}`;
+// //     navigator.clipboard.writeText(shareableLink)
+// //       .then(() => {
+// //         alert('Link copied to clipboard!');
+// //       })
+// //       .catch((err) => {
+// //         console.error('Failed to copy link: ', err);
+// //       });
+// //   };
+
+// //   const toggleSidebar = () => {
+// //     setIsSidebarOpen(!isSidebarOpen);
+// //     document.documentElement.style.setProperty('--sidebar-translate', isSidebarOpen ? '-100%' : '0');
+// //     document.documentElement.style.setProperty('--sidebar-margin', isSidebarOpen ? `${sidebarWidth}px` : '0');
+// //   };
+
+// //   const startDragging = (e) => {
+// //     setIsDragging(true);
+// //     document.addEventListener('mousemove', handleDragging);
+// //     document.addEventListener('mouseup', stopDragging);
+// //   };
+
+// //   const handleDragging = (e) => {
+// //     if (isDragging) {
+// //       const newWidth = e.clientX;
+// //       setSidebarWidth(newWidth);
+// //       document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
+// //     }
+// //   };
+
+// //   const stopDragging = () => {
+// //     setIsDragging(false);
+// //     document.removeEventListener('mousemove', handleDragging);
+// //     document.removeEventListener('mouseup', stopDragging);
+// //   };
+
+// //   const handleViewNote = (date, noteIndex) => {
+// //     const note = savedNotes.find(note => note.id === date).notes[noteIndex];
+// //     navigate('/view-note', { state: { note, date } });
+// //   };
+
+// //   return (
+// //     <div className="container">
+// //       <Navbar />
+// //       <div className="main-content">
+// //         <Sidebar
+// //           isSidebarOpen={isSidebarOpen}
+// //           toggleSidebar={toggleSidebar}
+// //           selectedDate={selectedDate}
+// //           setSelectedDate={setSelectedDate}
+// //           dateOptions={dateOptions}
+// //           savedNotes={savedNotes}
+// //           handleViewNote={handleViewNote}
+// //           handleDeleteNote={handleDeleteNote}
+// //           handleDownloadNote={handleDownloadNote}
+// //           handleShareNote={handleShareNote}
+// //         />
+// //         <div className={`content`} style={{ marginLeft: isSidebarOpen ? '300px' : '0' }}>
+// //           <div className="title">Notes Generation Page</div>
+// //           <div className="subtitle">Upload an image to generate notes.</div>
+// //           <div className="upload-section">
+// //             <input type="file" accept="image/*" onChange={handleImageUpload} className="file-input" />
+// //             {image && <span className="file-name">{image.name}</span>}
+// //           </div>
+// //           {image && (
+// //             <button className="action-button" onClick={handleGenerateNotes}>Generate Notes</button>
+// //           )}
+// //           {loading && <div className="loading-message">Your notes are on the way<span className="animated-dots"></span></div>}
+// //           {error && <div className="error-message">{error}</div>}
+// //           {extractedText && (
+// //             <>
+// //               <div className="section-title">Extracted Text</div>
+// //               <textarea value={extractedText} readOnly className="text-area" />
+// //             </>
+// //           )}
+// //           {keywords.length > 0 && (
+// //             <>
+// //               <div className="section-title">Key Points</div>
+// //               <ul>
+// //                 {keywords.map((keyword, index) => (
+// //                   <li key={index}>{keyword}</li>
+// //                 ))}
+// //               </ul>
+// //             </>
+// //           )}
+// //           {notes && (
+// //             <>
+// //             <div className="section-title">Final Notes</div>
+// //             <ReactMarkdown>{notes}</ReactMarkdown>
+// //             <div className="action-buttons-container"> {/* New container for buttons */}
+// //               {!isSaving && !saveMessage && (
+// //                 <button
+// //                   className="action-button"
+// //                   onClick={() => setIsSaveModalOpen(true)} // Open the modal
+// //                 >
+// //                   Save Notes
+// //                 </button>
+// //               )}
+// //               <button
+// //                 className="action-button speaker-button" // Add a new class for the speaker button
+// //                 onClick={() => { /* Functionality to be implemented later */ }}
+// //               >
+// //                 <Volume2 size={20} /> {/* Speaker icon */}
+// //               </button>
+// //             </div>
+// //             {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
+// //             {saveMessage && <div className="save-message">{saveMessage}</div>}
+// //           </>
+// //         )}
+// //             {/* Save Notes Modal */}
+// //             <SaveNotesModal
+// //               isOpen={isSaveModalOpen}
+// //               onClose={() => setIsSaveModalOpen(false)}
+// //               onSave={handleSaveNotes}
+// //             />
+// //         </div>
+// //         {imagePreview && (
+// //           <div className="image-preview-container">
+// //             <div className="preview-title">Uploaded Image Preview</div>
+// //             <img src={imagePreview} alt="Uploaded Image Preview" className="image-preview" />
+// //             {selectedTemplate && (
+// //               <div className="template-selected-container">
+// //                 <div className="template-selected-title">Template Selected</div>
+// //                 <div className="template-image-container">
+// //                   <img src={selectedTemplate.imageUrl} alt={selectedTemplate.name} className="template-image" />
+// //                 </div>
+// //                 <button className="choose-template-button" onClick={() => navigate('/templates')}>Choose Template</button>
+// //               </div>
+// //             )}
+// //           </div>
+// //         )}
+// //       </div>
+// //       <button className="toggle-button" onClick={toggleSidebar}>⋮</button>
+// //     </div>
+// //   );
+// // };
+
+// // export default NotesPage;
+
+// import React, { useState, useEffect } from 'react';
+// import { useNavigate, useLocation } from 'react-router-dom';
+// import axios from 'axios';
+// import Navbar from '../components/Navbar';
+// import { db } from '../config/firebaseConfig';
+// import { useAuthContext } from '../hooks/AuthProvider';
+// import { doc, getDoc, setDoc, collection, updateDoc, arrayUnion, getDocs } from 'firebase/firestore';
+// import './notes.css';
+// import ReactMarkdown from 'react-markdown';
+// import Sidebar from '../components/Sidebar';
+// import SaveNotesModal from '../components/SaveNotesModal';
+// import html2pdf from 'html2pdf.js';
+// import { marked } from 'marked';
+// import { v4 as uuidv4 } from 'uuid';
+// import { Volume2 } from 'lucide-react';
+
+// const NotesPage = () => {
+//   const navigate = useNavigate();
+//   const location = useLocation();
+//   const { user } = useAuthContext(); // Get the authenticated user
+//   const [image, setImage] = useState(null);
+//   const [imagePreview, setImagePreview] = useState(null);
+//   const [imageUrl, setImageUrl] = useState(''); // Store the image URL
+//   const [extractedText, setExtractedText] = useState('');
+//   const [keywords, setKeywords] = useState([]);
+//   const [notes, setNotes] = useState('');
+//   const [loading, setLoading] = useState(false);
+//   const [error, setError] = useState(null);
+//   const [saveMessage, setSaveMessage] = useState(null);
+//   const [isSaving, setIsSaving] = useState(false); // New state for saving status
+//   const [selectedTemplate, setSelectedTemplate] = useState(null);
+//   const [savedNotes, setSavedNotes] = useState([]);
+//   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+//   const [selectedDate, setSelectedDate] = useState(null);
+//   const [dateOptions, setDateOptions] = useState([]);
+//   const [isDragging, setIsDragging] = useState(false);
+//   const [sidebarWidth, setSidebarWidth] = useState(300);
+//   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+
+//   useEffect(() => {
+//     const fetchDefaultTemplate = async () => {
+//       const defaultTemplatesCollection = collection(db, 'default_templates');
+//       const defaultTemplatesSnapshot = await getDocs(defaultTemplatesCollection);
+//       const defaultTemplatesData = defaultTemplatesSnapshot.docs.map(doc => ({
+//         id: doc.id,
+//         ...doc.data()
+//       }));
+//       setSelectedTemplate(defaultTemplatesData[0]); // Set the default template
+//     };
+
+//     if (location.state && location.state.selectedTemplate) {
+//       setSelectedTemplate(location.state.selectedTemplate);
+//     } else {
+//       fetchDefaultTemplate();
+//     }
+
+//     // Restore state from local storage
+//     const storedImage = localStorage.getItem('image');
+//     const storedImagePreview = localStorage.getItem('imagePreview');
+//     const storedExtractedText = localStorage.getItem('extractedText');
+//     const storedKeywords = localStorage.getItem('keywords');
+//     const storedNotes = localStorage.getItem('notes');
+
+//     if (storedImage) setImage(storedImage);
+//     if (storedImagePreview) setImagePreview(storedImagePreview);
+//     if (storedExtractedText) setExtractedText(storedExtractedText);
+//     if (storedKeywords) setKeywords(JSON.parse(storedKeywords));
+//     if (storedNotes) setNotes(storedNotes);
+
+//     const fetchSavedNotes = async () => {
+//       const userId = user.uid;
+//       const userRef = doc(db, 'notes_store', userId);
+//       const userDoc = await getDoc(userRef);
+
+//       if (userDoc.exists()) {
+//         const notesCollection = collection(db, 'notes_store', userId, 'notes');
+//         const notesSnapshot = await getDocs(notesCollection);
+//         const notesData = notesSnapshot.docs.map(doc => ({
+//           id: doc.id,
+//           ...doc.data()
+//         }));
+//         setSavedNotes(notesData);
+
+//         const dates = notesData.map(note => note.id);
+//         setDateOptions(dates);
+//       }
+//     };
+
+//     fetchSavedNotes();
+//   }, [location.state, user.uid]);
+
+//   useEffect(() => {
+//     // Save state to local storage
+//     if (image) localStorage.setItem('image', image);
+//     if (imagePreview) localStorage.setItem('imagePreview', imagePreview);
+//     if (extractedText) localStorage.setItem('extractedText', extractedText);
+//     if (keywords) localStorage.setItem('keywords', JSON.stringify(keywords));
+//     if (notes) localStorage.setItem('notes', notes);
+//   }, [image, imagePreview, extractedText, keywords, notes]);
+
+//   const handleImageUpload = async (event) => {
+//     const file = event.target.files[0];
+//     setImage(file);
+//     setSaveMessage(null); // Reset save message when a new file is uploaded
+
+//     // Log the file details
+//     console.log('Uploaded file:', file);
+
+//     // Set image preview
+//     const reader = new FileReader();
+//     reader.onloadend = () => {
+//       setImagePreview(reader.result);
+//     };
+//     reader.readAsDataURL(file);
+
+//     // Upload to Cloudinary
+//     const formData = new FormData();
+//     formData.append('file', file);
+//     formData.append('upload_preset', 'notezy-preset');
+
+//     try {
+//       const response = await axios.post(
+//         `https://api.cloudinary.com/v1_1/dg8zy7lct/image/upload`,
+//         formData
+//       );
+//       const imageUrl = response.data.secure_url;
+//       console.log('Image uploaded to Cloudinary:', imageUrl);
+
+//       // Store the URL for later use
+//       setImageUrl(imageUrl);
+//     } catch (error) {
+//       console.error('Error uploading image:', error);
+//     }
+//   };
+
+//   const handleGenerateNotes = async () => {
+//     if (!image) {
+//       alert('Please upload an image first.');
+//       return;
+//     }
+
+//     setLoading(true);
+//     setError(null);
+//     setExtractedText('');
+//     setKeywords([]);
+//     setNotes('');
+
+//     const formData = new FormData();
+//     formData.append('file', image);
+//     formData.append('keywords', keywords.join(','));
+
+//     try {
+//       // Generate notes using the selected template
+//       const notesResponse = await axios.post('http://localhost:5000/generate-notes', formData, {
+//         headers: {
+//           'Content-Type': 'multipart/form-data',
+//         },
+//       });
+//       setNotes(notesResponse.data.notes);
+//     } catch (error) {
+//       console.error('Error generating notes:', error.response ? error.response.data : error.message);
+//       setError('Error generating notes. Please try again.');
+//     } finally {
+//       setLoading(false);
+//     }
+//   };
+
+//   const handleSaveNotes = async (title) => {
+//     if (!notes) {
+//       alert('No notes to save.');
+//       return;
+//     }
+
+//     const userId = user.uid;
+//     const userEmail = user.email;
+//     const today = new Date().toDateString();
+//     const noteId = uuidv4(); // Generate a unique ID for the note
+
+//     setIsSaving(true);
+
+//     try {
+//       const userRef = doc(db, 'notes_store', userId);
+//       const userDoc = await getDoc(userRef);
+
+//       if (!userDoc.exists()) {
+//         await setDoc(userRef, {
+//           userId,
+//           userEmail,
+//         });
+//       }
+
+//       const notesRef = doc(collection(db, 'notes_store', userId, 'notes'), today);
+//       const notesDoc = await getDoc(notesRef);
+
+//       if (!notesDoc.exists()) {
+//         await setDoc(notesRef, {
+//           notes: []
+//         });
+//       }
+
+//       await updateDoc(notesRef, {
+//         notes: arrayUnion({ title, content: notes, imageUrl, noteId }) // Include noteId
+//       });
+
+//       setSaveMessage('Notes successfully saved.');
+//       // Fetch the saved notes immediately after saving
+//       const fetchSavedNotes = async () => {
+//         const notesCollection = collection(db, 'notes_store', userId, 'notes');
+//         const notesSnapshot = await getDocs(notesCollection);
+//         const notesData = notesSnapshot.docs.map(doc => ({
+//           id: doc.id,
+//           ...doc.data()
+//         }));
+//         setSavedNotes(notesData);
+
+//         const dates = notesData.map(note => note.id);
+//         setDateOptions(dates);
+//       };
+
+//       await fetchSavedNotes();
+//     } catch (error) {
+//       console.error('Error saving notes:', error);
+//       setSaveMessage('Error saving notes. Please try again.');
+//     } finally {
+//       setIsSaving(false);
+//     }
+//   };
+
+//   const handleDeleteNote = async (date, noteIndex) => {
+//     const userId = user.uid; // Get the user ID from the authenticated user
+//     const notesRef = doc(collection(db, 'notes_store', userId, 'notes'), date);
+
+//     try {
+//       const notesDoc = await getDoc(notesRef);
+//       if (notesDoc.exists()) {
+//         const notesData = notesDoc.data().notes;
+//         notesData.splice(noteIndex, 1);
+//         await updateDoc(notesRef, {
+//           notes: notesData
+//         });
+//         setSaveMessage('Note successfully deleted.');
+//         setSavedNotes(prevNotes => {
+//           const updatedNotes = prevNotes.map(note => {
+//             if (note.id === date) {
+//               return {
+//                 ...note,
+//                 notes: notesData
+//               };
+//             }
+//             return note;
+//           });
+//           return updatedNotes;
+//         });
+//       }
+//     } catch (error) {
+//       console.error('Error deleting note:', error);
+//       setSaveMessage('Error deleting note. Please try again.');
+//     }
+//   };
+
+//   const handleDownloadNote = (note) => {
+//     const htmlContent = `
+//       <html>
+//         <head>
+//           <style>
+//             body { font-family: Arial, sans-serif; }
+//             h1 { color: #333; }
+//             p { color: #666; }
+//           </style>
+//         </head>
+//         <body>
+//           <h1>${note.title}</h1>
+//           <div>${marked(note.content)}</div>
+//         </body>
+//       </html>
+//     `;
+
+//     const element = document.createElement('div');
+//     element.innerHTML = htmlContent;
+
+//     const opt = {
+//       margin: 1,
+//       filename: `${note.title}.pdf`,
+//       image: { type: 'jpeg', quality: 0.98 },
+//       html2canvas: { scale: 2 },
+//       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+//     };
+
+//     html2pdf().from(element).set(opt).save();
+//   };
+
+//   const handleShareNote = (noteId) => {
+//     const shareableLink = `${window.location.origin}/shared-note/${noteId}`;
+//     navigator.clipboard.writeText(shareableLink)
+//       .then(() => {
+//         alert('Link copied to clipboard!');
+//       })
+//       .catch((err) => {
+//         console.error('Failed to copy link: ', err);
+//       });
+//   };
+
+//   const toggleSidebar = () => {
+//     setIsSidebarOpen(!isSidebarOpen);
+//     document.documentElement.style.setProperty('--sidebar-translate', isSidebarOpen ? '-100%' : '0');
+//     document.documentElement.style.setProperty('--sidebar-margin', isSidebarOpen ? `${sidebarWidth}px` : '0');
+//   };
+
+//   const startDragging = (e) => {
+//     setIsDragging(true);
+//     document.addEventListener('mousemove', handleDragging);
+//     document.addEventListener('mouseup', stopDragging);
+//   };
+
+//   const handleDragging = (e) => {
+//     if (isDragging) {
+//       const newWidth = e.clientX;
+//       setSidebarWidth(newWidth);
+//       document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
+//     }
+//   };
+
+//   const stopDragging = () => {
+//     setIsDragging(false);
+//     document.removeEventListener('mousemove', handleDragging);
+//     document.removeEventListener('mouseup', stopDragging);
+//   };
+
+//   const handleViewNote = (date, noteIndex) => {
+//     const note = savedNotes.find(note => note.id === date).notes[noteIndex];
+//     navigate('/view-note', { state: { note, date } });
+//   };
+
+//   return (
+//     <div className="container">
+//       <Navbar />
+//       <div className="main-content">
+//         <Sidebar
+//           isSidebarOpen={isSidebarOpen}
+//           toggleSidebar={toggleSidebar}
+//           selectedDate={selectedDate}
+//           setSelectedDate={setSelectedDate}
+//           dateOptions={dateOptions}
+//           savedNotes={savedNotes}
+//           handleViewNote={handleViewNote}
+//           handleDeleteNote={handleDeleteNote}
+//           handleDownloadNote={handleDownloadNote}
+//           handleShareNote={handleShareNote}
+//         />
+//         <div className={`content`} style={{ marginLeft: isSidebarOpen ? '300px' : '0' }}>
+//           <div className="title">Notes Generation Page</div>
+//           <div className="subtitle">Upload an image to generate notes.</div>
+//           <div className="upload-section">
+//             <input type="file" accept="image/*" onChange={handleImageUpload} className="file-input" />
+//             {image && <span className="file-name">{image.name}</span>}
+//           </div>
+//           {image && (
+//             <button className="action-button" onClick={handleGenerateNotes}>Generate Notes</button>
+//           )}
+//           {loading && <div className="loading-message">Your notes are on the way<span className="animated-dots"></span></div>}
+//           {error && <div className="error-message">{error}</div>}
+//           {extractedText && (
+//             <>
+//               <div className="section-title">Extracted Text</div>
+//               <textarea value={extractedText} readOnly className="text-area" />
+//             </>
+//           )}
+//           {keywords.length > 0 && (
+//             <>
+//               <div className="section-title">Key Points</div>
+//               <ul>
+//                 {keywords.map((keyword, index) => (
+//                   <li key={index}>{keyword}</li>
+//                 ))}
+//               </ul>
+//             </>
+//           )}
+//           {notes && (
+//             <>
+//             <div className="section-title">Final Notes</div>
+//             <ReactMarkdown>{notes}</ReactMarkdown>
+//             <div className="action-buttons-container"> {/* New container for buttons */}
+//               {!isSaving && !saveMessage && (
+//                 <button
+//                   className="action-button"
+//                   onClick={() => setIsSaveModalOpen(true)} // Open the modal
+//                 >
+//                   Save Notes
+//                 </button>
+//               )}
+//               <button
+//                 className="action-button speaker-button" // Add a new class for the speaker button
+//                 onClick={() => { /* Functionality to be implemented later */ }}
+//               >
+//                 <Volume2 size={20} /> {/* Speaker icon */}
+//               </button>
+//             </div>
+//             {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
+//             {saveMessage && <div className="save-message">{saveMessage}</div>}
+//           </>
+//         )}
+//             {/* Save Notes Modal */}
+//             <SaveNotesModal
+//               isOpen={isSaveModalOpen}
+//               onClose={() => setIsSaveModalOpen(false)}
+//               onSave={handleSaveNotes}
+//             />
+//         </div>
+//         {imagePreview && (
+//           <div className="image-preview-container">
+//             <div className="preview-title">Uploaded Image Preview</div>
+//             <img src={imagePreview} alt="Uploaded Image Preview" className="image-preview" />
+//             {selectedTemplate && (
+//               <div className="template-selected-container">
+//                 <div className="template-selected-title">Template Selected</div>
+//                 <div className="template-image-container">
+//                   <img src={selectedTemplate.imageUrl} alt={selectedTemplate.name} className="template-image" />
+//                 </div>
+//                 <button className="choose-template-button" onClick={() => navigate('/templates')}>Choose Template</button>
+//               </div>
+//             )}
+//           </div>
+//         )}
+//       </div>
+//       <button className="toggle-button" onClick={toggleSidebar}>⋮</button>
+//     </div>
+//   );
+// };
+
+// export default NotesPage;
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
@@ -17,17 +890,17 @@ import { Volume2 } from 'lucide-react';
 const NotesPage = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user } = useAuthContext(); // Get the authenticated user
+  const { user } = useAuthContext();
   const [image, setImage] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
-  const [imageUrl, setImageUrl] = useState(''); // Store the image URL
+  const [imageUrl, setImageUrl] = useState('');
   const [extractedText, setExtractedText] = useState('');
   const [keywords, setKeywords] = useState([]);
   const [notes, setNotes] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [saveMessage, setSaveMessage] = useState(null);
-  const [isSaving, setIsSaving] = useState(false); // New state for saving status
+  const [isSaving, setIsSaving] = useState(false);
   const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [savedNotes, setSavedNotes] = useState([]);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -37,18 +910,19 @@ const NotesPage = () => {
   const [sidebarWidth, setSidebarWidth] = useState(300);
   const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
 
+  // Fetch default template and saved notes on component mount
   useEffect(() => {
     const fetchDefaultTemplate = async () => {
       const defaultTemplatesCollection = collection(db, 'default_templates');
       const defaultTemplatesSnapshot = await getDocs(defaultTemplatesCollection);
       const defaultTemplatesData = defaultTemplatesSnapshot.docs.map(doc => ({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       }));
-      setSelectedTemplate(defaultTemplatesData[0]); // Set the default template
+      setSelectedTemplate(defaultTemplatesData[0]);
     };
 
-    if (location.state && location.state.selectedTemplate) {
+    if (location.state?.selectedTemplate) {
       setSelectedTemplate(location.state.selectedTemplate);
     } else {
       fetchDefaultTemplate();
@@ -67,30 +941,11 @@ const NotesPage = () => {
     if (storedKeywords) setKeywords(JSON.parse(storedKeywords));
     if (storedNotes) setNotes(storedNotes);
 
-    const fetchSavedNotes = async () => {
-      const userId = user.uid;
-      const userRef = doc(db, 'notes_store', userId);
-      const userDoc = await getDoc(userRef);
-
-      if (userDoc.exists()) {
-        const notesCollection = collection(db, 'notes_store', userId, 'notes');
-        const notesSnapshot = await getDocs(notesCollection);
-        const notesData = notesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setSavedNotes(notesData);
-
-        const dates = notesData.map(note => note.id);
-        setDateOptions(dates);
-      }
-    };
-
     fetchSavedNotes();
   }, [location.state, user.uid]);
 
+  // Save state to local storage
   useEffect(() => {
-    // Save state to local storage
     if (image) localStorage.setItem('image', image);
     if (imagePreview) localStorage.setItem('imagePreview', imagePreview);
     if (extractedText) localStorage.setItem('extractedText', extractedText);
@@ -98,13 +953,34 @@ const NotesPage = () => {
     if (notes) localStorage.setItem('notes', notes);
   }, [image, imagePreview, extractedText, keywords, notes]);
 
+  // Fetch saved notes from Firestore
+  const fetchSavedNotes = async () => {
+    const userId = user.uid;
+    const userRef = doc(db, 'notes_store', userId);
+    const userDoc = await getDoc(userRef);
+
+    if (userDoc.exists()) {
+      const notesCollection = collection(db, 'notes_store', userId, 'notes');
+      const notesSnapshot = await getDocs(notesCollection);
+      const notesData = notesSnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+      setSavedNotes(notesData);
+      setDateOptions(notesData.map(note => note.id));
+    }
+  };
+
+  // Handle image upload and Cloudinary integration
   const handleImageUpload = async (event) => {
     const file = event.target.files[0];
-    setImage(file);
-    setSaveMessage(null); // Reset save message when a new file is uploaded
+    if (!file) {
+      alert('No file selected.');
+      return;
+    }
 
-    // Log the file details
-    console.log('Uploaded file:', file);
+    setImage(file);
+    setSaveMessage(null);
 
     // Set image preview
     const reader = new FileReader();
@@ -124,49 +1000,153 @@ const NotesPage = () => {
         formData
       );
       const imageUrl = response.data.secure_url;
-      console.log('Image uploaded to Cloudinary:', imageUrl);
-
-      // Store the URL for later use
       setImageUrl(imageUrl);
     } catch (error) {
       console.error('Error uploading image:', error);
+      setError('Failed to upload image. Please try again.');
     }
   };
 
+  // Handle note generation
+  // const handleGenerateNotes = async () => {
+  //   if (!selectedTemplate || !selectedTemplate.imageUrl) {
+  //     alert('Please select a template first.');
+  //     return;
+  //   }
+
+  //   setLoading(true);
+  //   setError(null);
+  //   setExtractedText('');
+  //   setKeywords([]);
+  //   setNotes('');
+
+  //   try {
+  //     // Fetch the template image
+  //     const templateImageResponse = await axios.get(selectedTemplate.imageUrl, {
+  //       responseType: 'blob',
+  //     });
+  //     const templateImageFile = new File([templateImageResponse.data], 'template.png', {
+  //       type: templateImageResponse.data.type,
+  //     });
+
+  //     // Extract text from the template image
+  //     const formData = new FormData();
+  //     formData.append('file', templateImageFile);
+  //     formData.append('keywords', keywords.join(','));
+
+  //     const textResponse = await axios.post('http://localhost:5000/extract-text', formData, {
+  //       headers: { 'Content-Type': 'multipart/form-data' },
+  //     });
+  //     const extractedText = textResponse.data.text;
+  //     setExtractedText(extractedText);
+
+  //     // Extract keywords
+  //     const keywordsResponse = await axios.post('http://localhost:5000/extract-keywords', {
+  //       text: extractedText,
+  //     });
+  //     const extractedKeywords = keywordsResponse.data.keywords;
+  //     setKeywords(extractedKeywords);
+
+  //     // Generate notes
+  //     const notesResponse = await axios.post('http://localhost:5000/generate-notes', {
+  //       keywords: extractedKeywords,
+  //       template: selectedTemplate.name,
+  //     });
+  //     setNotes(notesResponse.data.notes);
+  //   } catch (error) {
+  //     console.error('Error generating notes:', error.response ? error.response.data : error.message);
+  //     setError('Error generating notes. Please try again.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+  // const handleGenerateNotes = async () => {
+  //   if (!selectedTemplate || !selectedTemplate.imageUrl) {
+  //     alert('Please select a template first.');
+  //     return;
+  //   }
+  
+  //   setLoading(true);
+  //   setError(null);
+  //   setExtractedText('');
+  //   setKeywords([]);
+  //   setNotes('');
+  
+  //   try {
+  //     // Fetch the template image
+  //     const templateImageResponse = await axios.get(selectedTemplate.imageUrl, {
+  //       responseType: 'blob',
+  //     });
+  //     const templateImageFile = new File([templateImageResponse.data], 'template.png', {
+  //       type: templateImageResponse.data.type,
+  //     });
+  
+  //     // Extract text from the template image
+  //     const formData = new FormData();
+  //     formData.append('file', templateImageFile);
+  //     formData.append('keywords', keywords.join(','));
+  
+  //     const textResponse = await axios.post('http://localhost:5000/extract-text', formData, {
+  //       headers: { 'Content-Type': 'multipart/form-data' },
+  //     });
+  //     const extractedText = textResponse.data.text;
+  //     setExtractedText(extractedText);
+  
+  //     // Extract keywords
+  //     const keywordsResponse = await axios.post('http://localhost:5000/extract-keywords', {
+  //       text: extractedText,
+  //     });
+  //     const extractedKeywords = keywordsResponse.data.keywords;
+  //     setKeywords(extractedKeywords);
+  
+  //     // Generate notes
+  //     const notesResponse = await axios.post('http://localhost:5000/generate-notes', {
+  //       keywords: extractedKeywords,
+  //       image_path: selectedTemplate.imageUrl, // Include the image_path
+  //       template: selectedTemplate.name, // Optional: Include the template name if needed
+  //     });
+  //     setNotes(notesResponse.data.notes);
+  //   } catch (error) {
+  //     console.error('Error generating notes:', error.response ? error.response.data : error.message);
+  //     setError('Error generating notes. Please try again.');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
   const handleGenerateNotes = async () => {
-    if (!image) {
-      alert('Please upload an image first.');
+    if (!selectedTemplate || !selectedTemplate.imageUrl) {
+      alert('Please select a template first.');
       return;
     }
-
+  
     setLoading(true);
     setError(null);
     setExtractedText('');
     setKeywords([]);
     setNotes('');
-
-    const formData = new FormData();
-    formData.append('file', image);
-
+  
     try {
-      // Extract text
+      // Step 1: Extract text from the uploaded image
+      const formData = new FormData();
+      formData.append('file', image); // Uploaded image
+  
       const textResponse = await axios.post('http://localhost:5000/extract-text', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
-      setExtractedText(textResponse.data.text);
-
-      // Extract keywords
+      const extractedText = textResponse.data.text;
+      setExtractedText(extractedText);
+  
+      // Step 2: Extract keywords from the extracted text
       const keywordsResponse = await axios.post('http://localhost:5000/extract-keywords', {
-        text: textResponse.data.text,
+        text: extractedText,
       });
-      setKeywords(keywordsResponse.data.keywords);
-
-      // Generate notes using the selected template
+      const extractedKeywords = keywordsResponse.data.keywords;
+      setKeywords(extractedKeywords);
+  
+      // Step 3: Generate notes using the keywords and template image
       const notesResponse = await axios.post('http://localhost:5000/generate-notes', {
-        keywords: keywordsResponse.data.keywords,
-        template: selectedTemplate.name // Use the selected template
+        keywords: extractedKeywords,
+        template_image_url: selectedTemplate.imageUrl, // Template image URL
       });
       setNotes(notesResponse.data.notes);
     } catch (error) {
@@ -177,16 +1157,16 @@ const NotesPage = () => {
     }
   };
 
+  // Handle saving notes to Firestore
   const handleSaveNotes = async (title) => {
-    if (!notes) {
-      alert('No notes to save.');
+    if (!title || !notes) {
+      alert('Please provide a title and ensure notes are not empty.');
       return;
     }
 
     const userId = user.uid;
-    const userEmail = user.email;
     const today = new Date().toDateString();
-    const noteId = uuidv4(); // Generate a unique ID for the note
+    const noteId = uuidv4();
 
     setIsSaving(true);
 
@@ -195,40 +1175,21 @@ const NotesPage = () => {
       const userDoc = await getDoc(userRef);
 
       if (!userDoc.exists()) {
-        await setDoc(userRef, {
-          userId,
-          userEmail,
-        });
+        await setDoc(userRef, { userId, userEmail: user.email });
       }
 
       const notesRef = doc(collection(db, 'notes_store', userId, 'notes'), today);
       const notesDoc = await getDoc(notesRef);
 
       if (!notesDoc.exists()) {
-        await setDoc(notesRef, {
-          notes: []
-        });
+        await setDoc(notesRef, { notes: [] });
       }
 
       await updateDoc(notesRef, {
-        notes: arrayUnion({ title, content: notes, imageUrl, noteId }) // Include noteId
+        notes: arrayUnion({ title, content: notes, imageUrl, noteId }),
       });
 
       setSaveMessage('Notes successfully saved.');
-      // Fetch the saved notes immediately after saving
-      const fetchSavedNotes = async () => {
-        const notesCollection = collection(db, 'notes_store', userId, 'notes');
-        const notesSnapshot = await getDocs(notesCollection);
-        const notesData = notesSnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setSavedNotes(notesData);
-
-        const dates = notesData.map(note => note.id);
-        setDateOptions(dates);
-      };
-
       await fetchSavedNotes();
     } catch (error) {
       console.error('Error saving notes:', error);
@@ -238,8 +1199,9 @@ const NotesPage = () => {
     }
   };
 
+  // Handle note deletion
   const handleDeleteNote = async (date, noteIndex) => {
-    const userId = user.uid; // Get the user ID from the authenticated user
+    const userId = user.uid;
     const notesRef = doc(collection(db, 'notes_store', userId, 'notes'), date);
 
     try {
@@ -247,17 +1209,12 @@ const NotesPage = () => {
       if (notesDoc.exists()) {
         const notesData = notesDoc.data().notes;
         notesData.splice(noteIndex, 1);
-        await updateDoc(notesRef, {
-          notes: notesData
-        });
+        await updateDoc(notesRef, { notes: notesData });
         setSaveMessage('Note successfully deleted.');
         setSavedNotes(prevNotes => {
           const updatedNotes = prevNotes.map(note => {
             if (note.id === date) {
-              return {
-                ...note,
-                notes: notesData
-              };
+              return { ...note, notes: notesData };
             }
             return note;
           });
@@ -270,6 +1227,7 @@ const NotesPage = () => {
     }
   };
 
+  // Handle note download
   const handleDownloadNote = (note) => {
     const htmlContent = `
       <html>
@@ -295,12 +1253,13 @@ const NotesPage = () => {
       filename: `${note.title}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 2 },
-      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
     };
 
     html2pdf().from(element).set(opt).save();
   };
 
+  // Handle note sharing
   const handleShareNote = (noteId) => {
     const shareableLink = `${window.location.origin}/shared-note/${noteId}`;
     navigator.clipboard.writeText(shareableLink)
@@ -312,35 +1271,9 @@ const NotesPage = () => {
       });
   };
 
+  // Toggle sidebar
   const toggleSidebar = () => {
     setIsSidebarOpen(!isSidebarOpen);
-    document.documentElement.style.setProperty('--sidebar-translate', isSidebarOpen ? '-100%' : '0');
-    document.documentElement.style.setProperty('--sidebar-margin', isSidebarOpen ? `${sidebarWidth}px` : '0');
-  };
-
-  const startDragging = (e) => {
-    setIsDragging(true);
-    document.addEventListener('mousemove', handleDragging);
-    document.addEventListener('mouseup', stopDragging);
-  };
-
-  const handleDragging = (e) => {
-    if (isDragging) {
-      const newWidth = e.clientX;
-      setSidebarWidth(newWidth);
-      document.documentElement.style.setProperty('--sidebar-width', `${newWidth}px`);
-    }
-  };
-
-  const stopDragging = () => {
-    setIsDragging(false);
-    document.removeEventListener('mousemove', handleDragging);
-    document.removeEventListener('mouseup', stopDragging);
-  };
-
-  const handleViewNote = (date, noteIndex) => {
-    const note = savedNotes.find(note => note.id === date).notes[noteIndex];
-    navigate('/view-note', { state: { note, date } });
   };
 
   return (
@@ -354,7 +1287,10 @@ const NotesPage = () => {
           setSelectedDate={setSelectedDate}
           dateOptions={dateOptions}
           savedNotes={savedNotes}
-          handleViewNote={handleViewNote}
+          handleViewNote={(date, noteIndex) => {
+            const note = savedNotes.find(note => note.id === date).notes[noteIndex];
+            navigate('/view-note', { state: { note, date } });
+          }}
           handleDeleteNote={handleDeleteNote}
           handleDownloadNote={handleDownloadNote}
           handleShareNote={handleShareNote}
@@ -366,7 +1302,7 @@ const NotesPage = () => {
             <input type="file" accept="image/*" onChange={handleImageUpload} className="file-input" />
             {image && <span className="file-name">{image.name}</span>}
           </div>
-          {image && (
+          {selectedTemplate && (
             <button className="action-button" onClick={handleGenerateNotes}>Generate Notes</button>
           )}
           {loading && <div className="loading-message">Your notes are on the way<span className="animated-dots"></span></div>}
@@ -389,34 +1325,27 @@ const NotesPage = () => {
           )}
           {notes && (
             <>
-            <div className="section-title">Final Notes</div>
-            <ReactMarkdown>{notes}</ReactMarkdown>
-            <div className="action-buttons-container"> {/* New container for buttons */}
-              {!isSaving && !saveMessage && (
-                <button
-                  className="action-button"
-                  onClick={() => setIsSaveModalOpen(true)} // Open the modal
-                >
-                  Save Notes
+              <div className="section-title">Final Notes</div>
+              <ReactMarkdown>{notes}</ReactMarkdown>
+              <div className="action-buttons-container">
+                {!isSaving && !saveMessage && (
+                  <button className="action-button" onClick={() => setIsSaveModalOpen(true)}>
+                    Save Notes
+                  </button>
+                )}
+                <button className="action-button speaker-button">
+                  <Volume2 size={20} />
                 </button>
-              )}
-              <button
-                className="action-button speaker-button" // Add a new class for the speaker button
-                onClick={() => { /* Functionality to be implemented later */ }}
-              >
-                <Volume2 size={20} /> {/* Speaker icon */}
-              </button>
-            </div>
-            {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
-            {saveMessage && <div className="save-message">{saveMessage}</div>}
-          </>
-        )}
-            {/* Save Notes Modal */}
-            <SaveNotesModal
-              isOpen={isSaveModalOpen}
-              onClose={() => setIsSaveModalOpen(false)}
-              onSave={handleSaveNotes}
-            />
+              </div>
+              {isSaving && <div className="saving-message">Saving<span className="animated-dots"></span></div>}
+              {saveMessage && <div className="save-message">{saveMessage}</div>}
+            </>
+          )}
+          <SaveNotesModal
+            isOpen={isSaveModalOpen}
+            onClose={() => setIsSaveModalOpen(false)}
+            onSave={handleSaveNotes}
+          />
         </div>
         {imagePreview && (
           <div className="image-preview-container">
