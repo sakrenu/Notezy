@@ -42,6 +42,11 @@ html, body {
   margin-bottom: 2rem;
   text-align: center;
   width: 100%;
+
+  @media (max-width: 480px) {
+    width: 100vw;
+    text-align: left;
+  }
 }
 
 .modal-overlay {
