@@ -1,5 +1,3 @@
-// frontend/src/pages/home.js
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled, { keyframes, createGlobalStyle } from 'styled-components';
@@ -54,7 +52,7 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow: hidden;
+    overflow: auto; /* Changed from hidden to auto for scrollability */
     background-color: #FFFFFF;
     color: #0D173B;
     font-family: 'Arial', sans-serif;
@@ -62,7 +60,7 @@ const GlobalStyle = createGlobalStyle`
 
   #root {
     height: 100%;
-    overflow: hidden;
+    overflow: auto; /* Changed from hidden to auto for scrollability */
   }
 `;
 
@@ -75,12 +73,8 @@ const Container = styled.div`
   flex-direction: column;
   margin: 0;
   padding: 0;
-  overflow: hidden;
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  overflow: auto; /* Changed from hidden to auto for scrollability */
+  position: relative; /* Changed from fixed to relative */
 `;
 
 const HeroSection = styled.div`
@@ -90,6 +84,12 @@ const HeroSection = styled.div`
   padding: 20px;
   background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);
   flex: 0.9;
+
+  @media (max-width: 800px) {
+    flex-direction: column;
+    text-align: center;
+    padding: 10px;
+  }
 `;
 
 const HeroText = styled.div`
@@ -98,6 +98,11 @@ const HeroText = styled.div`
   flex-direction: column;
   justify-content: center;
   gap: 10px;
+
+  @media (max-width: 800px) {
+    flex: 1;
+    align-items: center;
+  }
 `;
 
 const Title = styled.h1`
@@ -105,17 +110,29 @@ const Title = styled.h1`
   font-weight: bold;
   color: #0D173B;
   animation: ${fadeIn} 1.5s ease-in-out;
+
+  @media (max-width: 800px) {
+    font-size: 2rem;
+  }
 `;
 
 const Subtitle = styled.p`
   font-size: 1.2rem;
   color: #5569af;
   animation: ${fadeIn} 2s ease-in-out;
+
+  @media (max-width: 800px) {
+    font-size: 1rem;
+  }
 `;
 
 const Actions = styled.div`
   display: flex;
   gap: 10px;
+
+  @media (max-width: 800px) {
+    justify-content: center;
+  }
 `;
 
 const ActionButton = styled.button`
@@ -144,6 +161,14 @@ const HeroImage = styled.img`
   height: 100%;
   object-fit: cover;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+
+  @media (max-width: 800px) {
+    max-width: 90%;
+     order: -1;
+    border-radius: 20px;
+    height: auto;
+    margin-bottom: 20px;
+  }
 `;
 
 export default StudentHomePage;

@@ -1,6 +1,4 @@
-// frontend/src/components/Navbar.js
-
-import React from 'react';
+import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import styled, { keyframes } from 'styled-components';
 
@@ -14,18 +12,27 @@ const fadeIn = keyframes`
 `;
 
 const Navbar = () => {
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
   return (
-    <NavbarContainer>
-      <Logo>
-        <LogoImage src="/logo.jpg" alt="Notezy Logo" />
-        <LogoText>Notezy</LogoText>
-      </Logo>
-      <NavLinks>
-        <StyledNavLink to="/home">Home</StyledNavLink>
-        <StyledNavLink to="/notes">Notes</StyledNavLink>
-        <StyledNavLink to="/templates">Templates</StyledNavLink> {/* New link for TemplatesPage */}
-      </NavLinks>
-    </NavbarContainer>
+    <>
+      <NavbarContainer>
+        <Logo>
+          <LogoImage src="/logo.jpg" alt="Notezy Logo" />
+          <LogoText>Notezy</LogoText>
+        </Logo>
+        <MenuIcon onClick={toggleSidebar}>☰</MenuIcon>
+        <NavLinks isSidebarOpen={isSidebarOpen}>
+          <StyledNavLink to="/home">Home</StyledNavLink>
+          <StyledNavLink to="/notes">Notes</StyledNavLink>
+          <StyledNavLink to="/templates">Templates</StyledNavLink>
+        </NavLinks>
+      </NavbarContainer>
+    </>
   );
 };
 
@@ -37,6 +44,11 @@ const NavbarContainer = styled.nav`
   background: #FFFFFF;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.05);
   width: 100%;
+  position: relative;
+
+  @media (max-width: 800px) {
+    padding: 10px;
+  }
 `;
 
 const Logo = styled.div`
@@ -53,12 +65,21 @@ const Logo = styled.div`
   border-radius: 10px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   animation: ${fadeIn} 1s ease-in-out;
+
+  @media (max-width: 800px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const LogoImage = styled.img`
   width: 40px;
   height: 40px;
   border-radius: 50%;
+
+  @media (max-width: 800px) {
+    width: 20px;
+    height: 20px;
+  }
 `;
 
 const LogoText = styled.span`
@@ -68,6 +89,10 @@ const LogoText = styled.span`
   background: linear-gradient(90deg, #4AB7E0, #84AC64);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+
+  @media (max-width: 800px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const NavLinks = styled.div`
@@ -78,6 +103,20 @@ const NavLinks = styled.div`
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+
+  @media (max-width: 800px) {
+    position: fixed;
+    top: 60px;
+    right: ${({ isSidebarOpen }) => (isSidebarOpen ? '0' : '-100%')};
+    flex-direction: column;
+    background: #FFFFFF;
+    width: 250px;
+    height: 100vh;
+    box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+    transition: right 0.3s ease;
+    padding: 20px;
+    align-content: start;
+  }
 `;
 
 const StyledNavLink = styled(NavLink)`
@@ -99,6 +138,22 @@ const StyledNavLink = styled(NavLink)`
   &:hover {
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
     color: #0D173B;
+  }
+
+  @media (max-width: 800px) {
+    width: 90%;
+    text-align: left;
+  }
+`;
+
+const MenuIcon = styled.div`
+  display: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+
+  @media (max-width: 800px) {
+    display: block;
+    margin-right: 100px;
   }
 `;
 
