@@ -107,15 +107,15 @@ const NavLinks = styled.div`
   @media (max-width: 800px) {
     position: fixed;
     top: 60px;
-    right: ${({ isSidebarOpen }) => (isSidebarOpen ? '0' : '-100%')};
+    right: ${({ isSidebarOpen }) => (isSidebarOpen ? '0' : '-250px')};
     flex-direction: column;
     background: #FFFFFF;
     width: 250px;
-    height: 100vh;
     box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
     transition: right 0.3s ease;
     padding: 20px;
-    align-content: start;
+    align-items: flex-start;
+    z-index: 1000;
   }
 `;
 
@@ -153,7 +153,7 @@ const MenuIcon = styled.div`
 
   @media (max-width: 800px) {
     display: block;
-    margin-right: 100px;
+    margin-right: 120px;
   }
 `;
 

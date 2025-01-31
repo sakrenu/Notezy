@@ -52,7 +52,6 @@ const GlobalStyle = createGlobalStyle`
     margin: 0;
     padding: 0;
     height: 100%;
-    overflow: auto; /* Changed from hidden to auto for scrollability */
     background-color: #FFFFFF;
     color: #0D173B;
     font-family: 'Arial', sans-serif;
@@ -73,8 +72,8 @@ const Container = styled.div`
   flex-direction: column;
   margin: 0;
   padding: 0;
-  overflow: auto; /* Changed from hidden to auto for scrollability */
-  position: relative; /* Changed from fixed to relative */
+  overflow: auto;
+  position: relative; 
 `;
 
 const HeroSection = styled.div`
@@ -87,6 +86,7 @@ const HeroSection = styled.div`
 
   @media (max-width: 800px) {
     flex-direction: column;
+    height: 100vh;
     text-align: center;
     padding: 10px;
   }
@@ -164,7 +164,7 @@ const HeroImage = styled.img`
 
   @media (max-width: 800px) {
     max-width: 90%;
-     order: -1;
+    order: -1;
     border-radius: 20px;
     height: auto;
     margin-bottom: 20px;
