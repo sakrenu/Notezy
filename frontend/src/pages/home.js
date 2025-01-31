@@ -14,11 +14,9 @@ const fadeIn = keyframes`
 
 const HeroSectionContent = () => {
   const navigate = useNavigate();
-
   const handleGetStarted = () => {
     navigate('/notes');
   };
-
   return (
     <HeroSection>
       <HeroText>
@@ -51,14 +49,13 @@ const GlobalStyle = createGlobalStyle`
   html, body {
     margin: 0;
     padding: 0;
-    height: 100%;
+    height: 100vh;
     background-color: #FFFFFF;
     color: #0D173B;
     font-family: 'Arial', sans-serif;
   }
-
   #root {
-    height: 100%;
+    height: 100vh;
     overflow: auto; /* Changed from hidden to auto for scrollability */
   }
 `;
@@ -80,10 +77,11 @@ const HeroSection = styled.div`
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 100vh;
+  width: 100vw;
   padding: 20px;
   background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);
   flex: 0.9;
-
   @media (max-width: 800px) {
     flex-direction: column;
     height: 100vh;
@@ -98,7 +96,6 @@ const HeroText = styled.div`
   flex-direction: column;
   justify-content: center;
   gap: 10px;
-
   @media (max-width: 800px) {
     flex: 1;
     align-items: center;
@@ -110,7 +107,6 @@ const Title = styled.h1`
   font-weight: bold;
   color: #0D173B;
   animation: ${fadeIn} 1.5s ease-in-out;
-
   @media (max-width: 800px) {
     font-size: 2rem;
   }
@@ -120,7 +116,6 @@ const Subtitle = styled.p`
   font-size: 1.2rem;
   color: #5569af;
   animation: ${fadeIn} 2s ease-in-out;
-
   @media (max-width: 800px) {
     font-size: 1rem;
   }
@@ -129,7 +124,6 @@ const Subtitle = styled.p`
 const Actions = styled.div`
   display: flex;
   gap: 10px;
-
   @media (max-width: 800px) {
     justify-content: center;
   }
@@ -144,11 +138,9 @@ const ActionButton = styled.button`
   border: none;
   cursor: pointer;
   transition: background 0.3s ease;
-
   &:hover {
     background: linear-gradient(90deg, #84AC64, #4AB7E0);
   }
-
   &:first-child {
     margin-right: 10px;
   }
@@ -158,10 +150,10 @@ const HeroImage = styled.img`
   flex: 1;
   max-width: 50%;
   border-radius: 0;
-  height: 100%;
+  height: 100vh;
+  width: 100vw;
   object-fit: cover;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-
   @media (max-width: 800px) {
     max-width: 90%;
     order: -1;
