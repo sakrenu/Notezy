@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import styled, { createGlobalStyle, keyframes } from 'styled-components';
 import Navbar from '../components/Navbar';
 import TemplateCategory from '../components/TemplateCategory';
 import AddTemplateModal from '../components/AddTemplateModal';
@@ -11,6 +10,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrash, faDownload } from '@fortawesome/free-solid-svg-icons';
 import { getAuth } from "firebase/auth";
 import { useNavigate } from 'react-router-dom';
+import './templates.css';
 
 const TemplatesPage = () => {
   const [templates, setTemplates] = useState({ default: [], public: [], private: [] });
@@ -183,11 +183,10 @@ const TemplatesPage = () => {
 
   return (
     <>
-      <GlobalStyle />
-      <Container>
+      <div className="container">
         <Navbar />
-        <MainContent>
-          <Title>Templates</Title>
+        <div className="main-content">
+          <h1 className="title">Templates</h1>
           <TemplateCategory title="Default Templates" templates={templates.default} onTemplateClick={handleTemplateClick} />
           <TemplateCategory
             title="Public Templates"
@@ -204,35 +203,43 @@ const TemplatesPage = () => {
             showAddButton={true}
           />
           {successMessage && (
-            <SuccessMessage>{successMessage}</SuccessMessage>
+            <div className="success-message">{successMessage}</div>
           )}
-        </MainContent>
+        </div>
         {selectedTemplate && (
-          <ModalOverlay>
-            <ModalContent>
-              <CloseButtonContainer>
-                <CloseButton onClick={handleCloseModal}>×</CloseButton>
-              </CloseButtonContainer>
-              <TemplateImageContainer>
-                <DownloadButton onClick={() => handleDownloadTemplate(selectedTemplate.imageUrl)}>
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <div className="close-button-container">
+                <button className="close-button" onClick={handleCloseModal}>×</button>
+              </div>
+              <div className="template-image-container">
+                <button className="download-button" onClick={() => handleDownloadTemplate(selectedTemplate.imageUrl)}>
                   <FontAwesomeIcon icon={faDownload} />
-                </DownloadButton>
-                <TemplateImage src={selectedTemplate.imageUrl} alt={selectedTemplate.name} />
+                </button>
+                <img className="template-image" src={selectedTemplate.imageUrl} alt={selectedTemplate.name} />
                 {(selectedTemplate.isPublic || selectedTemplate.userId === user.uid) && (
-                  <DeleteButton
+                  <button
+                    className="delete-button"
                     onClick={() => handleDeleteTemplate(selectedTemplate.id, selectedTemplate.imageUrl.split('/').pop().split('.')[0])}
                   >
                     <FontAwesomeIcon icon={faTrash} />
-                  </DeleteButton>
+                  </button>
                 )}
-              </TemplateImageContainer>
-              <TemplateName>{selectedTemplate.name}</TemplateName>
-              <TemplateDescription>{selectedTemplate.description}</TemplateDescription>
-              <UseTemplateButton onClick={() => handleUseTemplate(selectedTemplate)}>Use Template</UseTemplateButton>
-            </ModalContent>
-          </ModalOverlay>
+              </div>
+              <h3 className="template-name">{selectedTemplate.name}</h3>
+              <p className="template-description">{selectedTemplate.description}</p>
+              <button className="use-template-button" onClick={() => handleUseTemplate(selectedTemplate)}>
+                Use Template
+              </button>
+            </div>
+          </div>
         )}
-        <AddTemplateModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onTemplateAdded={handleTemplateAdded} category={categoryToAdd} />
+        <AddTemplateModal 
+          isOpen={isModalOpen} 
+          onClose={() => setIsModalOpen(false)} 
+          onTemplateAdded={handleTemplateAdded} 
+          category={categoryToAdd} 
+        />
         <ConfirmationModal
           isOpen={isConfirmationOpen}
           onClose={() => setIsConfirmationOpen(false)}
@@ -240,230 +247,15 @@ const TemplatesPage = () => {
           message={`Are you sure you want to delete ${selectedTemplate ? selectedTemplate.name : ''}?`}
         />
         {isDeleting && (
-          <DeletingOverlay>
-            <DeletingMessage>Deleting<AnimatedDots></AnimatedDots></DeletingMessage>
-          </DeletingOverlay>
+          <div className="deleting-overlay">
+            <div className="deleting-message">
+              Deleting<span className="animated-dots"></span>
+            </div>
+          </div>
         )}
-      </Container>
+      </div>
     </>
   );
 };
-
-const fadeOut = keyframes`
-  0% { opacity: 1; }
-  100% { opacity: 0; }
-`;
-
-const GlobalStyle = createGlobalStyle`
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-    overflow: hidden;
-    background-color: #FFFFFF;
-    color: #0D173B;
-    font-family: 'Arial', sans-serif;
-  }
-
-  #root {
-    height: 100%;
-    overflow: hidden;
-  }
-`;
-
-const Container = styled.div`
-  background: linear-gradient(90deg, #F0F8FF 0%, #ffeef8 100%);
-  height: 100vh;
-  width: 100vw;
-  display: flex;
-  flex-direction: column;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-`;
-
-const MainContent = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start; /* Align content to the left */
-  flex-grow: 1;
-  padding: 20px;
-  overflow-y: auto;
-  box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1); /* Optional: Add box-shadow for better visual separation */
-  width: 100%; /* Ensure the content takes the full width */
-`;
-
-const Title = styled.h1`
-  font-size: 2.5rem;
-  font-weight: bold;
-  color: #0D173B;
-  margin-bottom: 2rem;
-  text-align: center;
-  width: 100%; /* Ensure the title takes the full width */
-`;
-
-const ModalOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const ModalContent = styled.div`
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  max-width: 80%;
-  max-height: 80%;
-  overflow-y: auto;
-  position: relative;
-`;
-
-const CloseButtonContainer = styled.div`
-  position: absolute;
-  top: -1px; /* Move the close button outside the modal content */
-  right: 1px;
-  background: #fff;
-  border-radius: 50%;
-  padding: 5px;
-  box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-`;
-
-const CloseButton = styled.button`
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-`;
-
-const TemplateImageContainer = styled.div`
-  position: relative;
-  margin-top: 20px; /* Add margin to separate the image from the close button */
-`;
-
-const TemplateImage = styled.img`
-  width: 100%;
-  height: auto;
-  border-radius: 5px;
-  margin-bottom: 10px;
-`;
-
-const DownloadButton = styled.button`
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  color: #0D173B;
-
-  &:hover {
-    color: #4AB7E0;
-  }
-`;
-
-const DeleteButton = styled.button`
-  position: absolute;
-  bottom: 10px;
-  right: 10px;
-  background: white;
-  border: none;
-  font-size: 1.5rem;
-  cursor: pointer;
-  padding: 5px;
-  border-radius: 5px;
-  transition: background 0.3s ease;
-
-  &:hover {
-    background: red;
-    color: white;
-  }
-`;
-
-const TemplateName = styled.h3`
-  font-size: 1.5rem;
-  color: #0D173B;
-  margin-bottom: 0.5rem;
-`;
-
-const TemplateDescription = styled.p`
-  font-size: 1rem;
-  color: #5569af;
-`;
-
-const UseTemplateButton = styled.button`
-  padding: 10px 20px;
-  font-size: 1rem;
-  border-radius: 15px;
-  background: linear-gradient(90deg, #4AB7E0, #84AC64);
-  color: white;
-  border: none;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  margin-top: 20px;
-
-  &:hover {
-    background: linear-gradient(90deg, #84AC64, #4AB7E0);
-  }
-`;
-
-const SuccessMessage = styled.div`
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  background: #d4edda;
-  border: 1px solid #c3e6cb;
-  color: #155724;
-  padding: 15px;
-  border-radius: 5px;
-  z-index: 1001;
-  animation: ${fadeOut} 3s forwards;
-`;
-
-const DeletingOverlay = styled.div`
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-`;
-
-const DeletingMessage = styled.div`
-  background: #fff;
-  border-radius: 10px;
-  padding: 20px;
-  text-align: center;
-`;
-
-const AnimatedDots = styled.span`
-  &::after {
-    display: inline-block;
-    animation: dotAnimation 1s steps(5, end) infinite;
-    content: '.....';
-    font-size: 2rem;
-  }
-
-  @keyframes dotAnimation {
-    0% { content: '.....'; }
-    20% { content: '.'; }
-    40% { content: '..'; }
-    60% { content: '...'; }
-    80% { content: '....'; }
-    100% { content: '.....'; }
-  }
-`;
 
 export default TemplatesPage;
