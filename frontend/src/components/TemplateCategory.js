@@ -88,6 +88,7 @@ const AddTemplateButton = styled.button`
     justify-content: center;
     align-items: center;
     margin-left: 5px;
+    margin-right: 10px;
   }
 `;
 
