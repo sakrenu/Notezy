@@ -109,6 +109,7 @@ const Title = styled.h1`
   animation: ${fadeIn} 1.5s ease-in-out;
   @media (max-width: 800px) {
     font-size: 2rem;
+    margin-right: 15px;
   }
 `;
 
@@ -118,6 +119,7 @@ const Subtitle = styled.p`
   animation: ${fadeIn} 2s ease-in-out;
   @media (max-width: 800px) {
     font-size: 1rem;
+    margin-right: 15px;
   }
 `;
 
