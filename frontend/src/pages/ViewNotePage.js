@@ -249,7 +249,7 @@ const ImageSection = styled.div`
   justify-content: center;
   align-items: flex-start;
   background-color: white;
-  position: fixed;
+  position: sticky;
   top: 0;
 
   @media (max-width: 480px) {
