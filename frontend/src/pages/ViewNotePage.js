@@ -44,10 +44,8 @@ const ViewNotePage = () => {
         </body>
       </html>
     `;
-
     const element = document.createElement('div');
     element.innerHTML = htmlContent;
-
     const opt = {
       margin: 1,
       filename: `${note.title}.pdf`,
@@ -55,7 +53,6 @@ const ViewNotePage = () => {
       html2canvas: { scale: 2 },
       jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
     };
-
     html2pdf().from(element).set(opt).save();
   };
 
@@ -73,7 +70,6 @@ const ViewNotePage = () => {
   const handleDeleteNote = async (date, noteIndex) => {
     const userId = user.uid; // Get the user ID from the authenticated user
     const notesRef = doc(collection(db, 'notes_store', userId, 'notes'), date);
-
     try {
       const notesDoc = await getDoc(notesRef);
       if (notesDoc.exists()) {
@@ -129,24 +125,26 @@ const ViewNotePage = () => {
         <Container>
           <Header>
             <CloseButton onClick={handleClose}>
-              <X size={24} />
+              <X size={20} />
             </CloseButton>
             <ActionButtons>
               <ActionButton onClick={handleDownload} title="Download">
                 <Download size={20} />
-                Download
               </ActionButton>
               <ActionButton onClick={handleShare} title="Share">
                 <Share2 size={20} />
-                Share
               </ActionButton>
               <DeleteButton onClick={handleDelete} title="Delete">
                 <Trash2 size={20} />
-                Delete
               </DeleteButton>
             </ActionButtons>
           </Header>
           <MainContent>
+            <ImageSection>
+              {note.imageUrl && (
+                <ImagePreview src={note.imageUrl} alt="Uploaded Image" />
+              )}
+            </ImageSection>
             <NotesSection>
               <TitleSection>
                 <Title>{note.title}</Title>
@@ -156,11 +154,6 @@ const ViewNotePage = () => {
                 <ReactMarkdown>{note.content}</ReactMarkdown>
               </NotesContent>
             </NotesSection>
-            <ImageSection>
-              {note.imageUrl && (
-                <ImagePreview src={note.imageUrl} alt="Uploaded Image" />
-              )}
-            </ImageSection>
           </MainContent>
         </Container>
       </PageContainer>
@@ -177,6 +170,12 @@ const GlobalStyle = createGlobalStyle`
     color: #1a1a1a;
     overflow: hidden;
   }
+
+  @media (max-width: 480px) {
+    body {
+      font-size: 14px;
+    }
+  }
 `;
 
 const PageContainer = styled.div`
@@ -190,6 +189,10 @@ const Container = styled.div`
   display: flex;
   flex-direction: column;
   background: linear-gradient(135deg, #f5f7fb 0%, #eef1f5 100%);
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+  }
 `;
 
 const Header = styled.div`
@@ -199,12 +202,22 @@ const Header = styled.div`
   padding: 1rem 2rem;
   background-color: white;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+
+  @media (max-width: 480px) {
+    padding: 0.5rem 1rem;
+  }
 `;
 
 const MainContent = styled.div`
   display: flex;
   height: calc(100vh - 140px); // Adjusted to account for navbar
   overflow: hidden;
+
+  @media (max-width: 480px) {
+    flex-direction: column;
+    height: calc(100vh - 100px); // Adjusted for mobile
+    overflow: hidden;
+  }
 `;
 
 const NotesSection = styled.div`
@@ -213,10 +226,20 @@ const NotesSection = styled.div`
   display: flex;
   flex-direction: column;
   max-width: 60%;
+
+  @media (max-width: 480px) {
+    max-width: 100%;
+    padding: 1rem;
+    height: 100%;
+  }
 `;
 
 const TitleSection = styled.div`
   margin-bottom: 2rem;
+
+  @media (max-width: 480px) {
+    margin-bottom: 1rem;
+  }
 `;
 
 const ImageSection = styled.div`
@@ -228,6 +251,15 @@ const ImageSection = styled.div`
   background-color: white;
   position: sticky;
   top: 0;
+
+  @media (max-width: 480px) {
+    order: -1;
+    padding: 1rem;
+    position: relative;
+    min-height: 200px;  
+    max-height: 200px; 
+    overflow: hidden;
+  }
 `;
 
 const NotesContent = styled.div`
@@ -277,11 +309,22 @@ const NotesContent = styled.div`
     margin: 1em 0;
     color: #4a5568;
   }
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+    padding-right: 0;
+    height: calc(100vh - 300px); // Fixed height for mobile scrolling
+    overflow-y: auto;
+  }
 `;
 
 const ActionButtons = styled.div`
   display: flex;
   gap: 1rem;
+
+  @media (max-width: 480px) {
+    gap: 0.5rem;
+  }
 `;
 
 const ActionButton = styled.button`
@@ -298,6 +341,13 @@ const ActionButton = styled.button`
 
   &:hover {
     background-color: #e2e8f0;
+  }
+
+  @media (max-width: 480px) {
+    padding: 0.5rem;
+    span {
+      display: none;
+    }
   }
 `;
 
@@ -324,6 +374,10 @@ const CloseButton = styled.button`
   &:hover {
     background-color: #f0f2f5;
   }
+
+  @media (max-width: 480px) {
+    padding: 0.25rem;
+  }
 `;
 
 const Title = styled.h1`
@@ -331,21 +385,36 @@ const Title = styled.h1`
   font-weight: 700;
   color: #1a1a1a;
   margin: 0 0 0.5rem 0;
+
+  @media (max-width: 480px) {
+    font-size: 1.5rem;
+  }
 `;
 
 const Date = styled.p`
   font-size: 1rem;
   color: #666;
   margin: 0;
+
+  @media (max-width: 480px) {
+    font-size: 0.875rem;
+  }
 `;
 
 const ImagePreview = styled.img`
   max-width: 100%;
   height: auto;
+  min-width: 350px;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   position: sticky;
   top: 2rem;
+
+  @media (max-width: 480px) {
+    position: static;
+    max-height: 200px; 
+    width: auto;
+  }
 `;
 
 const LoadingContainer = styled.div`

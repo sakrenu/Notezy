@@ -119,6 +119,10 @@ const ModalContent = styled.div`
   max-width: 500px;
   width: 100%;
   position: relative;
+
+  @media (max-width: 480px) {
+    width: 80%;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -157,7 +161,7 @@ const ImagePreview = styled.img`
 `;
 
 const InputName = styled.input`
-  width: 100%;
+  width: 95%;
   padding: 10px;
   margin-bottom: 1rem;
   border: 1px solid #ccc;

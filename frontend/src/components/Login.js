@@ -22,40 +22,33 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
     if (isSignUp) {
       if (password !== confirmPassword) {
         setError('Passwords do not match.');
         return;
       }
     }
-
     try {
       let userCredential;
       if (isSignUp) {
         // Handle Sign Up
         userCredential = await createUserWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-
         // Save basic user data to Firestore
         await setDoc(doc(db, 'users', user.uid), {
           email: user.email,
           isProfileComplete: false // Add this flag
         });
-
         console.log('User signed up:', user);
         setCurrentUser(user);
         setShowForm(true);
-
       } else {
         // Handle Sign In
         userCredential = await signInWithEmailAndPassword(auth, email, password);
         const user = userCredential.user;
-
         // Check if profile is complete
         const userDoc = await getDoc(doc(db, 'users', user.uid));
         const userData = userDoc.data();
-
         if (userData && !userData.isProfileComplete) {
           console.log('User signed in and profile incomplete:', user);
           setCurrentUser(user);
@@ -75,10 +68,8 @@ const Login = () => {
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
-
       // Check if user exists in Firestore
       const userDoc = await getDoc(doc(db, 'users', user.uid));
-
       if (!userDoc.exists()) {
         // New Google user - create profile
         await setDoc(doc(db, 'users', user.uid), {
@@ -119,9 +110,7 @@ const Login = () => {
             : 'Login to continue generating notes!'
           }
         </Subtitle>
-
         {error && <ErrorMessage>{error}</ErrorMessage>}
-
         <Form onSubmit={handleSubmit}>
           <InputGroup>
             <Label>Email</Label>
@@ -133,7 +122,6 @@ const Login = () => {
               required
             />
           </InputGroup>
-
           <InputGroup>
             <Label>Password</Label>
             <Input
@@ -144,7 +132,6 @@ const Login = () => {
               required
             />
           </InputGroup>
-
           {isSignUp && (
             <InputGroup>
               <Label>Confirm Password</Label>
@@ -157,18 +144,14 @@ const Login = () => {
               />
             </InputGroup>
           )}
-
           <Button type="submit">
             {isSignUp ? 'Sign Up' : 'Sign In'}
           </Button>
-
           <Divider>or</Divider>
-
           <GoogleButton type="button" onClick={handleGoogleSignIn}>
             <GoogleIcon src="/google_icon.jpg" alt="Google" />
             Continue with Google
           </GoogleButton>
-
           <ToggleText>
             {isSignUp
               ? 'Already have an account? '
@@ -220,8 +203,9 @@ const FormCard = styled.div`
   width: 100%;
   max-width: 400px;
   animation: ${fadeIn} 1s ease-in-out;
-
+  
   @media (max-width: 480px) {
+    max-width: 80%; 
     padding: 20px;
     border-radius: 10px;
   }
@@ -234,9 +218,9 @@ const Title = styled.h1`
   margin-bottom: 12px;
   text-align: center;
   animation: ${fadeIn} 1.5s ease-in-out;
-
+  
   @media (max-width: 480px) {
-    font-size: 24px;
+    font-size: 18px;
   }
 `;
 
@@ -246,9 +230,9 @@ const Subtitle = styled.p`
   margin-bottom: 24px;
   text-align: center;
   animation: ${fadeIn} 2s ease-in-out;
-
+  
   @media (max-width: 480px) {
-    font-size: 14px;
+    font-size: 12px;
   }
 `;
 
@@ -276,12 +260,11 @@ const Input = styled.input`
   border-radius: 8px;
   font-size: 14px;
   transition: border-color 0.2s;
-
   &:focus {
     border-color: #4a90e2;
     outline: none;
   }
-
+  
   @media (max-width: 480px) {
     padding: 10px;
     font-size: 12px;
@@ -300,11 +283,10 @@ const Button = styled.button`
   transition: background 0.2s;
   width: 100%;
   text-align: center;
-
   &:hover {
     background: linear-gradient(90deg, #7cb3f4, #4a90e2);
   }
-
+  
   @media (max-width: 480px) {
     padding: 10px;
     font-size: 12px;
@@ -319,7 +301,6 @@ const GoogleButton = styled(Button)`
   align-items: center;
   justify-content: center;
   gap: 8px;
-
   &:hover {
     background-color: #f5f5f5;
   }
@@ -335,7 +316,6 @@ const Divider = styled.div`
   position: relative;
   color: #666;
   font-size: 14px;
-
   &::before,
   &::after {
     content: '';
@@ -345,11 +325,9 @@ const Divider = styled.div`
     height: 1px;
     background-color: #ddd;
   }
-
   &::before {
     left: 0;
   }
-
   &::after {
     right: 0;
   }
@@ -367,6 +345,10 @@ const ErrorMessage = styled.div`
 const ToggleText = styled.p`
   font-size: 14px;
   text-align: center;
+
+  @media(max-width: 480px) {
+    font-size: 12px;
+  }
 `;
 
 const ToggleLink = styled.span`

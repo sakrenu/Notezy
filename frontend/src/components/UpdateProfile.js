@@ -247,12 +247,12 @@ const ButtonWrapper = styled.div`
 
 const Container = styled.div`
   display: flex;
+  width: 100%;
   justify-content: center;
   align-items: center;
-  padding: 2rem;
+  padding: 1rem;
   background: linear-gradient(180deg, #f1f5ff 0%, #ffeef8 100%);
   min-height: 100vh;
-  width: 100%;
   position: fixed;
   top: 0;
   left: 0;
@@ -268,7 +268,11 @@ const ProfileCard = styled.div`
   max-width: 500px;
   max-height: 90vh;
   overflow-y: auto;
-  margin: auto;
+  margin-right: 30px;
+
+  @media (max-width: 750px) {
+    max-width: 60%;
+  }
 `;
 
 const SuccessMessage = styled.div`
@@ -280,6 +284,10 @@ const SuccessMessage = styled.div`
   margin-top: 1rem;
   text-align: center;
   font-weight: 500;
+
+  @media (max-width: 480px) {
+    margin-top: 0.2rem;
+  }
 `;
 
 const ErrorMessage = styled.div`
@@ -299,6 +307,10 @@ const Form = styled.form`
   gap: 1rem;
   max-height: 70vh;
   overflow-y: auto;
+
+  @media (max-width: 480px) {
+    gap: 0.7rem;
+  }
 `;
 
 const Title = styled.h2`
@@ -307,18 +319,31 @@ const Title = styled.h2`
   text-align: center;
   font-size: 1.5rem;
   font-weight: bold;
+
+  @media (max-width: 480px) {
+    padding-top: 0;
+    font-size: 1.25rem;
+  }
 `;
 
 const FormGroup = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+
+  @media (max-width: 480px) {
+    gap: 0.25rem;
+  }
 `;
 
 const Label = styled.label`
   color: #5569af;
   font-weight: 500;
   font-size: 0.9rem;
+
+  @media (max-width: 480px) {
+    font-size: 0.8rem;
+  }
 `;
 
 const Input = styled.input`
@@ -336,6 +361,10 @@ const Input = styled.input`
   &:disabled {
     background-color: #f0f0f0;
     cursor: not-allowed;
+  }
+
+  @media (max-width: 480px) {
+    font-size: 0.9rem;
   }
 `;
 
@@ -358,6 +387,13 @@ const SubmitButton = styled.button`
     opacity: 0.7;
     cursor: not-allowed;
   }
-`;
+
+  @media (max-width: 480px) {
+    font-size: 1rem;
+    margin-top: 0;
+    margin-bottom: 0.2rem;
+  }
+`
+;
 
 export default UpdateProfile;
